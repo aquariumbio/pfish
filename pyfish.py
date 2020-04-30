@@ -5,12 +5,11 @@ import os
 import argparse
 import re
 import json
+from resources import resources
 
-# Get pydent (which is just a name for Trident)
 from pydent import AqSession 
 # appends ./pydent to list of directories to be searched 
 sys.path.append('./pydent')
-# import aq
 
 def makedirectory(directory_name):
     """
@@ -130,8 +129,19 @@ def pull(directory, category, op_type_or_library):
     Arguments:
       directory (string): the path for the directory where files should be written
     """
-    name, password, url = <name, password, url>
-    aq = AqSession(name, password, url) 
+    session = AqSession(
+        resources['aquarium']['login'],
+        resources['aquarium']['password'],
+        resources['aquarium']['aquarium_url']
+
+
+   # name, password, url = aquarium[login], aquarium[password], aquarium[url]
+    aq = AqSession(
+        resources['aquarium']['login'],
+        resources['aquarium']['password'],
+        resources['aquarium']['url']
+        ) 
+
     path = os.path.normpath(directory)
     makedirectory(path)
 
