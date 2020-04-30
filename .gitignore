@@ -1,6 +1,9 @@
 # resources file
 resources.py 
 
+# test directories and files 
+Test*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
