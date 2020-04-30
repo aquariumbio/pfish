@@ -79,11 +79,13 @@ def write_definition_json(file_path, operation_type):
       operation_type (OperationType): the operation type for which the definition should be written
     """
     ot_ser = {}
+    ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
     ot_ser["category"] = operation_type.category
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
+    ot_ser["user_id"] = operation_type.user_id
 #    ot_ser["timing"] = operation_type.timing
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
@@ -151,6 +153,18 @@ def pull(directory, category, op_type_or_library):
     
     #for library in aq.Library.all():
     #    write_library(path, library)
+def push():
+    # make a code object - pull data from json file with aq.Code.new -- and with code data
+    new_code = aq.Code.new(
+            name='protocol',
+            parent_id=740,
+            parent_class='OperationType',
+            user_id=310,
+            content="Contents!"
+            )
+    aq.utils.update_code(new_code)
+    # need metadata for protocol so you can update it
+    # this can all come from the Op Type data in definition.json, except for the updated content
 
 def main():
     parser = argparse.ArgumentParser()
@@ -163,6 +177,7 @@ def main():
     # if you enter a category, pull everything in that category 
     # if you enter a category and a name, just pull that one library or operation type
     # default is to pull everything 
+    # need choice between pull/push as first cla 
     args = parser.parse_args()
     pull(args.directory, args.folder, args.operation_type)
 
