@@ -131,7 +131,6 @@ def pull(directory, category, op_type_or_library):
     Arguments:
       directory (string): the path for the directory where files should be written
     """
-#    name, password, url = "amycash", "ga@tsB1920Rb", "http://localhost:3000"
 #    aq = AqSession(name, password, url)
     aq = AqSession(
         resources['aquarium']['login'],
