@@ -84,7 +84,7 @@ def write_definition_json(file_path, operation_type):
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
-    ot_ser["user_id"] = operation_type.user_id
+    ot_ser["user_id"] = operation_type.protocol.user_id
     
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
@@ -155,8 +155,8 @@ def pull(directory, category, op_type_or_library):
     for operation_type in operation_types: 
       write_operation_type(path, operation_type)
     
-    #for library in aq.Library.all():
-    #    write_library(path, library)
+# for library in aq.Library.all():
+# write_library(path, library)
 
 def push():
     # make a code object - pull data from json file with aq.Code.new -- and with code data
@@ -166,11 +166,11 @@ def push():
     definitions = os.cwd() + '/definition.json'
     # then read in this file to get the data
     new_code = aq.Code.new(
-            name='protocol, library, etc.', # definitions['name']
-            parent_id=740, # from definition.json in same file
-            parent_class='OperationType',
-            user_id=310,
-            content="Contents!" # this is the file you're pushing
+            name=definitions['name'], #'protocol, library, etc.', # definitions['name']
+            parent_id=definitions['parent_id'], #740, # from definition.json in same file
+            parent_class=definitions['parent_class'], # 'OperationType',
+            user_id=definitions['user_id'], #310
+            content="Test Contents!" # this is the file you're pushing
             )
     aq.utils.update_code(new_code)
 
