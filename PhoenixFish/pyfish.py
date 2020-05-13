@@ -85,7 +85,7 @@ def write_definition_json(file_path, operation_type):
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
     ot_ser["user_id"] = operation_type.user_id
-#    ot_ser["timing"] = operation_type.timing
+    
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
 
@@ -141,11 +141,6 @@ def pull(directory, category, op_type_or_library):
     Arguments:
       directory (string): the path for the directory where files should be written
     """
-    # aq = AqSession(
-     #   resources['aquarium']['login'],
-     #   resources['aquarium']['password'],
-     #   resources['aquarium']['url']
-     #   ) 
     aq = open_aquarium_session()
 
     path = os.path.normpath(directory)
@@ -156,16 +151,16 @@ def pull(directory, category, op_type_or_library):
     else:
       operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library })
     
-        # get op types where category == category 
+    # get op types where category == category 
     for operation_type in operation_types: 
       write_operation_type(path, operation_type)
     
     #for library in aq.Library.all():
     #    write_library(path, library)
+
 def push():
     # make a code object - pull data from json file with aq.Code.new -- and with code data
     # but contents need to get added in from wherever you saved it
-   # definitions = get os.cwd() + definition.json 
     aq = open_aquarium_session()
 
     definitions = os.cwd() + '/definition.json'
