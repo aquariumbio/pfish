@@ -158,25 +158,32 @@ def pull(directory, category, op_type_or_library):
 # for library in aq.Library.all():
 # write_library(path, library)
 
-def push():
+def push(directory, category, op_type_or_library):
     # make a code object - pull data from json file with aq.Code.new -- and with code data
     # but contents need to get added in from wherever you saved it
     aq = open_aquarium_session()
+    content_file = 'TestingDir2/test/protocol/test_test_test/protocol.rb'
+    definitions =  'TestingDir2/test/protocol/test_test_test/definition.json'
+#    definitions = os.cwd() + '/definition.json'
+#    content = os.cwd() + '/protocol.rb' 
+    with open(content_file) as f:
+        read_file = f.read()
 
-    definitions = os.cwd() + '/definition.json'
+    with open(definitions) as f:
+        definitions = json.load(f)
     # then read in this file to get the data
     new_code = aq.Code.new(
             name=definitions['name'], #'protocol, library, etc.', # definitions['name']
-            parent_id=definitions['parent_id'], #740, # from definition.json in same file
-            parent_class=definitions['parent_class'], # 'OperationType',
+            parent_id=definitions['id'], #740, # from definition.json in same file
+            parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
             user_id=definitions['user_id'], #310
-            content="Test Contents!" # this is the file you're pushing
+            content=read_file # "Test Contents!" # this is the file you're pushing
             )
     aq.utils.update_code(new_code)
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("push or pull", help="indicate if you want to push files or pull them")  
+    parser.add_argument("action", help="indicate if you want to push files or pull them")  
     parser.add_argument("directory", help="the directory to which files should be written")
     parser.add_argument("folder", help="the folder on Aquarium where your operation_type/library is located default is to include all folders")
     parser.add_argument("operation_type", help="the operation_type or library you want to pull, default is to include all types/libraries in folder")
@@ -188,7 +195,10 @@ def main():
     # default is to pull everything 
     # need choice between pull/push as first cla 
     args = parser.parse_args()
-    pull(args.directory, args.folder, args.operation_type)
+    if args.action == 'push':
+        push(args.directory, args.folder, args.operation_type)
+    else:
+        pull(args.directory, args.folder, args.operation_type)
 
 if __name__ == "__main__":
     main()
