@@ -6,9 +6,8 @@ import argparse
 import re
 import json
 from resources import resources
-
 from pydent import AqSession 
-# appends ./pydent to list of directories to be searched 
+
 sys.path.append('./pydent')
 
 def makedirectory(directory_name):
@@ -81,12 +80,13 @@ def write_definition_json(file_path, operation_type):
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
+    ot_ser["code_name"] = operation_type.protocol.name
     ot_ser["category"] = operation_type.category
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
-    ot_ser["user_id"] = operation_type.user_id
-#    ot_ser["timing"] = operation_type.timing
+    ot_ser["user_id"] = operation_type.protocol.user_id
+    
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
 
@@ -124,6 +124,17 @@ def write_library(path, library):
     code_object = library.code("source")
     write_code(library_path, simplename(library.name) + '.rb', code_object)
 
+def open_aquarium_session():
+    """
+    Starts Aquarium Session
+    """
+    aq = AqSession(
+        resources['aquarium']['login'],
+        resources['aquarium']['password'],
+        resources['aquarium']['url']
+        ) 
+    return aq
+
 def pull(directory, category, op_type_or_library):
     """
     Retrieves the OperationType definitions from the Aquarium instance.
@@ -131,12 +142,7 @@ def pull(directory, category, op_type_or_library):
     Arguments:
       directory (string): the path for the directory where files should be written
     """
-#    aq = AqSession(name, password, url)
-    aq = AqSession(
-        resources['aquarium']['login'],
-        resources['aquarium']['password'],
-        resources['aquarium']['url']
-        ) 
+    aq = open_aquarium_session()
 
     path = os.path.normpath(directory)
     makedirectory(path)
@@ -146,39 +152,54 @@ def pull(directory, category, op_type_or_library):
     else:
       operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library })
     
-        # get op types where category == category 
+    # get op types where category == category 
     for operation_type in operation_types: 
       write_operation_type(path, operation_type)
     
-    #for library in aq.Library.all():
-    #    write_library(path, library)
-def push():
+# for library in aq.Library.all():
+# write_library(path, library)
+
+def push(directory, category, op_type_or_library):
     # make a code object - pull data from json file with aq.Code.new -- and with code data
+    # but contents need to get added in from wherever you saved it
+    aq = open_aquarium_session()
+    content_file = 'TestingDir2/test/protocol/test_test_test/protocol.rb'
+    definitions =  'TestingDir2/test/protocol/test_test_test/definition.json'
+#    definitions = os.cwd() + '/definition.json'
+#    content = os.cwd() + '/protocol.rb' 
+    with open(content_file) as f:
+        read_file = f.read()
+
+    with open(definitions) as f:
+        definitions = json.load(f)
+    
     new_code = aq.Code.new(
-            name='protocol',
-            parent_id=740,
-            parent_class='OperationType',
-            user_id=310,
-            content="Contents!"
+            name=definitions['code_name'], # Code Object Name 'protocol, library, etc.'
+            # TODO update name so it can choose things other than protocol
+            # TODO update parent_class so it can choose library or OT
+            parent_id=definitions['id'], # OperationType or Library id 
+            parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
+            user_id=definitions['user_id'], # user id from Code object 
+            content=read_file # Contents of file  
             )
     aq.utils.update_code(new_code)
-    # need metadata for protocol so you can update it
-    # this can all come from the Op Type data in definition.json, except for the updated content
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("action", help="indicate if you want to push files or pull them")  
     parser.add_argument("directory", help="the directory to which files should be written")
     parser.add_argument("folder", help="the folder on Aquarium where your operation_type/library is located default is to include all folders")
     parser.add_argument("operation_type", help="the operation_type or library you want to pull, default is to include all types/libraries in folder")
-    # you'll need to enter it in quotes if it's more than two words. 
     # ideally it can just pull the name from the repo you are in. 
     # if you enter nothing, pull all categories, ops, and libraries 
     # if you enter a category, pull everything in that category 
     # if you enter a category and a name, just pull that one library or operation type
     # default is to pull everything 
-    # need choice between pull/push as first cla 
     args = parser.parse_args()
-    pull(args.directory, args.folder, args.operation_type)
+    if args.action == 'push':
+        push(args.directory, args.folder, args.operation_type)
+    else:
+        pull(args.directory, args.folder, args.operation_type)
 
 if __name__ == "__main__":
     main()
