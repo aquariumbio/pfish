@@ -80,6 +80,7 @@ def write_definition_json(file_path, operation_type):
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
+    ot_ser["code_name"] = operation_type.protocol.name
     ot_ser["category"] = operation_type.category
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
@@ -173,11 +174,11 @@ def push(directory, category, op_type_or_library):
         definitions = json.load(f)
     # then read in this file to get the data
     new_code = aq.Code.new(
-            name=definitions['name'], #'protocol, library, etc.', # definitions['name']
-            parent_id=definitions['id'], #740, # from definition.json in same file
+            name=definitions['code_name'], # Code Object Name 'protocol, library, etc.'
+            parent_id=definitions['id'], # OperationType or Library id 
             parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
-            user_id=definitions['user_id'], #310
-            content=read_file # "Test Contents!" # this is the file you're pushing
+            user_id=definitions['user_id'], # user id from Code object 
+            content=read_file # Contents of file  
             )
     aq.utils.update_code(new_code)
 
