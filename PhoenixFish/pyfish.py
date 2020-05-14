@@ -172,9 +172,11 @@ def push(directory, category, op_type_or_library):
 
     with open(definitions) as f:
         definitions = json.load(f)
-    # then read in this file to get the data
+    
     new_code = aq.Code.new(
             name=definitions['code_name'], # Code Object Name 'protocol, library, etc.'
+            # TODO update name so it can choose things other than protocol
+            # TODO update parent_class so it can choose library or OT
             parent_id=definitions['id'], # OperationType or Library id 
             parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
             user_id=definitions['user_id'], # user id from Code object 
@@ -188,13 +190,11 @@ def main():
     parser.add_argument("directory", help="the directory to which files should be written")
     parser.add_argument("folder", help="the folder on Aquarium where your operation_type/library is located default is to include all folders")
     parser.add_argument("operation_type", help="the operation_type or library you want to pull, default is to include all types/libraries in folder")
-    # you'll need to enter it in quotes if it's more than two words. 
     # ideally it can just pull the name from the repo you are in. 
     # if you enter nothing, pull all categories, ops, and libraries 
     # if you enter a category, pull everything in that category 
     # if you enter a category and a name, just pull that one library or operation type
     # default is to pull everything 
-    # need choice between pull/push as first cla 
     args = parser.parse_args()
     if args.action == 'push':
         push(args.directory, args.folder, args.operation_type)
