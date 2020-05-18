@@ -147,17 +147,21 @@ def pull(directory, category, op_type_or_library):
     path = os.path.normpath(directory)
     makedirectory(path)
 
-    if not (category and op_type_or_library):
-      operation_types = aq.OperationType.all()
+    if category == 'all':
+        operation_types = aq.OperationType.all()
+        libraries = aq.Library.all()
+    elif category and !op_type_or_library:
+        operations_types = aq.OperationType.where( { "category": category }
+        libraries = aq.Library.where( { "category": category }
     else:
-      operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library })
+        operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library })
+        libraries = aq.Library.where( { "category": category, "name": op_type_or_library } } 
     
-    # get op types where category == category 
     for operation_type in operation_types: 
-      write_operation_type(path, operation_type)
-    
-# for library in aq.Library.all():
-# write_library(path, library)
+        write_operation_type(path, operation_type)
+
+    for library in libraries:
+        write_library(path, library)
 
 def push(directory, category, op_type_or_library):
     # make a code object - pull data from json file with aq.Code.new -- and with code data
