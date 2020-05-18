@@ -100,7 +100,7 @@ def write_operation_type(path, operation_type):
     """
     category_path = os.path.join(path, simplename(operation_type.category))
     makedirectory(category_path)
-    path = os.path.join(category_path, 'protocol', simplename(operation_type.name))
+    path = os.path.join(category_path, 'operation_typea', simplename(operation_type.name))
     makedirectory(path)
     write_code(path, 'protocol.rb', operation_type.code("protocol"))
     write_code(path, 'precondition.rb', operation_type.code("precondition"))
@@ -118,7 +118,7 @@ def write_library(path, library):
     """
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
-    library_path = os.path.join(category_path, 'library')
+    library_path = os.path.join(category_path, 'libraries')
     makedirectory(library_path)
 
     code_object = library.code("source")
@@ -163,26 +163,27 @@ def push(directory, category, op_type_or_library):
     # make a code object - pull data from json file with aq.Code.new -- and with code data
     # but contents need to get added in from wherever you saved it
     aq = open_aquarium_session()
-    content_file = 'TestingDir2/test/protocol/test_test_test/protocol.rb'
-    definitions =  'TestingDir2/test/protocol/test_test_test/definition.json'
-#    definitions = os.cwd() + '/definition.json'
-#    content = os.cwd() + '/protocol.rb' 
-    with open(content_file) as f:
-        read_file = f.read()
+    current_directory = os.path.abspath(os.getcwd())
 
-    with open(definitions) as f:
+    operation_type_files = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
+
+    with open(current_directory + '/definition.json') as f:
         definitions = json.load(f)
-    
-    new_code = aq.Code.new(
-            name=definitions['code_name'], # Code Object Name 'protocol, library, etc.'
-            # TODO update name so it can choose things other than protocol
-            # TODO update parent_class so it can choose library or OT
-            parent_id=definitions['id'], # OperationType or Library id 
-            parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
-            user_id=definitions['user_id'], # user id from Code object 
-            content=read_file # Contents of file  
-            )
-    aq.utils.update_code(new_code)
+
+    for operation_type_file in operation_type_files:
+        
+        with open(current_directory + '/' + operation_type_file) as f:
+            read_file = f.read()
+
+        new_code = aq.Code.new(
+                name=operation_type_file[:-3], # Code Object Name 'protocol, library, etc.'
+                # TODO update parent_class so it can choose library or OT
+                parent_id=definitions['id'], # OperationType or Library id 
+                parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
+                user_id=definitions['user_id'], # user id from Code object 
+                content=read_file # Contents of file  
+                )
+        aq.utils.update_code(new_code)
 
 def main():
     parser = argparse.ArgumentParser()
