@@ -109,7 +109,6 @@ def write_library_definition_json(file_path, library):
     ot_ser["id"] = library.id
     ot_ser["name"] = library.name
     ot_ser["parent_class"] = "Library"
-    #ot_ser["code_name"] = library.source.name
     ot_ser["category"] = library.category
     ot_ser["user_id"] = library.source.user_id
     
@@ -168,13 +167,12 @@ def pull_category(directory, category):
     libraries = aq.Library.where( { "category": category } )
 
 def pull_library(aq, path, category, library):
-    library = aq.Library.where( { "category": category, "library": library } )
-    print(library)
-    write_library(path, library)
+    library = aq.Library.where( { "category": category, "name": library } )
+    write_library(path, library[0])
 
-def pull_operation_type(directory, category, operation_type):
-    operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library } )
-    libraries = aq.Library.where( { "category": category, "name": op_type_or_library } ) 
+def pull_operation_type(aq, path, category, operation_type):
+    operation_type = aq.OperationType.where({ "category": category, "name": operation_type } )
+    write_operation_type(path, operation_type[0])
 
 def pull_all(directory):
     operation_types = aq.OperationType.all()
@@ -248,17 +246,17 @@ def main():
     if args.library: 
         pull_library(aq, path, args.category, args.library) 
     elif args.operation_type:
-        pull_operation_type(path, directory, category, operation_type)
+        pull_operation_type(aq, path, args.category, args.operation_type)
     elif args.category: 
-        pull_category(directory, category)
+        pull_category(directory, args.category)
     else:
-        pull_all(directory, category)
+        pull_all(directory, args.category)
 
 
     if args.action == 'push':
-        push(args.directory, args.folder, code_type, library_or_optype)
-    else:
-        pull(args.directory, args.folder, args.operation_type)
+        push(args.directory, args.category, code_type, library_or_optype)
+#    else:
+        #pull(args.directory, args.category, args.operation_type)
 
 if __name__ == "__main__":
     main()
