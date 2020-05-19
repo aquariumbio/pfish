@@ -80,7 +80,8 @@ def write_definition_json(file_path, operation_type):
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
-    ot_ser["code_name"] = operation_type.protocol.name
+    #ot_ser["code_name"] = operation_type.protocol.name
+    ot_ser["parent_class"] = "OperationType"
     ot_ser["category"] = operation_type.category
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
@@ -92,21 +93,24 @@ def write_definition_json(file_path, operation_type):
 
 def write_library_definition_json(file_path, library):
     """
-    Writes teh definition of library as JSON to the given file path.
+    Writes the definition of library as JSON to the given file path.
 
     Arguments:
         file_path (string): the path of the file to write
         library (Library): the library for which the definition should be written
     """
     ot_ser = {}
-    ot_ser["id"] = operation_type.id
-    ot_ser["name"] = operation_type.name
-    ot_ser["code_name"] = operation_type.protocol.name
-    ot_ser["category"] = operation_type.category
-    ot_ser["user_id"] = operation_type.protocol.user_id
+    ot_ser["id"] = library.id
+    ot_ser["name"] = library.name
+    ot_ser["parent_class"] = "Library"
+    ot_ser["code_name"] = library.source.name
+    ot_ser["category"] = library.category
+    ot_ser["user_id"] = library.source.user_id
     
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
+
+    print("writing JSON!")
 
 def write_operation_type(path, operation_type):
     """
@@ -118,7 +122,7 @@ def write_operation_type(path, operation_type):
     """
     category_path = os.path.join(path, simplename(operation_type.category))
     makedirectory(category_path)
-    path = os.path.join(category_path, 'operation_typea', simplename(operation_type.name))
+    path = os.path.join(category_path, 'operation_types', simplename(operation_type.name))
     makedirectory(path)
     write_code(path, 'protocol.rb', operation_type.code("protocol"))
     write_code(path, 'precondition.rb', operation_type.code("precondition"))
@@ -136,12 +140,12 @@ def write_library(path, library):
     """
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
-    library_path = os.path.join(category_path, 'libraries')
+    library_path = os.path.join(category_path, 'libraries', simplename(library.name))
     makedirectory(library_path)
 
     code_object = library.code("source")
-    write_code(library_path, simplename(library.name) + '.rb', code_object)
-    write_definition_json(os.path.join(path, 'definition.json'), library)
+    write_code(library_path, 'source.rb', code_object)
+    write_library_definition_json(os.path.join(library_path, 'definition.json'), library)
 
 def open_aquarium_session():
     """
@@ -166,18 +170,18 @@ def pull(directory, category, op_type_or_library):
     path = os.path.normpath(directory)
     makedirectory(path)
 
-    if category == 'all':
-        operation_types = aq.OperationType.all()
-        libraries = aq.Library.all()
-    elif category and not op_type_or_library:
+    if category and not op_type_or_library:
         operations_types = aq.OperationType.where( { "category": category } )
         libraries = aq.Library.where( { "category": category } )
-    else:
+    elif op_type_or_library:
         operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library } )
         libraries = aq.Library.where( { "category": category, "name": op_type_or_library } ) 
+    else:
+        operation_types = aq.OperationType.all()
+        libraries = aq.Library.all()
     
-    for operation_type in operation_types: 
-        write_operation_type(path, operation_type)
+    #for operation_type in operation_types: 
+    #    write_operation_type(path, operation_type)
 
     for library in libraries:
         write_library(path, library)
@@ -193,25 +197,25 @@ def push(directory, category, code_type, op_type_or_library):
     #current_directory = os.path.abspath(os.getcwd())
 
     if code_type == library:
-        files_to_write = []
+        files_to_write = ['library.rb']
     else:
         files_to_write = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
         with open(current_directory + '/definition.json') as f:
             definitions = json.load(f)
 
-     for file_name in files_to_write:
+    for file_name in files_to_write:
          
-         with open(current_directory + '/' + file_name) as f:
+        with open(current_directory + '/' + file_name) as f:
              read_file = f.read()
 
-         new_code = aq.Code.new(
-                 name=file_name[:-3], # Code Object Name 'protocol, library, etc.'
+        new_code = aq.Code.new(
+                 name=file_name[:-3], # Code Object Name 'protocol, library, cost_model, etc.'
                  parent_id=definitions['id'], # OperationType or Library id 
-                 parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
-                 user_id=definitions['user_id'], # user id from Code object 
+                 parent_class=definitions['parent_class'],   # 'OperationType' or 'Library'
+                 user_id=definitions['user_id'], # User ID from Code object 
                  content=read_file # Contents of file  
                 )
-         aq.utils.update_code(new_code)
+        aq.utils.update_code(new_code)
 
 def main():
     parser = argparse.ArgumentParser()
