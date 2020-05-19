@@ -77,16 +77,17 @@ def write_definition_json(file_path, operation_type):
       file_path (string): the path of the file to write
       operation_type (OperationType): the operation type for which the definition should be written
     """
-    print("writing operation type {}".format(operation_type.id)) 
+    print("writing operation type {}".format(operation_type.name)) 
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
-    #ot_ser["code_name"] = operation_type.protocol.name
     ot_ser["parent_class"] = "OperationType"
+
     ot_ser["category"] = operation_type.category
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
+
     if operation_type.protocol: 
         ot_ser["user_id"] = operation_type.protocol.user_id
     else: 
@@ -103,12 +104,12 @@ def write_library_definition_json(file_path, library):
         file_path (string): the path of the file to write
         library (Library): the library for which the definition should be written
     """
-    print("writing library {}".format(library.id))
+    print("writing library {}".format(library.name))
     ot_ser = {}
     ot_ser["id"] = library.id
     ot_ser["name"] = library.name
     ot_ser["parent_class"] = "Library"
-    ot_ser["code_name"] = library.source.name
+    #ot_ser["code_name"] = library.source.name
     ot_ser["category"] = library.category
     ot_ser["user_id"] = library.source.user_id
     
@@ -166,7 +167,12 @@ def pull_category(directory, category):
     operation_types = aq.OperationType.where( { "category": category } )
     libraries = aq.Library.where( { "category": category } )
 
-def pull_operation_type(directory, category, operation_type:
+def pull_library(aq, path, category, library):
+    library = aq.Library.where( { "category": category, "library": library } )
+    print(library)
+    write_library(path, library)
+
+def pull_operation_type(directory, category, operation_type):
     operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library } )
     libraries = aq.Library.where( { "category": category, "name": op_type_or_library } ) 
 
@@ -174,25 +180,13 @@ def pull_all(directory):
     operation_types = aq.OperationType.all()
     libraries = aq.Library.all()
 
-def pull(directory, category, op_type_or_library):
+def pull(operation_types, libraries):
     """
     Retrieves the OperationType definitions from the Aquarium instance.
 
     Arguments:
       directory (string): the path for the directory where files should be written
     """
-    aq = open_aquarium_session()
-
-    path = os.path.normpath(directory) # creates string with dir name
-    makedirectory(path)
-
-    if category and not op_type_or_library:
-        pull_category(directory, category)
-    elif op_type_or_library:
-        pull_operation_type(directory, category, operation_type) 
-    else:
-        pull_all(directory)
-
     for operation_type in operation_types: 
         write_operation_type(path, operation_type)
 
@@ -200,13 +194,10 @@ def pull(directory, category, op_type_or_library):
         write_library(path, library)
 
 def push(directory, category, code_type, op_type_or_library):
-    # make a code object - pull data from json file with aq.Code.new -- and with code data
-    # but contents need to get added in from wherever you saved it
     aq = open_aquarium_session()
-    # need better way to put this together, but this will do for now.
+    
     current_directory = directory + "/" + category + "/" + code_type + "/" + op_type_or_library
 
-    print(current_directory)
     #current_directory = os.path.abspath(os.getcwd())
 
     if code_type == library:
@@ -222,12 +213,13 @@ def push(directory, category, code_type, op_type_or_library):
              read_file = f.read()
 
         new_code = aq.Code.new(
-                 name=file_name[:-3], # Code Object Name 'protocol, library, cost_model, etc.'
-                 parent_id=definitions['id'], # OperationType or Library id 
-                 parent_class=definitions['parent_class'],   # 'OperationType' or 'Library'
-                 user_id=definitions['user_id'], # User ID from Code object 
-                 content=read_file # Contents of file  
+                 name=file_name[:-3],
+                 parent_id=definitions['id'],
+                 parent_class=definitions['parent_class'],
+                 user_id=definitions['user_id'],
+                 content=read_file
                 )
+
         aq.utils.update_code(new_code)
 
 def main():
@@ -248,15 +240,20 @@ def main():
     # pyfish.py push MyDirectory -c "Hydra Husbandry" -o "Husbandry Operation Type Name" 
     args = parser.parse_args()
     
+    aq = open_aquarium_session()
+
+    path = os.path.normpath(args.directory) # creates string with dir name
+    makedirectory(path)
+
     if args.library: 
-        library_or_optype = args.library
-        code_type = "library"
+        pull_library(aq, path, args.category, args.library) 
     elif args.operation_type:
-        library_or_optype = args.operation_type
-        code_type = "protocol" 
+        pull_operation_type(path, directory, category, operation_type)
+    elif args.category: 
+        pull_category(directory, category)
     else:
-        library_or_optype = None
-        code_type=None
+        pull_all(directory, category)
+
 
     if args.action == 'push':
         push(args.directory, args.folder, code_type, library_or_optype)
