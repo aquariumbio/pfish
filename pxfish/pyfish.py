@@ -77,6 +77,7 @@ def write_definition_json(file_path, operation_type):
       file_path (string): the path of the file to write
       operation_type (OperationType): the operation type for which the definition should be written
     """
+    print("writing operation type {}".format(operation_type.id)) 
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
@@ -86,8 +87,11 @@ def write_definition_json(file_path, operation_type):
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
-    ot_ser["user_id"] = operation_type.protocol.user_id
-    
+    if operation_type.protocol: 
+        ot_ser["user_id"] = operation_type.protocol.user_id
+    else: 
+        print("operation type {} has no associated protocol".format(operation_type.id))
+
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
 
@@ -99,6 +103,7 @@ def write_library_definition_json(file_path, library):
         file_path (string): the path of the file to write
         library (Library): the library for which the definition should be written
     """
+    print("writing library {}".format(library.id))
     ot_ser = {}
     ot_ser["id"] = library.id
     ot_ser["name"] = library.name
@@ -109,8 +114,6 @@ def write_library_definition_json(file_path, library):
     
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
-
-    print("writing JSON!")
 
 def write_operation_type(path, operation_type):
     """
@@ -138,6 +141,7 @@ def write_library(path, library):
       path (string): the path to which the files should be written
       library (Library): the library for which the code will be written
     """
+    print("writing library") 
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
     library_path = os.path.join(category_path, 'libraries', simplename(library.name))
@@ -167,12 +171,13 @@ def pull(directory, category, op_type_or_library):
     """
     aq = open_aquarium_session()
 
-    path = os.path.normpath(directory)
+    path = os.path.normpath(directory) # creates string with dir name
     makedirectory(path)
 
     if category and not op_type_or_library:
-        operations_types = aq.OperationType.where( { "category": category } )
+        operation_types = aq.OperationType.where( { "category": category } )
         libraries = aq.Library.where( { "category": category } )
+        print(libraries)
     elif op_type_or_library:
         operation_types = aq.OperationType.where({ "category": category, "name": op_type_or_library } )
         libraries = aq.Library.where( { "category": category, "name": op_type_or_library } ) 
@@ -180,8 +185,8 @@ def pull(directory, category, op_type_or_library):
         operation_types = aq.OperationType.all()
         libraries = aq.Library.all()
     
-    #for operation_type in operation_types: 
-    #    write_operation_type(path, operation_type)
+    for operation_type in operation_types: 
+        write_operation_type(path, operation_type)
 
     for library in libraries:
         write_library(path, library)
