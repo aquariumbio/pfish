@@ -90,6 +90,24 @@ def write_definition_json(file_path, operation_type):
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser))
 
+def write_library_definition_json(file_path, library):
+    """
+    Writes teh definition of library as JSON to the given file path.
+
+    Arguments:
+        file_path (string): the path of the file to write
+        library (Library): the library for which the definition should be written
+    """
+    ot_ser = {}
+    ot_ser["id"] = operation_type.id
+    ot_ser["name"] = operation_type.name
+    ot_ser["code_name"] = operation_type.protocol.name
+    ot_ser["category"] = operation_type.category
+    ot_ser["user_id"] = operation_type.protocol.user_id
+    
+    with open(file_path, 'w') as file:
+        file.write(json.dumps(ot_ser))
+
 def write_operation_type(path, operation_type):
     """
     Writes the files for the operation_type to the path.
@@ -123,6 +141,7 @@ def write_library(path, library):
 
     code_object = library.code("source")
     write_code(library_path, simplename(library.name) + '.rb', code_object)
+    write_definition_json(os.path.join(path, 'definition.json'), library)
 
 def open_aquarium_session():
     """
@@ -167,29 +186,32 @@ def push(directory, category, code_type, op_type_or_library):
     # make a code object - pull data from json file with aq.Code.new -- and with code data
     # but contents need to get added in from wherever you saved it
     aq = open_aquarium_session()
+    # need better way to put this together, but this will do for now.
     current_directory = directory + "/" + category + "/" + code_type + "/" + op_type_or_library
 
     print(current_directory)
     #current_directory = os.path.abspath(os.getcwd())
 
-    # operation_type_files = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
+    if code_type == library:
+        files_to_write = []
+    else:
+        files_to_write = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
+        with open(current_directory + '/definition.json') as f:
+            definitions = json.load(f)
 
-    # with open(current_directory + '/definition.json') as f:
-     #    definitions = json.load(f)
+     for file_name in files_to_write:
+         
+         with open(current_directory + '/' + file_name) as f:
+             read_file = f.read()
 
-    # for operation_type_file in operation_type_files:
-        
-     #    with open(current_directory + '/' + operation_type_file) as f:
-      #       read_file = f.read()
-
-       #  new_code = aq.Code.new(
-        #         name=operation_type_file[:-3], # Code Object Name 'protocol, library, etc.'
-         #        parent_id=definitions['id'], # OperationType or Library id 
-          #       parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
-           #      user_id=definitions['user_id'], # user id from Code object 
-            #     content=read_file # Contents of file  
-             #    )
-#         aq.utils.update_code(new_code)
+         new_code = aq.Code.new(
+                 name=file_name[:-3], # Code Object Name 'protocol, library, etc.'
+                 parent_id=definitions['id'], # OperationType or Library id 
+                 parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
+                 user_id=definitions['user_id'], # user id from Code object 
+                 content=read_file # Contents of file  
+                )
+         aq.utils.update_code(new_code)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -217,6 +239,7 @@ def main():
         code_type = "protocol" 
     else:
         library_or_optype = None
+        code_type=None
 
     if args.action == 'push':
         push(args.directory, args.folder, code_type, library_or_optype)
