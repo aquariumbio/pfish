@@ -163,46 +163,63 @@ def pull(directory, category, op_type_or_library):
     for library in libraries:
         write_library(path, library)
 
-def push(directory, category, op_type_or_library):
+def push(directory, category, code_type, op_type_or_library):
     # make a code object - pull data from json file with aq.Code.new -- and with code data
     # but contents need to get added in from wherever you saved it
     aq = open_aquarium_session()
-    current_directory = os.path.abspath(os.getcwd())
+    current_directory = directory + "/" + category + "/" + code_type + "/" + op_type_or_library
 
-    operation_type_files = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
+    print(current_directory)
+    #current_directory = os.path.abspath(os.getcwd())
 
-    with open(current_directory + '/definition.json') as f:
-        definitions = json.load(f)
+    # operation_type_files = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
 
-    for operation_type_file in operation_type_files:
+    # with open(current_directory + '/definition.json') as f:
+     #    definitions = json.load(f)
+
+    # for operation_type_file in operation_type_files:
         
-        with open(current_directory + '/' + operation_type_file) as f:
-            read_file = f.read()
+     #    with open(current_directory + '/' + operation_type_file) as f:
+      #       read_file = f.read()
 
-        new_code = aq.Code.new(
-                name=operation_type_file[:-3], # Code Object Name 'protocol, library, etc.'
-                # TODO update parent_class so it can choose library or OT
-                parent_id=definitions['id'], # OperationType or Library id 
-                parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
-                user_id=definitions['user_id'], # user id from Code object 
-                content=read_file # Contents of file  
-                )
-        aq.utils.update_code(new_code)
+       #  new_code = aq.Code.new(
+        #         name=operation_type_file[:-3], # Code Object Name 'protocol, library, etc.'
+         #        parent_id=definitions['id'], # OperationType or Library id 
+          #       parent_class='OperationType',   # definitions['parent_class'], # 'OperationType',
+           #      user_id=definitions['user_id'], # user id from Code object 
+            #     content=read_file # Contents of file  
+             #    )
+#         aq.utils.update_code(new_code)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["push", "pull"], help="indicate if you want to push files or pull them.")  
     # If you want to pull all Files, type pull <directory_name>
-    parser.add_argument("-d", "--directory", help="the directory to which pulled files should be written")
+    parser.add_argument("directory", help="the directory to which pulled files should be written")
     parser.add_argument("-f", "--folder", help="the folder on Aquarium where your operation_type/library is located")
-    parser.add_argument("-o", "--operation_type", help="the operation_type or library you want to pull")
+    parser.add_argument("-l", "--library", help="the library you want to pull")
+    parser.add_argument("-o", "--operation_type", help="the operation_type you want to pull")
     
-    # if you wish to pull just one folder, e.g. "Hydra Husbandry", type pull <directory_name> -f "Hydra Husbandry"
-    # if you wish to pull just one operation type or library, e.g. "Clean Hydra", type pull -d <directory_name> -f "Hydra Husbandry" -o "Clean Hydra" 
-
+    # if you wish to pull just one folder, e.g. "Hydra Husbandry", type pyfish.py pull <directory_name> -f "Hydra Husbandry"
+    # if you wish to pull just one operation type or library, e.g. "Clean Hydra", type pyfish.py pull <directory_name> -f "Hydra Husbandry" -o "Clean Hydra" 
+    # if you want to push files to Aquarium:
+    # for a library: pyfish.py push <directory_name> -f <folder_name> -l <library_name>
+    # pyfish.py push MyDirectory -f "Hydra Husbandry" -l "Husbandry Library"
+    # for an operation_type: pyfish.py push <directory_name> -f <folder_name> -o <operation_type_name>
+    # pyfish.py push MyDirectory -f "Hydra Husbandry" -o "Husbandry Operation Type Name" 
     args = parser.parse_args()
+    
+    if args.library: 
+        library_or_optype = args.library
+        code_type = "library"
+    elif args.operation_type:
+        library_or_optype = args.operation_type
+        code_type = "protocol" 
+    else:
+        library_or_optype = None
+
     if args.action == 'push':
-        push(args.directory, args.folder, args.operation_type)
+        push(args.directory, args.folder, code_type, library_or_optype)
     else:
         pull(args.directory, args.folder, args.operation_type)
 
