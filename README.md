@@ -1,83 +1,115 @@
-# ParroPyTriFish
+# Parrotfish (aka Phoenixfish)
 
 Scripts for pulling/pushing protocols/libraries to/from Aquarium.
 
 ## Getting started
 
-* You will need to have Trident/Pydent installed. It is available [here](https://github.com/klavinslab/trident)
+- You must have Docker installed to run the script this way.
 
-* The example scripts assume a file `resources.py` that defines the values `login`, `password` and `url`.
-This file can be constructed by first running the command
+- Ensure you have a directory `~/bin`:
 
 ```bash
-cp resources.py-temp resources.py
+mkdir -p ~/bin
 ```
 
-and then changing the values to match your Aquarium account.
+- Install the `pfish` script
 
-The import
-
-```python
-from resources import resources
+```bash
+make install
 ```
 
-should be included at the top of each script.
+Check that you can run `pfish`
 
-The command
-
-```python
-session = AqSession(
-        resources['aquarium']['login'],
-        resources['aquarium']['password'],
-        resources['aquarium']['aquarium_url']
-    )
+```bash
+which pfish
 ```
 
-creates the session object to make queries to Aquarium.
+If you get an error `pfish not found`, then you need to add `~/bin` to your PATH.
+How you do this depends on your the shell that you run.
 
-Note that `resources.py` contains secrets that should not be checked into your version control.
+## For each project
+
+[TODO: change this to running `pfish init`]
+
+Copy the file `resources-template.py` in this repository to the directory a new project.
+
+```bash
+cp resources-template.py /project/directory/resources.py
+```
+
+and then change the values to match your Aquarium instance and account.
+It is currently set for the default Aquarium user `neptune`.
+
+Be sure to put `resources.py` into the `.gitignore` file for the project.
 
 ## Pulling Files from Aquarium
-  * If you would like to pull ALL files from you Aquarium Instance. 
-  `pyfish.py pull -d <my_directory_name>`
 
-  * If you would like to pull everything from one category/folder.
-  `pyfish.py pull -d <my_directory_name> -c <category_name>`
+- If you would like to pull ALL files from you Aquarium Instance.
 
-  * If you would like to pull just one operation type or library. 
-  `pyfish.py pull -d <my_directory_name> -c <category_name> -o <operation_type_name>`
-  `pyfish.py pull -d <my_directory_name> -c <category_name> -l <library_name>`
+  ```bash
+  pfish pull -d <my_directory_name>
+  ```
+
+- If you would like to pull everything from one category/folder.
+
+  ```bash
+  pfish pull -d <my_directory_name> -c <category_name>
+  ```
+
+- If you would like to pull just one operation type or library.
+  ```bash
+  pfish pull -d <my_directory_name> -c <category_name> -o <operation_type_name>
+  ```
+  ```bash
+  pfish pull -d <my_directory_name> -c <category_name> -l <library_name>
+  ```
 
 ### Pulling Example
-  * Category: Cloning
-    * Libraries:
-      * Stripwell Methods
-      * Gradiant PCR
-    * OperationTypes:
-      * Run Gel
-      * Order Primer
 
-`pyfish.py pull -d MyDirectoryName -c Cloning`
+- Category: Cloning
+  - Libraries:
+    - Stripwell Methods
+    - Gradiant PCR
+  - OperationTypes:
+    - Run Gel
+    - Order Primer
+
+```bash
+pfish pull -d MyDirectoryName -c Cloning
+```
+
 will pull everything listed under cloning -- all operation types and libraries.
 
-`pyfish.py pull -d MyDirectoryName -c Cloning -l "Stripwell Methods"`
+```bash
+pfish pull -d MyDirectoryName -c Cloning -l "Stripwell Methods"
+```
+
 will pull just the Stripwell Methods Library.
 
-`pyfish.py push -d MyDirectoryName -c Cloning -o "Run Gel"`
-will pull just the Run Gel operation type. 
+```bash
+pfish push -d MyDirectoryName -c Cloning -o "Run Gel"
+```
+
+will pull just the Run Gel operation type.
 
 ## Pushing files to Aquarium
 
-* At the moment, an OperationType or Library must already exist in Aquarium for you to be able to push to it. 
-* You can create a blank type or library in Aquarium, then pull it, add whatever you'd like, and then push to it.
+_Note_: At the moment, an operation type or library must already exist in Aquarium for you to be able to push to it.
+If you are adding a new operation type or library, create a blank operation type or library with the name in Aquarium, pull it, add whatever you'd like, and then push.
 
-* You can push either one library or one operation type at a time. 
-* Pushing an operation type will include all parts of that that type (protocol text, cost model, documentatation etc.)
+You can push either one library or one operation type at a time.
+Pushing an operation type will include all parts of that that type (protocol test, cost model, documentation etc.)
 
-* For a library:
-`pyfish.py push -d <directory_name> -c <category_name> -l <library_name>`
-    
-* For an OperationType 
-`pyfish.py push -d <directory_name> -c <category_name> -o <operation_type_name>`
+For a library:
 
-* You may need to refresh Aquarium to see the new version
+  ```bash
+  pfish push -d <directory_name> -c <category_name> -l <library_name>
+  ```
+
+For an operation type
+
+  ```bash
+  pfish push -d <directory_name> -c <category_name> -o <operation_type_name>
+  ```
+
+You may need to refresh Aquarium to see the new version
