@@ -82,7 +82,6 @@ def write_definition_json(file_path, operation_type):
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
     ot_ser["parent_class"] = "OperationType"
-
     ot_ser["category"] = operation_type.category
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
@@ -105,15 +104,15 @@ def write_library_definition_json(file_path, library):
         library (Library): the library for which the definition should be written
     """
     print("writing library {}".format(library.name))
-    ot_ser = {}
-    ot_ser["id"] = library.id
-    ot_ser["name"] = library.name
-    ot_ser["parent_class"] = "Library"
-    ot_ser["category"] = library.category
-    ot_ser["user_id"] = library.source.user_id
+    library_ser = {}
+    library_ser["id"] = library.id
+    library_ser["name"] = library.name
+    library_ser["parent_class"] = "Library"
+    library_ser["category"] = library.category
+    library_ser["user_id"] = library.source.user_id
     
     with open(file_path, 'w') as file:
-        file.write(json.dumps(ot_ser))
+        file.write(json.dumps(library_ser))
 
 def write_operation_type(path, operation_type):
     """
@@ -141,7 +140,6 @@ def write_library(path, library):
       path (string): the path to which the files should be written
       library (Library): the library for which the code will be written
     """
-    print("writing library") 
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
     library_path = os.path.join(category_path, 'libraries', simplename(library.name))
@@ -162,23 +160,24 @@ def open_aquarium_session():
         ) 
     return aq
 
-def pull_category(directory, category):
+def get_library(aq, path, category, library):
+    library = aq.Library.where( { "category": category, "name": library } )
+    pull(path, library)
+
+def get_operation_type(aq, path, category, operation_type):
+    operation_type = aq.OperationType.where({ "category": category, "name": operation_type } )
+    pull(path, operation_type)
+
+def get_category_optypes_and_libraries(aq, path, category):
     operation_types = aq.OperationType.where( { "category": category } )
     libraries = aq.Library.where( { "category": category } )
-
-def pull_library(aq, path, category, library):
-    library = aq.Library.where( { "category": category, "name": library } )
-    write_library(path, library[0])
-
-def pull_operation_type(aq, path, category, operation_type):
-    operation_type = aq.OperationType.where({ "category": category, "name": operation_type } )
-    write_operation_type(path, operation_type[0])
-
-def pull_all(directory):
+    
+def get_all_optypes_and_libraries(aq, path):
     operation_types = aq.OperationType.all()
     libraries = aq.Library.all()
+    pull(path, operation_types, libraries)
 
-def pull(operation_types, libraries):
+def pull(path, operation_types=[], libraries=[]):
     """
     Retrieves the OperationType definitions from the Aquarium instance.
 
@@ -196,12 +195,10 @@ def push(directory, category, code_type, op_type_or_library):
     
     current_directory = directory + "/" + category + "/" + code_type + "/" + op_type_or_library
 
-    #current_directory = os.path.abspath(os.getcwd())
-
     if code_type == library:
-        files_to_write = ['library.rb']
+        files_to_write = ['library']
     else:
-        files_to_write = ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb']
+        files_to_write = ['cost_model', 'documentation', 'precondition', 'protocol']
         with open(current_directory + '/definition.json') as f:
             definitions = json.load(f)
 
@@ -211,7 +208,7 @@ def push(directory, category, code_type, op_type_or_library):
              read_file = f.read()
 
         new_code = aq.Code.new(
-                 name=file_name[:-3],
+                 name=file_name,
                  parent_id=definitions['id'],
                  parent_class=definitions['parent_class'],
                  user_id=definitions['user_id'],
@@ -223,7 +220,6 @@ def push(directory, category, code_type, op_type_or_library):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["push", "pull"], help="indicate if you want to push files or pull them.")  
-    # If you want to pull all Files, type pull <directory_name>
     parser.add_argument("directory", help="the directory to which pulled files should be written")
     parser.add_argument("-c", "--category", help="the category on Aquarium where your operation_type/library is located")
     parser.add_argument("-l", "--library", help="the library you want to pull")
@@ -244,19 +240,16 @@ def main():
     makedirectory(path)
 
     if args.library: 
-        pull_library(aq, path, args.category, args.library) 
+        get_library(aq, path, args.category, args.library) 
     elif args.operation_type:
-        pull_operation_type(aq, path, args.category, args.operation_type)
+        get_operation_type(aq, path, args.category, args.operation_type)
     elif args.category: 
-        pull_category(directory, args.category)
+        get_category_optypes_and_libraries(aq, path, args.category)
     else:
-        pull_all(directory, args.category)
-
+        get_all_optypes_and_libraries(aq, path)
 
     if args.action == 'push':
         push(args.directory, args.category, code_type, library_or_optype)
-#    else:
-        #pull(args.directory, args.category, args.operation_type)
 
 if __name__ == "__main__":
     main()
