@@ -39,14 +39,14 @@ Note that `resources.py` contains secrets that should not be checked into your v
 
 ## Pulling Files from Aquarium
   * If you would like to pull ALL files from you Aquarium Instance. 
-  `pyfish.py pull <my_directory_name>`
+  `pyfish.py pull -d <my_directory_name>`
 
   * If you would like to pull everything from one category/folder.
-  `pyfish.py pull <my_directory_name> -c <category_name>`
+  `pyfish.py pull -d <my_directory_name> -c <category_name>`
 
   * If you would like to pull just one operation type or library. 
-  `pyfish.py pull <my_directory_name> -c <category_name> -o <operation_type_name>`
-  `pyfish.py pull <my_directory_name> -c <category_name> -l <library_name>`
+  `pyfish.py pull -d <my_directory_name> -c <category_name> -o <operation_type_name>`
+  `pyfish.py pull -d <my_directory_name> -c <category_name> -l <library_name>`
 
 ### Pulling Example
   * Category: Cloning
@@ -57,13 +57,13 @@ Note that `resources.py` contains secrets that should not be checked into your v
       * Run Gel
       * Order Primer
 
-`pyfish.py pull MyDirectoryName -c Cloning`
+`pyfish.py pull -d MyDirectoryName -c Cloning`
 will pull everything listed under cloning -- all operation types and libraries.
 
-`pyfish.py pull MyDirectoryName -c Cloning -l "Stripwell Methods"`
+`pyfish.py pull -d MyDirectoryName -c Cloning -l "Stripwell Methods"`
 will pull just the Stripwell Methods Library.
 
-`pyfish.py push MyDirectoryName -c Cloning -o "Run Gel"`
+`pyfish.py push -d MyDirectoryName -c Cloning -o "Run Gel"`
 will pull just the Run Gel operation type. 
 
 ## Pushing files to Aquarium
@@ -75,9 +75,9 @@ will pull just the Run Gel operation type.
 * Pushing an operation type will include all parts of that that type (protocol text, cost model, documentatation etc.)
 
 * For a library:
-`pyfish.py push <directory_name> -c <category_name> -l <library_name>`
+`pyfish.py push -d <directory_name> -c <category_name> -l <library_name>`
     
 * For an OperationType 
-`pyfish.py push <directory_name> -c <category_name> -o <operation_type_name>`
+`pyfish.py push -d <directory_name> -c <category_name> -o <operation_type_name>`
 
 * You may need to refresh Aquarium to see the new version

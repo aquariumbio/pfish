@@ -162,15 +162,16 @@ def open_aquarium_session():
 
 def get_library(aq, path, category, library):
     library = aq.Library.where( { "category": category, "name": library } )
-    pull(path, library)
+    pull(path, operation_types=[], libraries=library)
 
 def get_operation_type(aq, path, category, operation_type):
     operation_type = aq.OperationType.where({ "category": category, "name": operation_type } )
-    pull(path, operation_type)
+    pull(path, operation_types=operation_type)
 
 def get_category_optypes_and_libraries(aq, path, category):
     operation_types = aq.OperationType.where( { "category": category } )
     libraries = aq.Library.where( { "category": category } )
+    pull(path, operation_types=operation_types, libraries=libraries)
     
 def get_all_optypes_and_libraries(aq, path):
     operation_types = aq.OperationType.all()
@@ -190,25 +191,25 @@ def pull(path, operation_types=[], libraries=[]):
     for library in libraries:
         write_library(path, library)
 
-def push(directory, category, code_type, op_type_or_library):
-    aq = open_aquarium_session()
-    
-    current_directory = directory + "/" + category + "/" + code_type + "/" + op_type_or_library
+def push_library(aq, path, category, library):
+    current_directory = os.path.join(path, category, "libraries", library)
+    push(aq, current_directory, ['source.rb'])
 
-    if code_type == library:
-        files_to_write = ['library']
-    else:
-        files_to_write = ['cost_model', 'documentation', 'precondition', 'protocol']
-        with open(current_directory + '/definition.json') as f:
-            definitions = json.load(f)
+def push_operation_type(aq, path, category, operation_type):
+    current_directory = os.path.join(path, category, "operation_types", operation_type)
+    push(aq, current_directory, ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb'])
+
+def push(aq, directory, files_to_write):
+    
+    with open(os.path.join(directory, 'definition.json')) as f:
+        definitions = json.load(f)
 
     for file_name in files_to_write:
-         
-        with open(current_directory + '/' + file_name) as f:
+        with open(os.path.join(directory, file_name)) as f:
              read_file = f.read()
 
         new_code = aq.Code.new(
-                 name=file_name,
+                 name=file_name[0:-3],
                  parent_id=definitions['id'],
                  parent_class=definitions['parent_class'],
                  user_id=definitions['user_id'],
@@ -218,25 +219,20 @@ def push(directory, category, code_type, op_type_or_library):
         aq.utils.update_code(new_code)
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["push", "pull"], help="indicate if you want to push files or pull them.")  
-    parser.add_argument("directory", help="the directory to which pulled files should be written")
-    parser.add_argument("-c", "--category", help="the category on Aquarium where your operation_type/library is located")
-    parser.add_argument("-l", "--library", help="the library you want to pull")
-    parser.add_argument("-o", "--operation_type", help="the operation_type you want to pull")
+    parser = argparse.ArgumentParser(description="Pull or Push files from/to Aquarium")
+    parser.add_argument("action", choices=["push", "pull"], help="Indicate if you want to push files or pull them.")  
+    parser.add_argument("-d", "--directory", required=True, help="The name of the directory where the files should be written. If the directory does not already exist, it will be created")
+    parser.add_argument("-c", "--category", help="The Aquarium category where the OperationType or Library is located")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-l", "--library", help="the Library you want to pull")
+    group.add_argument("-o", "--operation_type", help="the Operation Type you want to pull")
     
-    # if you wish to pull just one folder, e.g. "Hydra Husbandry", type pyfish.py pull <directory_name> -f "Hydra Husbandry"
-    # if you wish to pull just one operation type or library, e.g. "Clean Hydra", type pyfish.py pull <directory_name> -f "Hydra Husbandry" -o "Clean Hydra" 
-    # if you want to push files to Aquarium:
-    # for a library: pyfish.py push <directory_name> -c <category_name> -l <library_name>
-    # pyfish.py push MyDirectory -c "Hydra Husbandry" -l "Husbandry Library"
-    # for an operation_type: pyfish.py push <directory_name> -f <category_name> -o <operation_type_name>
-    # pyfish.py push MyDirectory -c "Hydra Husbandry" -o "Husbandry Operation Type Name" 
     args = parser.parse_args()
     
     aq = open_aquarium_session()
 
-    path = os.path.normpath(args.directory) # creates string with dir name
+    path = os.path.normpath(args.directory)
     makedirectory(path)
 
     if args.library: 
@@ -249,7 +245,10 @@ def main():
         get_all_optypes_and_libraries(aq, path)
 
     if args.action == 'push':
-        push(args.directory, args.category, code_type, library_or_optype)
+        if args.library:
+            push_library(aq, args.directory, args.category, args.library)
+        else:
+            push_operation_type(aq, args.directory, args.category, args.operation_type)
 
 if __name__ == "__main__":
     main()
