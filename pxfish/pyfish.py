@@ -77,7 +77,7 @@ def write_definition_json(file_path, operation_type):
       file_path (string): the path to the file as written
       operation_type (OperationType): the operation type for which the definition should be written
     """
-    print("writing operation type {}".format(operation_type.name)) 
+#    print("writing operation type {}".format(operation_type.name)) 
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
@@ -103,7 +103,7 @@ def write_library_definition_json(file_path, library):
       file_path (string): the path to the file as written
       operation_type (Library): the library for which the definition should be written
     """
-    print("writing library {}".format(library.name))
+#    print("writing library {}".format(library.name))
     library_ser = {}
     library_ser["id"] = library.id
     library_ser["name"] = library.name
@@ -270,20 +270,22 @@ def main():
     path = os.path.normpath(args.directory)
     makedirectory(path)
 
-    if args.library: 
-        get_library(aq, path, args.category, args.library) 
-    elif args.operation_type:
-        get_operation_type(aq, path, args.category, args.operation_type)
-    elif args.category: 
-        get_category_optypes_and_libraries(aq, path, args.category)
-    else:
-        get_all_optypes_and_libraries(aq, path)
-
-    if args.action == 'push':
+    if args.action == 'pull':
+        if args.library: 
+            get_library(aq, path, args.category, args.library) 
+        elif args.operation_type:
+            get_operation_type(aq, path, args.category, args.operation_type)
+        elif args.category: 
+            get_category_optypes_and_libraries(aq, path, args.category)
+        else:
+            get_all_optypes_and_libraries(aq, path)
+    elif args.action == 'push':
         if args.library:
             push_library(aq, args.directory, args.category, args.library)
         else:
             push_operation_type(aq, args.directory, args.category, args.operation_type)
+    else:
+        logging.warning("You must indicated whether you would like to 'push' or 'pull'")
 
 if __name__ == "__main__":
     main()
