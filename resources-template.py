@@ -2,7 +2,7 @@
 # Default values are for using the default local Aquarium
 resources = {
     "aquarium": {
-        "url": "localhost",
+        "url": "http://localhost/",
         "login": "neptune",
         "password": "aquarium"
     }
