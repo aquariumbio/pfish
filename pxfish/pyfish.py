@@ -71,10 +71,10 @@ def field_type_list(field_types, role):
 
 def write_definition_json(file_path, operation_type):
     """
-    Writes the definition of operation_type as JSON to the given file path.
+    Writes the definition of the operation_type as JSON to the given file path.
 
     Arguments:
-      file_path (string): the path of the file to write
+      file_path (string): the path to the file as written
       operation_type (OperationType): the operation type for which the definition should be written
     """
     print("writing operation type {}".format(operation_type.name)) 
@@ -100,8 +100,8 @@ def write_library_definition_json(file_path, library):
     Writes the definition of library as JSON to the given file path.
 
     Arguments:
-        file_path (string): the path of the file to write
-        library (Library): the library for which the definition should be written
+      file_path (string): the path to the file as written
+      operation_type (Library): the library for which the definition should be written
     """
     print("writing library {}".format(library.name))
     library_ser = {}
@@ -116,10 +116,10 @@ def write_library_definition_json(file_path, library):
 
 def write_operation_type(path, operation_type):
     """
-    Writes the files for the operation_type to the path.
+    Writes the files associated with the operation_type to the path.
 
     Arguments:
-      path (string): the path to which the files should be written
+      path (string): the path to where the files will be written
       operation_type (OperationType): the operation type being written
     """
     category_path = os.path.join(path, simplename(operation_type.category))
@@ -137,8 +137,8 @@ def write_library(path, library):
     Writes the files for the library to the path.
 
     Arguments:
-      path (string): the path to which the files should be written
-      library (Library): the library for which the code will be written
+      path (string): the path to where the files will be written
+      library (Library): the library being written
     """
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
@@ -161,29 +161,64 @@ def open_aquarium_session():
     return aq
 
 def get_library(aq, path, category, library):
+    """
+    Retrieves a single Library
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path to where the file will be written
+        category (String): The category the Library is in
+        library (String): The Library to be retreived
+    """
     library = aq.Library.where( { "category": category, "name": library } )
     pull(path, operation_types=[], libraries=library)
 
 def get_operation_type(aq, path, category, operation_type):
+    """
+    Retrieves a single Operation Type 
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path to where the file will be written
+        category (String): The category the OperationType is in
+        operation_type (String): The OperationType to be retreived
+    """
     operation_type = aq.OperationType.where({ "category": category, "name": operation_type } )
     pull(path, operation_types=operation_type)
 
 def get_category_optypes_and_libraries(aq, path, category):
+    """
+    Retrieves all the Libraries and Operation Types within a category
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path to where the files will be written
+        category (String): The category the Operation Types and Libraries are in
+    """
     operation_types = aq.OperationType.where( { "category": category } )
     libraries = aq.Library.where( { "category": category } )
     pull(path, operation_types=operation_types, libraries=libraries)
     
 def get_all_optypes_and_libraries(aq, path):
+    """
+    Retrieves all Operation Types and Libraries 
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path to where the files will be written
+    """
     operation_types = aq.OperationType.all()
     libraries = aq.Library.all()
     pull(path, operation_types, libraries)
 
 def pull(path, operation_types=[], libraries=[]):
     """
-    Retrieves the OperationType definitions from the Aquarium instance.
+    Pulls OperationType and/or Library files from the Aquarium instance.
 
     Arguments:
-      directory (string): the path for the directory where files should be written
+        path (String): the path for the directory where files should be written
+        operation_types (List): list of OperationTypes whose files to pull
+        libraries (List): list of Liraries whose files to pull
     """
     for operation_type in operation_types: 
         write_operation_type(path, operation_type)
