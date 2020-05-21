@@ -171,6 +171,7 @@ def get_library(aq, path, category, library):
         category (String): The category the Library is in
         library (String): The Library to be retreived
     """
+     
     library = aq.Library.where( { "category": category, "name": library } )
     pull(path, operation_types=[], libraries=library)
 
@@ -219,7 +220,7 @@ def pull(path, operation_types=[], libraries=[]):
     Arguments:
         path (String): the path for the directory where files should be written
         operation_types (List): list of OperationTypes whose files to pull
-        libraries (List): list of Liraries whose files to pull
+        libraries (List): list of Libraries whose files to pull
     """
     for operation_type in operation_types: 
         write_operation_type(path, operation_type)
@@ -227,16 +228,41 @@ def pull(path, operation_types=[], libraries=[]):
     for library in libraries:
         write_library(path, library)
 
-def push_library(aq, path, category, library):
+def select_library(aq, path, category, library):
+    """
+    Locates the Library whose files will be pushed 
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path for the directory where files should be written
+        category (String): the category where the Library is to be found 
+        library (string): the Library whose files will be pushed 
+    """
     current_directory = os.path.join(path, category, "libraries", library)
     push(aq, current_directory, ['source.rb'])
 
-def push_operation_type(aq, path, category, operation_type):
+def select_operation_type(aq, path, category, operation_type):
+    """
+    Locates the Operation Type whose files will be pushed 
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path for the directory where files should be written
+        category (String): the category where the Library is to be found 
+        library (string): the Library whose files will be pushed 
+    """
     current_directory = os.path.join(path, category, "operation_types", operation_type)
     push(aq, current_directory, ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb'])
 
 def push(aq, directory, files_to_write):
-    
+    """
+    Pushes files to the Aquarium instance
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        directory (String): Directory where files are to be found
+        files_to_write (List): List of files to push
+    """
     with open(os.path.join(directory, 'definition.json')) as f:
         definitions = json.load(f)
 
@@ -285,9 +311,9 @@ def main():
             get_all_optypes_and_libraries(aq, path)
     elif args.action == 'push':
         if args.library and args.category:
-            push_library(aq, args.directory, args.category, args.library)
+            select_library(aq, args.directory, args.category, args.library)
         elif args.operation_type and args.category:
-            push_operation_type(aq, args.directory, args.category, args.operation_type)
+            select_operation_type(aq, args.directory, args.category, args.operation_type)
         else:
             logging.warning("You must enter a Category and either a Library Name or an OperationType name in order to push. See pyfish.py -h for help.")
     else:
