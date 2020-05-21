@@ -5,6 +5,7 @@ import os
 import argparse
 import re
 import json
+import logging
 from resources import resources
 from pydent import AqSession 
 
@@ -244,7 +245,7 @@ def push(aq, directory, files_to_write):
              read_file = f.read()
 
         new_code = aq.Code.new(
-                 name=file_name[0:-3],
+                 name=os.path.splitext(file_name)[0],
                  parent_id=definitions['id'],
                  parent_class=definitions['parent_class'],
                  user_id=definitions['user_id'],
@@ -262,9 +263,9 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-l", "--library", help="the Library you want to pull")
     group.add_argument("-o", "--operation_type", help="the Operation Type you want to pull")
-    
-    args = parser.parse_args()
    
+    args = parser.parse_args()
+    
     if not args.directory:
         args.directory = os.getcwd()
 
@@ -283,12 +284,14 @@ def main():
         else:
             get_all_optypes_and_libraries(aq, path)
     elif args.action == 'push':
-        if args.library:
+        if args.library and args.category:
             push_library(aq, args.directory, args.category, args.library)
-        else:
+        elif args.operation_type and args.category:
             push_operation_type(aq, args.directory, args.category, args.operation_type)
+        else:
+            logging.warning("You must enter a Category and either a Library Name or an OperationType name in order to push. See pyfish.py -h for help.")
     else:
-        logging.warning("You must indicated whether you would like to 'push' or 'pull'")
+        logging.warning("You must indicate whether you would like to 'push' or 'pull'")
 
 if __name__ == "__main__":
     main()
