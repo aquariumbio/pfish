@@ -13,6 +13,7 @@ sys.path.append('./pydent')
 
 logging.basicConfig(level=logging.INFO)
 
+
 def makedirectory(directory_name):
     """
     Create the directory with the given name.
@@ -125,10 +126,10 @@ def write_operation_type(path, operation_type):
       operation_type (OperationType): the operation type being written
     """
     logging.info("writing operation type {}".format(operation_type.name))
-    
-    category_path = os.path.join(path, simplename(operation_type.category))
+
+    category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
-    path = create_operation_path(category_path, operation_type)
+    path = create_operation_path(category_path, operation_type.name)
     makedirectory(path)
     code_names = operation_type_code_names()
 
@@ -159,8 +160,22 @@ def write_operation_type(path, operation_type):
     )
 
 
-def create_operation_path(category_path, operation_type):
-    return os.path.join(category_path, 'operation_types', simplename(operation_type.name))
+def create_named_path(path, name):
+    return os.path.join(path, simplename(name))
+
+
+def create_library_path(category_path, library_name):
+    return create_named_path(
+        os.path.join(category_path, 'libraries'),
+        library_name
+    )
+
+
+def create_operation_path(category_path, operation_type_name):
+    return create_named_path(
+        os.path.join(category_path, 'operation_types'),
+        operation_type_name
+    )
 
 
 def operation_type_code_names():
@@ -176,20 +191,30 @@ def write_library(path, library):
       library (Library): the library whose definition will be written
     """
     logging.info("writing library {}".format(library.name))
-    
-    category_path = os.path.join(path, simplename(library.category))
+
+    category_path = create_named_path(path, library.category)
     makedirectory(category_path)
-    library_path = create_library_path(category_path, library)
+    library_path = create_library_path(category_path, library.name)
     makedirectory(library_path)
 
     code_object = library.code("source")
-    write_code(library_path, 'source.rb', code_object)
+    if not code_object:
+        logging.warning(
+            "Ignored library {} missing library code".format(
+                library.name)
+        )
+    file_name = 'source.rb'
+    try:
+        write_code(library_path, file_name, code_object)
+    except OSError as error:
+        logging.warning("Error {} writing file {} for library {}".format(
+            error, file_name, library.name))
+    except UnicodeError as error:
+        logging.warning("Encoding error {} writing file {} for library {}".format(
+            error, file_name, library.name))
+
     write_library_definition_json(os.path.join(
         library_path, 'definition.json'), library)
-
-
-def create_library_path(category_path, library):
-    return os.path.join(category_path, 'libraries', simplename(library.name))
 
 
 def open_aquarium_session():
@@ -215,8 +240,8 @@ def get_library(aq, path, category, library):
         library (String): The Library to be retrieved
     """
 
-    library = aq.Library.where( { "category": category, "name": library } )
-    if not library: 
+    library = aq.Library.where({"category": category, "name": library})
+    if not library:
         pull(path, operation_types=[], libraries=library)
 
 
@@ -251,7 +276,7 @@ def get_category(aq, path, category):
 
 def get_all_optypes_and_libraries(aq, path):
     """
-    Retrieves all Operation Types and Libraries 
+    Retrieves all Operation Types and Libraries
 
     Arguments:
         aq (Session Object): Aquarium session object
@@ -278,7 +303,7 @@ def pull(path, operation_types=[], libraries=[]):
         write_library(path, library)
 
 
-def select_library(aq, path, category, library):
+def select_library(aq, category_path, library_name):
     """
     Locates the library files to be pushed 
 
@@ -288,10 +313,11 @@ def select_library(aq, path, category, library):
         category (String): the category where the Library is to be found 
         library (string): the Library whose files will be pushed 
     """
-    current_directory = os.path.join(path, category, "libraries", library)
-    push(aq, current_directory, ['source.rb'])
+    path = create_library_path(category_path, library_name)
+    push(aq, path, ['source'])
 
-def select_operation_type(aq, path, category, operation_type):
+
+def select_operation_type(aq, category_path, operation_type_name):
     """
     Locates the Operation Type whose files will be pushed 
 
@@ -301,11 +327,11 @@ def select_operation_type(aq, path, category, operation_type):
         category (String): the category where the Library is to be found 
         library (string): the Library whose files will be pushed 
     """
-    current_directory = os.path.join(path, category, "operation_types", operation_type)
-    push(aq, current_directory, ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb', 'test.rb'])
+    path = create_operation_path(category_path, operation_type_name)
+    push(aq, path, operation_type_code_names())
 
 
-def push(aq, directory, files_to_write):
+def push(aq, directory, component_names):
     """
     Pushes files to the Aquarium instance
 
@@ -317,12 +343,13 @@ def push(aq, directory, files_to_write):
     with open(os.path.join(directory, 'definition.json')) as f:
         definitions = json.load(f)
 
-    for file_name in files_to_write:
+    for name in component_names:
+        file_name = "{}.rb".format(name)
         with open(os.path.join(directory, file_name)) as f:
             read_file = f.read()
 
         new_code = aq.Code.new(
-            name=os.path.splitext(file_name)[0],
+            name=name,
             parent_id=definitions['id'],
             parent_class=definitions['parent_class'],
             user_id=definitions['user_id'],
@@ -335,17 +362,26 @@ def push(aq, directory, files_to_write):
 def main():
     parser = argparse.ArgumentParser(
         description="Pull or Push files from/to Aquarium")
-    parser.add_argument("action", choices=[
-                        "push", "pull"], help="Indicate if you want to push files or pull them.")
     parser.add_argument(
-        "-d", "--directory", help="The name of the directory where the files should be written. If the directory does not already exist, it will be created")
+        "action",
+        choices=["push", "pull"],
+        help="whether to push or pull operation types/libraries"
+    )
     parser.add_argument(
-        "-c", "--category", help="The Aquarium category where the OperationType or Library is located")
+        "-d", "--directory",
+        help="directory for writing files. Created if does not already exist"
+    )
+    parser.add_argument(
+        "-c", "--category",
+        help="category of the operation type or library"
+    )
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-l", "--library", help="the Library you want to pull")
-    group.add_argument("-o", "--operation_type",
-                       help="the Operation Type you want to pull")
+    group.add_argument("-l", "--library", help="the library to pull")
+    group.add_argument(
+        "-o", "--operation_type",
+        help="the operation type to pull"
+    )
 
     args = parser.parse_args()
 
@@ -366,17 +402,25 @@ def main():
             get_category(aq, path, args.category)
         else:
             get_all_optypes_and_libraries(aq, path)
-    elif args.action == 'push':
-        if args.library and args.category:
-            select_library(aq, args.directory, args.category, args.library)
-        elif args.operation_type and args.category:
-            select_operation_type(aq, args.directory, args.category, args.operation_type)
-        else:
-            logging.warning(
-                "You must enter a Category and either a Library Name or an OperationType name in order to push. See pyfish.py -h for help.")
-    else:
-        logging.warning(
-            "You must indicate whether you would like to 'push' or 'pull'")
+
+    if args.action == 'push':
+        if not args.category:
+            logging.error('Category is required for push')
+            return
+
+        category_path = create_named_path(path, args.category)
+        if args.library:
+            select_library(aq, category_path, args.library)
+            return
+
+        if args.operation_type:
+            select_operation_type(aq, category_path, args.operation_type)
+            return
+
+        logging.error("Expected a library or operation type")
+        return
+
+    logging.warning("Expected an action"
 
 
 if __name__ == "__main__":
