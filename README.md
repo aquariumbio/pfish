@@ -12,57 +12,66 @@ Scripts for pulling/pushing protocols/libraries to/from Aquarium.
 mkdir -p ~/bin
 ```
 
+- Add `~/bin` to your PATH. How you do this depends on your the shell that you run.
+
+- Clone Parrotfish:
+
+```bash
+git clone https://github.com/klavinslab/ParroPyTriFish.git
+```
+
 - Install the `pfish` script
 
 ```bash
+cd ParroPyTriFish
 make install
 ```
-
-Check that you can run `pfish`
-
-```bash
-which pfish
-```
-
-If you get an error `pfish not found`, then you need to add `~/bin` to your PATH.
-How you do this depends on your the shell that you run.
 
 ## For each project
 
 [TODO: change this to running `pfish init`]
 
-Copy the file `resources-template.py` in this repository to the directory a new project.
+Create a directory for pfish repos, and copy the file `resources-template.py` in this repository to this directory.
 
 ```bash
-cp resources-template.py /project/directory/resources.py
+mkdir /pfish/repos/directory # Absolute path, not a subdirectory of ParroPyTriFish
+cp resources-template.py /pfish/repos/directory/resources.py
 ```
 
 and then change the values to match your Aquarium instance and account.
 It is currently set for the default Aquarium user `neptune`.
 
-Be sure to put `resources.py` into the `.gitignore` file for the project.
+Be sure to put resources.py into the .gitignore file if you put `/pfish/repos/directory` under version control.
 
 ## Pulling Files from Aquarium
 
+- You will need to be in the same directory as `resources.py` to run `pfish`
+
+```bash
+cd /pfish/repos/directory
+```
+
 - If you would like to pull ALL files from you Aquarium Instance.
 
-  ```bash
-  pfish pull -d <my_directory_name>
-  ```
+```bash
+pfish pull -d <my_directory_name>
+```
+
+`pfish` will create `my_directory_name` if it doesn't exist.
 
 - If you would like to pull everything from one category/folder.
 
-  ```bash
-  pfish pull -d <my_directory_name> -c <category_name>
-  ```
+```bash
+pfish pull -d <my_directory_name> -c <category_name>
+```
 
 - If you would like to pull just one operation type or library.
-  ```bash
-  pfish pull -d <my_directory_name> -c <category_name> -o <operation_type_name>
-  ```
-  ```bash
-  pfish pull -d <my_directory_name> -c <category_name> -l <library_name>
-  ```
+```bash
+pfish pull -d <my_directory_name> -c <category_name> -o <operation_type_name>
+```
+```bash
+pfish pull -d <my_directory_name> -c <category_name> -l <library_name>
+```
 
 ### Pulling Example
 
