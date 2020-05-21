@@ -53,7 +53,6 @@ def write_code(path, file_name, code_object):
         file.write(code_object.content)
 
 
-
 def field_type_list(field_types, role):
     """
     Returns the sublist of field types with the given role.
@@ -248,7 +247,6 @@ def get_library(aq, path, category, library):
     library = aq.Library.where({"category": category, "name": library})
     if not library:
         pull(path, operation_types=[], libraries=library)
-
 
 
 def get_operation_type(aq, path, category, operation_type):
