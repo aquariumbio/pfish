@@ -74,8 +74,8 @@ def write_definition_json(file_path, operation_type):
     Writes the definition of the operation_type as JSON to the given file path.
 
     Arguments:
-      file_path (string): the path to the file as written
-      operation_type (OperationType): the operation type for which the definition should be written
+      file_path (string): the path of the file to write 
+      operation_type (OperationType): the operation type whose definition will be written
     """
 #    print("writing operation type {}".format(operation_type.name)) 
     ot_ser = {}
@@ -101,7 +101,7 @@ def write_library_definition_json(file_path, library):
 
     Arguments:
       file_path (string): the path to the file as written
-      operation_type (Library): the library for which the definition should be written
+      library (Library): the library for which the definition should be written
     """
 #    print("writing library {}".format(library.name))
     library_ser = {}
@@ -137,8 +137,8 @@ def write_library(path, library):
     Writes the files for the library to the path.
 
     Arguments:
-      path (string): the path to where the files will be written
-      library (Library): the library being written
+      path (string): the path of the file to write 
+      library (Library): the library whose definition will be written
     """
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
@@ -186,7 +186,7 @@ def get_operation_type(aq, path, category, operation_type):
     operation_type = aq.OperationType.where({ "category": category, "name": operation_type } )
     pull(path, operation_types=operation_type)
 
-def get_category_optypes_and_libraries(aq, path, category):
+def get_category(aq, path, category):
     """
     Retrieves all the Libraries and Operation Types within a category
 
@@ -256,7 +256,7 @@ def push(aq, directory, files_to_write):
 def main():
     parser = argparse.ArgumentParser(description="Pull or Push files from/to Aquarium")
     parser.add_argument("action", choices=["push", "pull"], help="Indicate if you want to push files or pull them.")  
-    parser.add_argument("-d", "--directory", required=True, help="The name of the directory where the files should be written. If the directory does not already exist, it will be created")
+    parser.add_argument("-d", "--directory", help="The name of the directory where the files should be written. If the directory does not already exist, it will be created")
     parser.add_argument("-c", "--category", help="The Aquarium category where the OperationType or Library is located")
 
     group = parser.add_mutually_exclusive_group()
@@ -264,7 +264,10 @@ def main():
     group.add_argument("-o", "--operation_type", help="the Operation Type you want to pull")
     
     args = parser.parse_args()
-    
+   
+    if not args.directory:
+        args.directory = os.getcwd()
+
     aq = open_aquarium_session()
 
     path = os.path.normpath(args.directory)
@@ -276,7 +279,7 @@ def main():
         elif args.operation_type:
             get_operation_type(aq, path, args.category, args.operation_type)
         elif args.category: 
-            get_category_optypes_and_libraries(aq, path, args.category)
+            get_category(aq, path, args.category)
         else:
             get_all_optypes_and_libraries(aq, path)
     elif args.action == 'push':
