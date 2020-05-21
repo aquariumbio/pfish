@@ -94,7 +94,7 @@ def write_definition_json(file_path, operation_type):
         print("operation type {} has no associated protocol".format(operation_type.id))
 
     with open(file_path, 'w') as file:
-        file.write(json.dumps(ot_ser))
+        file.write(json.dumps(ot_ser, indent=2))
 
 def write_library_definition_json(file_path, library):
     """
@@ -113,7 +113,7 @@ def write_library_definition_json(file_path, library):
     library_ser["user_id"] = library.source.user_id
     
     with open(file_path, 'w') as file:
-        file.write(json.dumps(library_ser))
+        file.write(json.dumps(library_ser, indent=2))
 
 def write_operation_type(path, operation_type):
     """
