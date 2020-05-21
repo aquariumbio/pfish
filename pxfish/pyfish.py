@@ -11,6 +11,7 @@ from pydent import AqSession
 
 sys.path.append('./pydent')
 
+logging.basicConfig(level=logging.INFO)
 
 def makedirectory(directory_name):
     """
@@ -45,10 +46,9 @@ def write_code(path, file_name, code_object):
       file_name (string): the name of the file to be written
       code_object (Code): the code object
     """
-    if code_object != None:
-        file_path = os.path.join(path, file_name)
-        with open(file_path, 'w') as file:
-            file.write(code_object.content)
+    file_path = os.path.join(path, file_name)
+    with open(file_path, 'w') as file:
+        file.write(code_object.content)
 
 
 def field_type_list(field_types, role):
@@ -83,7 +83,6 @@ def write_definition_json(file_path, operation_type):
       file_path (string): the path of the file to write 
       operation_type (OperationType): the operation type whose definition will be written
     """
-#    print("writing operation type {}".format(operation_type.name))
     ot_ser = {}
     ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
@@ -92,14 +91,10 @@ def write_definition_json(file_path, operation_type):
     ot_ser["inputs"] = field_type_list(operation_type.field_types, 'input')
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
-
-    if operation_type.protocol:
-        ot_ser["user_id"] = operation_type.protocol.user_id
-    else:
-        print("operation type {} has no associated protocol".format(operation_type.id))
+    ot_ser["user_id"] = operation_type.protocol.user_id
 
     with open(file_path, 'w') as file:
-        file.write(json.dumps(ot_ser))
+        file.write(json.dumps(ot_ser, indent=2))
 
 
 def write_library_definition_json(file_path, library):
@@ -110,7 +105,6 @@ def write_library_definition_json(file_path, library):
       file_path (string): the path to the file as written
       library (Library): the library for which the definition should be written
     """
-#    print("writing library {}".format(library.name))
     library_ser = {}
     library_ser["id"] = library.id
     library_ser["name"] = library.name
@@ -119,7 +113,7 @@ def write_library_definition_json(file_path, library):
     library_ser["user_id"] = library.source.user_id
 
     with open(file_path, 'w') as file:
-        file.write(json.dumps(library_ser))
+        file.write(json.dumps(library_ser, indent=2))
 
 
 def write_operation_type(path, operation_type):
@@ -130,6 +124,8 @@ def write_operation_type(path, operation_type):
       path (string): the path to where the files will be written
       operation_type (OperationType): the operation type being written
     """
+    logging.info("writing operation type {}".format(operation_type.name))
+    
     category_path = os.path.join(path, simplename(operation_type.category))
     makedirectory(category_path)
     path = create_operation_path(category_path, operation_type)
@@ -179,6 +175,8 @@ def write_library(path, library):
       path (string): the path of the file to write 
       library (Library): the library whose definition will be written
     """
+    logging.info("writing library {}".format(library.name))
+    
     category_path = os.path.join(path, simplename(library.category))
     makedirectory(category_path)
     library_path = create_library_path(category_path, library)
@@ -216,8 +214,10 @@ def get_library(aq, path, category, library):
         category (String): The category the Library is in
         library (String): The Library to be retrieved
     """
-    library = aq.Library.where({"category": category, "name": library})
-    pull(path, operation_types=[], libraries=library)
+
+    library = aq.Library.where( { "category": category, "name": library } )
+    if not library: 
+        pull(path, operation_types=[], libraries=library)
 
 
 def get_operation_type(aq, path, category, operation_type):
@@ -269,7 +269,7 @@ def pull(path, operation_types=[], libraries=[]):
     Arguments:
         path (String): the path for the directory where files should be written
         operation_types (List): list of OperationTypes whose files to pull
-        libraries (List): list of Liraries whose files to pull
+        libraries (List): list of Libraries whose files to pull
     """
     for operation_type in operation_types:
         write_operation_type(path, operation_type)
@@ -278,20 +278,42 @@ def pull(path, operation_types=[], libraries=[]):
         write_library(path, library)
 
 
-def push_library(aq, path, category, library):
+def select_library(aq, path, category, library):
+    """
+    Locates the library files to be pushed 
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path for the directory where files should be written
+        category (String): the category where the Library is to be found 
+        library (string): the Library whose files will be pushed 
+    """
     current_directory = os.path.join(path, category, "libraries", library)
     push(aq, current_directory, ['source.rb'])
 
+def select_operation_type(aq, path, category, operation_type):
+    """
+    Locates the Operation Type whose files will be pushed 
 
-def push_operation_type(aq, path, category, operation_type):
-    current_directory = os.path.join(
-        path, category, "operation_types", operation_type)
-    push(aq, current_directory, [
-         'cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb', 'test.rb'])
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the path for the directory where files should be written
+        category (String): the category where the Library is to be found 
+        library (string): the Library whose files will be pushed 
+    """
+    current_directory = os.path.join(path, category, "operation_types", operation_type)
+    push(aq, current_directory, ['cost_model.rb', 'documentation.md', 'precondition.rb', 'protocol.rb', 'test.rb'])
 
 
 def push(aq, directory, files_to_write):
+    """
+    Pushes files to the Aquarium instance
 
+    Arguments:
+        aq (Session Object): Aquarium session object
+        directory (String): Directory where files are to be found
+        files_to_write (List): List of files to push
+    """
     with open(os.path.join(directory, 'definition.json')) as f:
         definitions = json.load(f)
 
@@ -346,10 +368,9 @@ def main():
             get_all_optypes_and_libraries(aq, path)
     elif args.action == 'push':
         if args.library and args.category:
-            push_library(aq, args.directory, args.category, args.library)
+            select_library(aq, args.directory, args.category, args.library)
         elif args.operation_type and args.category:
-            push_operation_type(aq, args.directory,
-                                args.category, args.operation_type)
+            select_operation_type(aq, args.directory, args.category, args.operation_type)
         else:
             logging.warning(
                 "You must enter a Category and either a Library Name or an OperationType name in order to push. See pyfish.py -h for help.")
