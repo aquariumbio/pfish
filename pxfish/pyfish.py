@@ -1,6 +1,8 @@
-"""Script to download OperationType definitions from the aquarium instance set in the config.py file."""
+"""
+Script to download OperationType definitions from the aquarium instance
+identified in the resources.py file.
+"""
 
-import sys
 import os
 import argparse
 import re
@@ -8,8 +10,6 @@ import json
 import logging
 from resources import resources
 from pydent import AqSession
-
-sys.path.append('./pydent')
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,15 +27,16 @@ def makedirectory(directory_name):
 
 def simplename(name):
     """
-    Converts operation/library name to a string simplified for use as a file name.
+    Convert operation/library name to a string for use as a file name.
+    Replaces whitespace to underscores and changes characters to lowercase.
 
     Arguments:
-      name (string): the operation or lbrary name
+      name (string): the name to convert
 
     Returns:
-      string: the string constructed by converting whitespace to underscores and is lowercase.
-   """
-    return re.sub('\W|^(?=\d)', '_', name).lower()
+      string: the converted string
+    """
+    return re.sub(r'\W|^(?=\d)', '_', name).lower()
 
 
 def write_code(path, file_name, code_object):
@@ -81,8 +82,8 @@ def write_definition_json(file_path, operation_type):
     Writes the definition of the operation_type as JSON to the given file path.
 
     Arguments:
-      file_path (string): the path of the file to write 
-      operation_type (OperationType): the operation type whose definition will be written
+      file_path (string): the path of the file to write
+      operation_type (OperationType): the operation type for definition
     """
     ot_ser = {}
     ot_ser["id"] = operation_type.id
@@ -146,12 +147,14 @@ def write_operation_type(path, operation_type):
         try:
             write_code(path, file_name, code_object)
         except OSError as error:
-            logging.warning("Error {} writing file {} for operation type {}".format(
-                error, file_name, operation_type.name))
+            logging.warning(
+                "Error {} writing file {} for operation type {}".format(
+                    error, file_name, operation_type.name))
             continue
         except UnicodeError as error:
-            logging.warning("Encoding error {} writing file {} for operation type {}".format(
-                error, file_name, operation_type.name))
+            logging.warning(
+                "Encoding error {} writing file {} for operation type {}".format(
+                    error, file_name, operation_type.name))
             continue
 
     write_definition_json(
@@ -187,7 +190,7 @@ def write_library(path, library):
     Writes the files for the library to the path.
 
     Arguments:
-      path (string): the path of the file to write 
+      path (string): the path of the file to write
       library (Library): the library whose definition will be written
     """
     logging.info("writing library {}".format(library.name))
@@ -210,8 +213,9 @@ def write_library(path, library):
         logging.warning("Error {} writing file {} for library {}".format(
             error, file_name, library.name))
     except UnicodeError as error:
-        logging.warning("Encoding error {} writing file {} for library {}".format(
-            error, file_name, library.name))
+        logging.warning(
+            "Encoding error {} writing file {} for library {}".format(
+                error, file_name, library.name))
 
     write_library_definition_json(os.path.join(
         library_path, 'definition.json'), library)
@@ -247,13 +251,13 @@ def get_library(aq, path, category, library):
 
 def get_operation_type(aq, path, category, operation_type):
     """
-    Retrieves a single Operation Type 
+    Retrieves a single Operation Type
 
     Arguments:
         aq (Session Object): Aquarium session object
         path (String): the path to where the file will be written
         category (String): The category the OperationType is in
-        operation_type (String): The OperationType to be retreived
+        operation_type (String): The OperationType to be retrieved
     """
     operation_type = aq.OperationType.where(
         {"category": category, "name": operation_type})
@@ -267,14 +271,14 @@ def get_category(aq, path, category):
     Arguments:
         aq (Session Object): Aquarium session object
         path (String): the path to where the files will be written
-        category (String): The category the Operation Types and Libraries are in
+        category (String): the category name
     """
     operation_types = aq.OperationType.where({"category": category})
     libraries = aq.Library.where({"category": category})
     pull(path, operation_types=operation_types, libraries=libraries)
 
 
-def get_all_optypes_and_libraries(aq, path):
+def get_all(aq, path):
     """
     Retrieves all Operation Types and Libraries
 
@@ -305,13 +309,13 @@ def pull(path, operation_types=[], libraries=[]):
 
 def select_library(aq, category_path, library_name):
     """
-    Locates the library files to be pushed 
+    Locates the library files to be pushed
 
     Arguments:
         aq (Session Object): Aquarium session object
         path (String): the path for the directory where files should be written
-        category (String): the category where the Library is to be found 
-        library (string): the Library whose files will be pushed 
+        category (String): the category where the Library is to be found
+        library (string): the Library whose files will be pushed
     """
     path = create_library_path(category_path, library_name)
     push(aq, path, ['source'])
@@ -319,13 +323,13 @@ def select_library(aq, category_path, library_name):
 
 def select_operation_type(aq, category_path, operation_type_name):
     """
-    Locates the Operation Type whose files will be pushed 
+    Locates the Operation Type whose files will be pushed
 
     Arguments:
         aq (Session Object): Aquarium session object
         path (String): the path for the directory where files should be written
-        category (String): the category where the Library is to be found 
-        library (string): the Library whose files will be pushed 
+        category (String): the category where the Library is to be found
+        library (string): the Library whose files will be pushed
     """
     path = create_operation_path(category_path, operation_type_name)
     push(aq, path, operation_type_code_names())
@@ -369,7 +373,8 @@ def main():
     )
     parser.add_argument(
         "-d", "--directory",
-        help="directory for writing files. Created if does not already exist"
+        help="directory for writing files. Created if does not already exist",
+        default=os.getcwd()
     )
     parser.add_argument(
         "-c", "--category",
@@ -385,42 +390,61 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.directory:
-        args.directory = os.getcwd()
-
     aq = open_aquarium_session()
 
     path = os.path.normpath(args.directory)
     makedirectory(path)
 
     if args.action == 'pull':
-        if args.library:
-            get_library(aq, path, args.category, args.library)
-        elif args.operation_type:
-            get_operation_type(aq, path, args.category, args.operation_type)
-        elif args.category:
-            get_category(aq, path, args.category)
-        else:
-            get_all_optypes_and_libraries(aq, path)
-
-    if args.action == 'push':
         if not args.category:
-            logging.error('Category is required for push')
+            if args.library:
+                logging.error("Category required to pull library")
+                return
+
+            if args.operation_type:
+                logging.error("Category required to pull operation type")
+                return
+
+            # no category, library or operation type
+            get_all(aq, path)
             return
 
-        category_path = create_named_path(path, args.category)
+        # have category, check for a library or operation type
         if args.library:
-            select_library(aq, category_path, args.library)
+            get_library(aq, path, args.category, args.library)
             return
 
         if args.operation_type:
-            select_operation_type(aq, category_path, args.operation_type)
+            get_operation_type(aq, path, args.category, args.operation_type)
             return
 
-        logging.error("Expected a library or operation type")
+        # get whole category
+        get_category(aq, path, args.category)
         return
 
-    logging.warning("Expected an action"
+    # action was not pull, should be push
+    if args.action != 'push':
+        logging.warning("Expected an action")
+        return
+
+    # action is push
+    if not args.category:
+        logging.error('Category is required for push')
+        return
+
+    # have category, look for library or operation type
+    category_path = create_named_path(path, args.category)
+    if args.library:
+        select_library(aq, category_path, args.library)
+        return
+
+    if args.operation_type:
+        select_operation_type(aq, category_path, args.operation_type)
+        return
+
+    # must push individual library or operation type
+    logging.error("Expected a library or operation type")
+    return
 
 
 if __name__ == "__main__":
