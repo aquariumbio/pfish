@@ -4,7 +4,7 @@ Scripts for pulling/pushing protocols/libraries to/from Aquarium.
 
 ## Getting started
 
-- You must have Docker installed to run the script this way.
+You must have Docker installed to run the script this way.
 
 - Ensure you have a directory `~/bin`:
 
@@ -17,13 +17,13 @@ mkdir -p ~/bin
 - Clone Parrotfish:
 
 ```bash
-git clone https://github.com/klavinslab/ParroPyTriFish.git
+git clone https://github.com/klavinslab/pfish.git
 ```
 
 - Install the `pfish` script
 
 ```bash
-cd ParroPyTriFish
+cd pfish
 make install
 ```
 
