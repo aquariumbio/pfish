@@ -1,4 +1,4 @@
-# ParroPyTriFish
+# PFish (formerly known as ParroPyTriFish, commonly known as Parrotfish or PhoenixFish)
 
 Scripts for pulling/pushing protocols/libraries to/from Aquarium.
 
