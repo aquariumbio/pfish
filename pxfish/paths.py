@@ -1,5 +1,8 @@
 """Functions for creating directories and directory paths"""
 
+import os
+import re
+
 def makedirectory(directory_name):
     """
     Create the directory with the given name.

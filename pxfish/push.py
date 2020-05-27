@@ -1,3 +1,9 @@
+"""Functions for pushing Library and Operation Type files to Aquarium"""
+
+import json
+import logging
+import os
+from paths import *
 
 
 def select_library(aq, category_path, library_name):
@@ -51,8 +57,15 @@ def push(aq, directory, component_names):
 
     for name in component_names:
         file_name = "{}.rb".format(name)
-        with open(os.path.join(directory, file_name)) as f:
-            read_file = f.read()
+        try:
+            with open(os.path.join(directory, file_name)) as f:
+                read_file = f.read()
+        
+        except FileNotFoundError as error:
+            logging.warning(
+                "Error {} writing file {} file does not exist".format(
+                    error, file_name))
+            continue
 
         new_code = aq.Code.new(
             name=name,
@@ -63,3 +76,4 @@ def push(aq, directory, component_names):
         )
 
         aq.utils.update_code(new_code)
+

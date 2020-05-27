@@ -1,3 +1,34 @@
+"""Functions for pulling Operation Type and Library files from Aquarium"""
+
+import json
+import logging
+import os
+from paths import *
+
+
+def field_type_list(field_types, role):
+    """
+    Returns the sublist of field types with the given role.
+
+    Arguments:
+      field_types (list): the list of field types
+      role (string): the role of field types to be returned
+
+    Returns:
+      list: the sublist of field_types that have the role
+    """
+    ft_list = []
+    for field_type in field_types:
+        if field_type.role == role:
+            ft_ser = {
+                "name": field_type.name,
+                "part": field_type.part,
+                "array": field_type.array,
+                "routing": field_type.routing
+            }
+            ft_list.append(ft_ser)
+    return ft_list
+
 
 def get_library(aq, path, category, library):
     """
@@ -9,7 +40,6 @@ def get_library(aq, path, category, library):
         category (String): The category the Library is in
         library (String): The Library to be retrieved
     """
-
     library = aq.Library.where({"category": category, "name": library})
     if not library:
         pull(path, operation_types=[], libraries=library)
@@ -71,6 +101,8 @@ def pull(path, operation_types=[], libraries=[]):
 
     for library in libraries:
         write_library(path, library)
+
+
 def write_code(path, file_name, code_object):
     """
     Writes the aquarium code object to the given path.
@@ -83,6 +115,7 @@ def write_code(path, file_name, code_object):
     file_path = os.path.join(path, file_name)
     with open(file_path, 'w') as file:
         file.write(code_object.content)
+
 
 def write_definition_json(file_path, operation_type):
     """
@@ -168,7 +201,6 @@ def write_operation_type(path, operation_type):
         os.path.join(path, 'definition.json'),
         operation_type
     )
-
 
 
 def write_library(path, library):
