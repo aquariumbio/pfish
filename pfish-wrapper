@@ -27,7 +27,7 @@ check_cmd_in_path docker
 #docker-machine active > /dev/null 2>&1 || error 2 "No active docker-machine VM found."
 
 # Set up mounted volumes, environment, and run our containerized command
-exec docker pull "aquariumbio/pfish:$VERSION" && docker run \
+exec docker run \
   --net=host \
   --interactive --tty --rm \
   --volume "$PWD":/wd \
