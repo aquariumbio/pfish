@@ -37,9 +37,18 @@ def select_operation_type(aq, category_path, operation_type_name):
 # Create all the associated code objects 
 # Create new OT (or share) when you have different id numbers
 
-def create_operation_type():
-    pass 
-
+def create_operation_type(aq, category_path, operation_type_name):
+    """
+    Creates new operation type
+    
+    Arguments:
+        aq (Session Object): Aquarium session object
+    """
+    # new_operation_type = aq.OperationType.new(name=name, category=category)
+    path = create_operation_path(category_path, operation_type_name)
+#    new_operation_type.save()
+    print("created path {}".format(path)) 
+    
 def create_code_objects():
     pass
 

@@ -31,8 +31,8 @@ def main():
         description="Pull or Push files from/to Aquarium")
     parser.add_argument(
         "action",
-        choices=["push", "pull"],
-        help="whether to push or pull operation types/libraries"
+        choices=["push", "pull", "create"],
+        help="whether to push or pull Operation Type and/or Library files, or to create a new OperationType"
     )
     parser.add_argument(
         "-d", "--directory",
@@ -86,8 +86,13 @@ def main():
         return
 
     # action was not pull, should be push
-    if args.action != 'push':
+    if args.action != 'push' and arg.action != 'create':
         logging.warning("Expected an action")
+        return
+
+    if args.action == 'create':
+        category_path = create_named_path(path, args.category)
+        create_operation_type(aq, category_path, args.operation_type)
         return
 
     # action is push
