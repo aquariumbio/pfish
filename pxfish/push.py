@@ -48,14 +48,25 @@ def create_operation_type(aq, category_path, operation_type_name):
     Arguments:
         aq (Session Object): Aquarium session object
     """
-    new_operation_type = aq.OperationType.new(name=name, category=category)
+    code_objects = create_code_objects(aq, "test", operation_type_code_names())
+    print(code_objects)
+    #new_operation_type = aq.OperationType.new(name=name, category=category)
     path = create_operation_path(category_path, operation_type_name)
-#    new_operation_type.save()
     print("created path {}".format(path)) 
     
-def create_code_objects():
+
+def create_code_objects(aq, category, component_names):
+    code_objects = {}
     for name in component_names:
         file_name = "{}.rb".format(name)
+        code_objects[name] = aq.Code.new( name=name, category=category )
+    return code_objects
+
+
+#def create_operation_object(aq, component_names):
+    #abc = aq.OperationType.new(name="abc", category="test", protocol=a, documentation=b, precondition=c, cost_model=d)
+    #aq.util.create_operation_type(ot instance)
+
 # create dummy code objects 
 # create OperationType
 # create json data file/other files (should have template code in them?)
