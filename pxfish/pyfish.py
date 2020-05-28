@@ -86,22 +86,23 @@ def main():
         return
 
     # action was not pull, should be push
-    if args.action != 'push' and arg.action != 'create':
+    if args.action != 'push' and args.action != 'create':
         logging.warning("Expected an action")
         return
 
-    if args.action == 'create':
-        category_path = create_named_path(path, args.category)
-        create_operation_type(aq, category_path, args.operation_type)
-        return
-
-    # action is push
+    # action is push or create
     if not args.category:
-        logging.error('Category is required for push')
+        logging.error('Category is required for push and create')
         return
 
     # have category, look for library or operation type
     category_path = create_named_path(path, args.category)
+
+# TODO: organize this so it checks the right things for create 
+    if args.action == 'create' and args.operation_type:
+        create_operation_type(aq, category_path, args.operation_type)
+        return
+
     if args.library:
         select_library(aq, category_path, args.library)
         return

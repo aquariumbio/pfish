@@ -34,9 +34,13 @@ def select_operation_type(aq, category_path, operation_type_name):
     push(aq, path, operation_type_code_names())
 
 # Create new OT in database 
-# Create all the associated code objects 
+# Create all the associated code objects
+# Create Code objects with no parent id 
+# use those objects to create new Op Type 
+# find id of new op type 
+# update code ids to match 
 # Create new OT (or share) when you have different id numbers
-
+# Need to create Code objects to create Op types, but how to get id # for op type?
 def create_operation_type(aq, category_path, operation_type_name):
     """
     Creates new operation type
@@ -44,13 +48,19 @@ def create_operation_type(aq, category_path, operation_type_name):
     Arguments:
         aq (Session Object): Aquarium session object
     """
-    # new_operation_type = aq.OperationType.new(name=name, category=category)
+    new_operation_type = aq.OperationType.new(name=name, category=category)
     path = create_operation_path(category_path, operation_type_name)
 #    new_operation_type.save()
     print("created path {}".format(path)) 
     
 def create_code_objects():
-    pass
+    for name in component_names:
+        file_name = "{}.rb".format(name)
+# create dummy code objects 
+# create OperationType
+# create json data file/other files (should have template code in them?)
+# push code just as you would for normal edits
+
 
 def push(aq, directory, component_names):
     """
