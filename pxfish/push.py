@@ -50,8 +50,9 @@ def create_operation_type(aq, category_path, operation_type_name):
     """
     code_objects = create_code_objects(aq, "test", operation_type_code_names())
     print(code_objects)
-    #new_operation_type = aq.OperationType.new(name=name, category=category)
+    new_operation_type = aq.OperationType.new(name=name, category=category, protocol=code_objects['protocol'], documentation=code_objects['documentation'], cost_model=code_objects['cost_model'], field_types=[])
     path = create_operation_path(category_path, operation_type_name)
+    print("created new op type {}".format(new_operation_type))
     print("created path {}".format(path)) 
     
 
