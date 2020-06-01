@@ -50,7 +50,7 @@ def create_operation_type(aq, category_path, operation_type_name):
     """
     code_objects = create_code_objects(aq, "test", operation_type_code_names())
     print(code_objects)
-    new_operation_type = aq.OperationType.new(name=name, category=category, protocol=code_objects['protocol'], documentation=code_objects['documentation'], cost_model=code_objects['cost_model'], field_types=[])
+    new_operation_type = aq.OperationType.new(name=operation_type_name, protocol=code_objects['protocol'], precondition=code_objects['precondition'], documentation=code_objects['documentation'], cost_model=code_objects['cost_model'], field_types=[])
     path = create_operation_path(category_path, operation_type_name)
     print("created new op type {}".format(new_operation_type))
     print("created path {}".format(path)) 
@@ -60,6 +60,7 @@ def create_code_objects(aq, category, component_names):
     code_objects = {}
     for name in component_names:
         file_name = "{}.rb".format(name)
+        print(file_name)
         code_objects[name] = aq.Code.new( name=name, category=category )
     return code_objects
 
