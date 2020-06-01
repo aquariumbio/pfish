@@ -100,7 +100,7 @@ def main():
 
 # TODO: organize this so it checks the right things for create 
     if args.action == 'create' and args.operation_type:
-        create_operation_type(aq, category_path, args.operation_type)
+        create_new_operation_type(aq, category_path, args.operation_type)
         return
 
     if args.library:

@@ -41,7 +41,7 @@ def select_operation_type(aq, category_path, operation_type_name):
 # update code ids to match 
 # Create new OT (or share) when you have different id numbers
 # Need to create Code objects to create Op types, but how to get id # for op type?
-def create_operation_type(aq, category_path, operation_type_name):
+def create_new_operation_type(aq, category_path, operation_type_name):
     """
     Creates new operation type
     
@@ -54,7 +54,8 @@ def create_operation_type(aq, category_path, operation_type_name):
     path = create_operation_path(category_path, operation_type_name)
     print("created new op type {}".format(new_operation_type))
     print("created path {}".format(path)) 
-    
+    aq.utils.create_operation_type(new_operation_type) 
+    update_parent_ids(aq, new_operation_type, code_objects)
 
 def create_code_objects(aq, category, component_names):
     code_objects = {}
@@ -62,15 +63,18 @@ def create_code_objects(aq, category, component_names):
         file_name = "{}.rb".format(name)
         print(file_name)
         code_objects[name] = aq.Code.new( name=name, category=category )
+        code_objects[name].parent_class = "OperationType"
     return code_objects
 
-
+def update_parent_ids(aq, operation_type, code_objects):
+    for name in code_objects:
+        code_objects.parent_id = operation_type.id
+        aq.utils.update_code(code_objects[name])
+        # aq.utils.update_code(new_code)
 #def create_operation_object(aq, component_names):
     #abc = aq.OperationType.new(name="abc", category="test", protocol=a, documentation=b, precondition=c, cost_model=d)
     #aq.util.create_operation_type(ot instance)
-
-# create dummy code objects 
-# create OperationType
+# TODO: Also need to create actual files -- use same method for pull but modify? 
 # create json data file/other files (should have template code in them?)
 # push code just as you would for normal edits
 
