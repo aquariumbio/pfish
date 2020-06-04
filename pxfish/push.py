@@ -48,14 +48,23 @@ def create_new_operation_type(aq, category_path, operation_type_name):
     Arguments:
         aq (Session Object): Aquarium session object
     """
+    print(category_path)
+    category = os.path.split(category_path)[1]
     code_objects = create_code_objects(aq, "test", operation_type_code_names())
     print(code_objects)
-    new_operation_type = aq.OperationType.new(name=operation_type_name, protocol=code_objects['protocol'], precondition=code_objects['precondition'], documentation=code_objects['documentation'], cost_model=code_objects['cost_model'], field_types=[])
+    new_operation_type = aq.OperationType.new(
+            name=operation_type_name, 
+            category=category, 
+            protocol=code_objects['protocol'], 
+            precondition=code_objects['precondition'],
+            documentation=code_objects['documentation'],
+            cost_model=code_objects['cost_model'])
+    new_operation_type.field_types = {}
     path = create_operation_path(category_path, operation_type_name)
     print("created new op type {}".format(new_operation_type))
     print("created path {}".format(path)) 
-    aq.utils.create_operation_type(new_operation_type) 
-    update_parent_ids(aq, new_operation_type, code_objects)
+    #update_parent_ids(aq, new_operation_type, code_objects)
+
 
 def create_code_objects(aq, category, component_names):
     code_objects = {}
@@ -64,7 +73,9 @@ def create_code_objects(aq, category, component_names):
         print(file_name)
         code_objects[name] = aq.Code.new( name=name, category=category )
         code_objects[name].parent_class = "OperationType"
+        print("created code object {}".format(code_objects[name]))
     return code_objects
+
 
 def update_parent_ids(aq, operation_type, code_objects):
     for name in code_objects:
