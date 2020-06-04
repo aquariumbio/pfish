@@ -60,9 +60,12 @@ def create_new_operation_type(aq, category_path, operation_type_name):
             documentation=code_objects['documentation'],
             cost_model=code_objects['cost_model'])
     new_operation_type.field_types = {}
-    path = create_operation_path(category_path, operation_type_name)
+    #path = create_operation_path(category_path, operation_type_name)
+
+
     print("created new op type {}".format(new_operation_type))
-    print("created path {}".format(path)) 
+    #print("created path {}".format(path)) 
+    aq.utils.create_operation_type(new_operation_type)
     #update_parent_ids(aq, new_operation_type, code_objects)
 
 
@@ -81,7 +84,6 @@ def update_parent_ids(aq, operation_type, code_objects):
     for name in code_objects:
         code_objects.parent_id = operation_type.id
         aq.utils.update_code(code_objects[name])
-        # aq.utils.update_code(new_code)
 #def create_operation_object(aq, component_names):
     #abc = aq.OperationType.new(name="abc", category="test", protocol=a, documentation=b, precondition=c, cost_model=d)
     #aq.util.create_operation_type(ot instance)
