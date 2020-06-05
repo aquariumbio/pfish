@@ -5,6 +5,7 @@ Utilities for creating paths and directories
 import os
 import re
 
+
 def makedirectory(directory_name):
     """
     Create the directory with the given name.
@@ -84,8 +85,4 @@ def create_operation_path(category_path, operation_type_name):
         os.path.join(category_path, 'operation_types'),
         operation_type_name
     )
-
-
-def operation_type_code_names():
-    return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
