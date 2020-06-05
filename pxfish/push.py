@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from paths import *
-
+from pull import *
 
 def select_library(aq, category_path, library_name):
     """
@@ -34,15 +34,13 @@ def select_operation_type(aq, category_path, operation_type_name):
     push(aq, path, operation_type_code_names())
 
 
-def create_new_operation_type(aq, category_path, operation_type_name):
+def create_new_operation_type(aq, path, category, operation_type_name):
     """
     Creates new operation type
     
     Arguments:
         aq (Session Object): Aquarium session object
     """
-    print(category_path)
-    category = os.path.split(category_path)[1]
     code_objects = create_code_objects(aq, category, operation_type_code_names())
     new_operation_type = aq.OperationType.new(
             name=operation_type_name, 
@@ -52,10 +50,8 @@ def create_new_operation_type(aq, category_path, operation_type_name):
             documentation=code_objects['documentation'],
             cost_model=code_objects['cost_model'])
     new_operation_type.field_types = {}
-    #path = create_operation_path(category_path, operation_type_name)
-    #print("created path {}".format(path)) 
     aq.utils.create_operation_type(new_operation_type)
-    #update_parent_ids(aq, new_operation_type, code_objects)
+    get_operation_type(aq, path, category, operation_type_name)
 
 
 def create_code_objects(aq, category, component_names):
