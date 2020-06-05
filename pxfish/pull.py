@@ -1,9 +1,19 @@
-"""Functions for pulling Operation Type and Library files from Aquarium"""
+"""
+Functions for pulling Operation Type and Library files from Aquarium.
+"""
 
 import json
 import logging
 import os
-from paths import *
+from operation_types import (
+    operation_type_code_names
+)
+from paths import (
+    create_named_path,
+    create_operation_path,
+    create_library_path,
+    makedirectory
+)
 
 
 def field_type_list(field_types, role):
@@ -178,7 +188,7 @@ def write_operation_type(path, operation_type):
         code_object = operation_type.code(name)
         if not code_object:
             logging.warning(
-                "Ignored operation type {} missing {} code".format(
+                "Missing {} code for operation type {}".format(
                     operation_type.name, name)
             )
             continue
