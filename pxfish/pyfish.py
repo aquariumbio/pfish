@@ -6,13 +6,26 @@ identified in the resources.py file.
 import os
 import argparse
 import logging
-from pull import *
-from push import *
-from paths import *
+from pull import (
+    get_all,
+    get_category,
+    get_library,
+    get_operation_type
+)
+from push import (
+    create_new_operation_type,
+    select_library,
+    select_operation_type
+)
+from paths import (
+    create_named_path,
+    makedirectory
+)
 from resources import resources
 from pydent import AqSession
 
 logging.basicConfig(level=logging.INFO)
+
 
 def open_aquarium_session():
     """
@@ -100,6 +113,7 @@ def main():
 
     if args.action == 'create' and args.operation_type:
         create_new_operation_type(aq, path, args.category, args.operation_type)
+        get_operation_type(aq, path, args.category, args.operation_type)
         return
 
     if args.library:

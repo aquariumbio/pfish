@@ -1,10 +1,18 @@
-"""Functions for pushing Library and Operation Type files to Aquarium"""
+"""
+Functions for pushing Library and Operation Type files to Aquarium
+"""
 
 import json
 import logging
 import os
-from paths import *
-from pull import *
+from operation_types import (
+    operation_type_code_names
+)
+from paths import (
+    create_library_path,
+    create_operation_path
+)
+
 
 def select_library(aq, category_path, library_name):
     """
@@ -36,32 +44,32 @@ def select_operation_type(aq, category_path, operation_type_name):
 
 def create_new_operation_type(aq, path, category, operation_type_name):
     """
-    Creates new operation type
-    
+    Creates new operation type on the Aquarium instance.
+    Note: does not create the files locally, they need to be pulled.
+
     Arguments:
         aq (Session Object): Aquarium session object
-        path (String): the path for the directory where the new files will be written
+        path (String): the directory path where the new files will be written
         category (String): The category that will contain the operation type
-        operation_type_name (String): The name of the Operation Type to be created
+        operation_type_name (String): name of the operation type
     """
-    code_objects = create_code_objects(aq, category, operation_type_code_names())
+    code_objects = create_code_objects(
+        aq, category, operation_type_code_names())
     new_operation_type = aq.OperationType.new(
-            name=operation_type_name, 
-            category=category, 
-            protocol=code_objects['protocol'], 
-            precondition=code_objects['precondition'],
-            documentation=code_objects['documentation'],
-            cost_model=code_objects['cost_model'])
+        name=operation_type_name,
+        category=category,
+        protocol=code_objects['protocol'],
+        precondition=code_objects['precondition'],
+        documentation=code_objects['documentation'],
+        cost_model=code_objects['cost_model'])
     new_operation_type.field_types = {}
     aq.utils.create_operation_type(new_operation_type)
-    get_operation_type(aq, path, category, operation_type_name)
 
 
 def create_code_objects(aq, category, component_names):
     code_objects = {}
     for name in component_names:
-        file_name = "{}.rb".format(name)
-        code_objects[name] = aq.Code.new( name=name, content='' )
+        code_objects[name] = aq.Code.new(name=name, content='')
     return code_objects
 
 
@@ -82,22 +90,22 @@ def push(aq, directory, component_names):
         try:
             with open(os.path.join(directory, file_name)) as f:
                 read_file = f.read()
-        
+
         except FileNotFoundError as error:
             logging.warning(
                 "Error {} writing file {} file does not exist".format(
                     error, file_name))
             continue
 
-        local_op_type = aq.OperationType.where({"category": definitions['category'], "name": definitions['name'] })
-       
+        local_op_type = aq.OperationType.where(
+            {"category": definitions['category'], "name": definitions['name']})
+
         new_code = aq.Code.new(
             name=name,
-            parent_id=local_op_type[0].id, 
+            parent_id=local_op_type[0].id,
             parent_class=definitions['parent_class'],
             user_id=local_op_type[0].protocol.user_id,
             content=read_file
         )
 
         aq.utils.update_code(new_code)
-
