@@ -33,14 +33,7 @@ def select_operation_type(aq, category_path, operation_type_name):
     path = create_operation_path(category_path, operation_type_name)
     push(aq, path, operation_type_code_names())
 
-# Create new OT in database 
-# Create all the associated code objects
-# Create Code objects with no parent id 
-# use those objects to create new Op Type 
-# find id of new op type 
-# update code ids to match 
-# Create new OT (or share) when you have different id numbers
-# Need to create Code objects to create Op types, but how to get id # for op type?
+
 def create_new_operation_type(aq, category_path, operation_type_name):
     """
     Creates new operation type
@@ -50,8 +43,7 @@ def create_new_operation_type(aq, category_path, operation_type_name):
     """
     print(category_path)
     category = os.path.split(category_path)[1]
-    code_objects = create_code_objects(aq, "test", operation_type_code_names())
-    print(code_objects)
+    code_objects = create_code_objects(aq, category, operation_type_code_names())
     new_operation_type = aq.OperationType.new(
             name=operation_type_name, 
             category=category, 
@@ -61,9 +53,6 @@ def create_new_operation_type(aq, category_path, operation_type_name):
             cost_model=code_objects['cost_model'])
     new_operation_type.field_types = {}
     #path = create_operation_path(category_path, operation_type_name)
-
-
-    print("created new op type {}".format(new_operation_type))
     #print("created path {}".format(path)) 
     aq.utils.create_operation_type(new_operation_type)
     #update_parent_ids(aq, new_operation_type, code_objects)
@@ -73,23 +62,12 @@ def create_code_objects(aq, category, component_names):
     code_objects = {}
     for name in component_names:
         file_name = "{}.rb".format(name)
-        print(file_name)
-        code_objects[name] = aq.Code.new( name=name, category=category )
-        code_objects[name].parent_class = "OperationType"
-        print("created code object {}".format(code_objects[name]))
+        code_objects[name] = aq.Code.new( name=name, content='' )
     return code_objects
 
 
-def update_parent_ids(aq, operation_type, code_objects):
-    for name in code_objects:
-        code_objects.parent_id = operation_type.id
-        aq.utils.update_code(code_objects[name])
-#def create_operation_object(aq, component_names):
-    #abc = aq.OperationType.new(name="abc", category="test", protocol=a, documentation=b, precondition=c, cost_model=d)
-    #aq.util.create_operation_type(ot instance)
 # TODO: Also need to create actual files -- use same method for pull but modify? 
 # create json data file/other files (should have template code in them?)
-# push code just as you would for normal edits
 
 
 def push(aq, directory, component_names):
