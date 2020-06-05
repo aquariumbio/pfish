@@ -40,6 +40,9 @@ def create_new_operation_type(aq, path, category, operation_type_name):
     
     Arguments:
         aq (Session Object): Aquarium session object
+        path (String): the path for the directory where the new files will be written
+        category (String): The category that will contain the operation type
+        operation_type_name (String): The name of the Operation Type to be created
     """
     code_objects = create_code_objects(aq, category, operation_type_code_names())
     new_operation_type = aq.OperationType.new(
@@ -60,10 +63,6 @@ def create_code_objects(aq, category, component_names):
         file_name = "{}.rb".format(name)
         code_objects[name] = aq.Code.new( name=name, content='' )
     return code_objects
-
-
-# TODO: Also need to create actual files -- use same method for pull but modify? 
-# create json data file/other files (should have template code in them?)
 
 
 def push(aq, directory, component_names):
@@ -94,9 +93,9 @@ def push(aq, directory, component_names):
        
         new_code = aq.Code.new(
             name=name,
-            parent_id=local_op_type[0].id,    #definitions['id'],
+            parent_id=local_op_type[0].id, 
             parent_class=definitions['parent_class'],
-            user_id=local_op_type[0].protocol.user_id, # definitions['user_id'],
+            user_id=local_op_type[0].protocol.user_id,
             content=read_file
         )
 

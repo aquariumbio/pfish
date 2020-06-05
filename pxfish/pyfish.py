@@ -28,7 +28,7 @@ def open_aquarium_session():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Pull or Push files from/to Aquarium")
+        description="Pull or Push files from/to Aquarium. Create new operation types")
     parser.add_argument(
         "action",
         choices=["push", "pull", "create"],
@@ -85,7 +85,7 @@ def main():
         get_category(aq, path, args.category)
         return
 
-    # action was not pull, should be push
+    # action was not pull, should be push or create
     if args.action != 'push' and args.action != 'create':
         logging.warning("Expected an action")
         return
@@ -98,7 +98,6 @@ def main():
     # have category, look for library or operation type
     category_path = create_named_path(path, args.category)
 
-# TODO: organize this so it checks the right things for create 
     if args.action == 'create' and args.operation_type:
         create_new_operation_type(aq, path, args.category, args.operation_type)
         return
@@ -114,7 +113,7 @@ def main():
     # must push individual library or operation type
     logging.error("Expected a library or operation type")
     return
-# test comment to make sure I updated things correctly.
+
 
 if __name__ == "__main__":
     main()
