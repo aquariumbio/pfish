@@ -84,7 +84,7 @@ def push(aq, directory, component_names):
     """
     with open(os.path.join(directory, 'definition.json')) as f:
         definitions = json.load(f)
-
+    print("hello")
     for name in component_names:
         file_name = "{}.rb".format(name)
         try:
@@ -98,19 +98,17 @@ def push(aq, directory, component_names):
             continue
 
         if name == 'source':
-            local_id = aq.Library(where(
-                {"category": definitions['category'], "name": definitions['name']})
-            file_type = 'source'
+            local_id = aq.Library.where({"category": definitions['category'], "name": definitions['name']})
+            user_id = local_id[0].source.user_id
         else: 
-            local_id = aq.OperationType.where(
-                {"category": definitions['category'], "name": definitions['name']})
-            file_type = 'protocol' 
+            local_id = aq.OperationType.where({"category": definitions['category'], "name": definitions['name']})
+            user_id = local_id[0].protocol.user_id
 
         new_code = aq.Code.new(
             name=name,
             parent_id=local_id[0].id,
             parent_class=definitions['parent_class'],
-            user_id=local_id[0].file_type.user_id,
+            user_id=user_id,
             content=read_file
         )
 
