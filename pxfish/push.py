@@ -97,14 +97,20 @@ def push(aq, directory, component_names):
                     error, file_name))
             continue
 
-        local_op_type = aq.OperationType.where(
-            {"category": definitions['category'], "name": definitions['name']})
+        if name == 'source':
+            local_id = aq.Library(where(
+                {"category": definitions['category'], "name": definitions['name']})
+            file_type = 'source'
+        else: 
+            local_id = aq.OperationType.where(
+                {"category": definitions['category'], "name": definitions['name']})
+            file_type = 'protocol' 
 
         new_code = aq.Code.new(
             name=name,
-            parent_id=local_op_type[0].id,
+            parent_id=local_id[0].id,
             parent_class=definitions['parent_class'],
-            user_id=local_op_type[0].protocol.user_id,
+            user_id=local_id[0].file_type.user_id,
             content=read_file
         )
 
