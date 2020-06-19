@@ -14,7 +14,7 @@ from paths import (
 )
 
 
-def select_library(aq, category_path, library_name):
+def select_library(aq, user_id, category_path, library_name):
     """
     Locates the library files to be pushed
 
@@ -25,10 +25,10 @@ def select_library(aq, category_path, library_name):
         library (string): the Library whose files will be pushed
     """
     path = create_library_path(category_path, library_name)
-    push(aq, path, ['source'])
+    push(aq, user_id, path, ['source'])
 
 
-def select_operation_type(aq, category_path, operation_type_name):
+def select_operation_type(aq, user_id, category_path, operation_type_name):
     """
     Locates the Operation Type whose files will be pushed
 
@@ -39,7 +39,7 @@ def select_operation_type(aq, category_path, operation_type_name):
         library (string): the Library whose files will be pushed
     """
     path = create_operation_path(category_path, operation_type_name)
-    push(aq, path, operation_type_code_names())
+    push(aq, user_id, path, operation_type_code_names())
 
 
 def create_new_operation_type(aq, path, category, operation_type_name):
@@ -73,7 +73,26 @@ def create_code_objects(aq, category, component_names):
     return code_objects
 
 
-def push(aq, directory, component_names):
+def select_category(aq, user_id, category_path):
+    """
+    Finds all Libraries and Operation Types in a specific category
+    Arguments:
+    """
+    files = os.listdir(category_path)
+
+    for file in files:
+        if file == 'libraries':
+            libraries = listdir(join(category_path, 'libraries'))
+            for name in libraries:
+                select_library(aq, user_id, category_path, name)
+        elif file == 'operation_types':
+            operation_types = listdir(join(category_path, 'operation_types'))
+            for name in operation_types:
+                select_operation_type(aq, user_id, category_path, name)
+        else:
+            pass
+
+def push(aq, user_id, directory, component_names):
     """
     Pushes files to the Aquarium instance
 
@@ -84,7 +103,7 @@ def push(aq, directory, component_names):
     """
     with open(os.path.join(directory, 'definition.json')) as f:
         definitions = json.load(f)
-    print("hello")
+    
     for name in component_names:
         file_name = "{}.rb".format(name)
         try:

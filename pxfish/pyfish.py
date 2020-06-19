@@ -15,7 +15,8 @@ from pull import (
 from push import (
     create_new_operation_type,
     select_library,
-    select_operation_type
+    select_operation_type,
+    select_category
 )
 from paths import (
     create_named_path,
@@ -111,22 +112,22 @@ def main():
     # have category, look for library or operation type
     category_path = create_named_path(path, args.category)
 
+    user_id = aq.User.where({"login": aq.login}) 
+    
     if args.action == 'create' and args.operation_type:
         create_new_operation_type(aq, path, args.category, args.operation_type)
         get_operation_type(aq, path, args.category, args.operation_type)
         return
 
     if args.library:
-        select_library(aq, category_path, args.library)
+        select_library(aq, user_id, category_path, args.library)
         return
 
     if args.operation_type:
-        select_operation_type(aq, category_path, args.operation_type)
+        select_operation_type(aq, user_id, category_path, args.operation_type)
         return
-
-    # must push individual library or operation type
-    logging.error("Expected a library or operation type")
-    return
+    
+    select_category(aq, user_id, category_path)
 
 
 if __name__ == "__main__":
