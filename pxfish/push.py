@@ -97,12 +97,12 @@ def push(aq, directory, component_names):
                     error, file_name))
             continue
 
+        user_id = aq.User.where({"login": aq.login}) 
+        
         if name == 'source':
             local_id = aq.Library.where({"category": definitions['category'], "name": definitions['name']})
-            user_id = local_id[0].source.user_id
         else: 
             local_id = aq.OperationType.where({"category": definitions['category'], "name": definitions['name']})
-            user_id = local_id[0].protocol.user_id
 
         new_code = aq.Code.new(
             name=name,
