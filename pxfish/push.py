@@ -112,7 +112,9 @@ def push(aq, user_id, directory_path, component_names):
         try:
             with open(os.path.join(directory_path, file_name)) as f:
                 read_file = f.read()
-# TODO; create test file if it doesn't exist?
+
+    # TODO; create test file if it doesn't exist?
+
         except FileNotFoundError as error:
             logging.warning(
                 "Error {} writing file {} file does not exist".format(
@@ -133,9 +135,6 @@ def push(aq, user_id, directory_path, component_names):
                      definitions['category'], definitions['name']))
             return 
         
-        print("*************")
-        print("optype or lib type object is {}".format(op_type_or_lib_object))
-        print("*************")
         new_code = aq.Code.new(
             name=name,
             parent_id=op_type_or_lib_object[0].id,
@@ -144,6 +143,6 @@ def push(aq, user_id, directory_path, component_names):
             content=read_file
         )
         
-        #logging.info("writing file {}".format(op_type_or_lib_object.name))
+        logging.info("writing file {}".format(op_type_or_lib_object.name))
         
         aq.utils.update_code(new_code)

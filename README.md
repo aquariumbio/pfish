@@ -108,8 +108,16 @@ will pull just the Run Gel operation type.
 _Note_: At the moment, an operation type or library must already exist in Aquarium for you to be able to push to it.
 If you are adding a new operation type or library, create a blank operation type or library with the name in Aquarium, pull it, add whatever you'd like, and then push.
 
-You can push either one library or one operation type at a time.
-Pushing an operation type will include all parts of that that type (protocol test, cost model, documentation etc.)
+You can push a category, including all operation types and libraries or push one library or one operation type at a time.
+Pushing an operation type will include all parts of that that type (protocol, test, cost model, documentation etc.)
+A lot of operation types are missing a test file; you may want to add one.
+
+
+For a category:
+
+```bash
+pfish push -d <directory_name> -c <category_name> 
+```
 
 For a library:
 
@@ -123,4 +131,5 @@ For an operation type
 pfish push -d <directory_name> -c <category_name> -o <operation_type_name>
 ```
 
+For a category
 You may need to refresh Aquarium to see the new version
