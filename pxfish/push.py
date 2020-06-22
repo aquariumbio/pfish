@@ -39,6 +39,7 @@ def select_operation_type(aq, user_id, category_path, operation_type_name):
         library (string): the Library whose files will be pushed
     """
     path = create_operation_path(category_path, operation_type_name)
+    print("CREATING PATH", path)
     push(aq, user_id, path, operation_type_code_names())
 
 
@@ -79,20 +80,22 @@ def select_category(aq, user_id, category_path):
     Arguments:
     """
     files = os.listdir(category_path)
-
+    print("these are the files", files) 
     for file in files:
         if file == 'libraries':
-            libraries = listdir(join(category_path, 'libraries'))
+            libraries = os.listdir(os.path.join(category_path, 'libraries'))
+            print("these are the libraries", libraries)
             for name in libraries:
                 select_library(aq, user_id, category_path, name)
         elif file == 'operation_types':
-            operation_types = listdir(join(category_path, 'operation_types'))
+            operation_types = os.listdir(os.path.join(category_path, 'operation_types'))
+            print("these are the operation_types", operation_types)
             for name in operation_types:
                 select_operation_type(aq, user_id, category_path, name)
         else:
             pass
 
-def push(aq, user_id, directory, component_names):
+def push(aq, user_id, directory_path, component_names):
     """
     Pushes files to the Aquarium instance
 
@@ -101,34 +104,46 @@ def push(aq, user_id, directory, component_names):
         directory (String): Directory where files are to be found
         files_to_write (List): List of files to push
     """
-    with open(os.path.join(directory, 'definition.json')) as f:
+    with open(os.path.join(directory_path, 'definition.json')) as f:
         definitions = json.load(f)
     
     for name in component_names:
         file_name = "{}.rb".format(name)
         try:
-            with open(os.path.join(directory, file_name)) as f:
+            with open(os.path.join(directory_path, file_name)) as f:
                 read_file = f.read()
-
+# TODO; create test file if it doesn't exist?
         except FileNotFoundError as error:
             logging.warning(
                 "Error {} writing file {} file does not exist".format(
                     error, file_name))
-            continue
+            return
 
         user_id = aq.User.where({"login": aq.login}) 
         
         if name == 'source':
-            local_id = aq.Library.where({"category": definitions['category'], "name": definitions['name']})
+            op_type_or_lib_object = aq.Library.where({"category": definitions['category'], "name": definitions['name']})
         else: 
-            local_id = aq.OperationType.where({"category": definitions['category'], "name": definitions['name']})
-
+            op_type_or_lib_object = aq.OperationType.where({"category": definitions['category'], "name": definitions['name']})
+       
+        
+        if not op_type_or_lib_object:
+            logging.warning(
+                 "There is no database entry for {} in category {} in your database".format(
+                     definitions['category'], definitions['name']))
+            return 
+        
+        print("*************")
+        print("optype or lib type object is {}".format(op_type_or_lib_object))
+        print("*************")
         new_code = aq.Code.new(
             name=name,
-            parent_id=local_id[0].id,
+            parent_id=op_type_or_lib_object[0].id,
             parent_class=definitions['parent_class'],
             user_id=user_id,
             content=read_file
         )
-
+        
+        #logging.info("writing file {}".format(op_type_or_lib_object.name))
+        
         aq.utils.update_code(new_code)

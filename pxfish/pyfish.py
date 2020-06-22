@@ -50,7 +50,7 @@ def main():
     )
     parser.add_argument(
         "-d", "--directory",
-        help="directory for writing files. Created if does not already exist",
+        help="directory for reading or writing files. Created if does not already exist",
         default=os.getcwd()
     )
     parser.add_argument(
@@ -103,6 +103,7 @@ def main():
     if args.action != 'push' and args.action != 'create':
         logging.warning("Expected an action")
         return
+
 
     # action is push or create
     if not args.category:
