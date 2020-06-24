@@ -39,7 +39,6 @@ def select_operation_type(aq, user_id, category_path, operation_type_name):
         library (string): the Library whose files will be pushed
     """
     path = create_operation_path(category_path, operation_type_name)
-    print("CREATING PATH", path)
     push(aq, user_id, path, operation_type_code_names())
 
 
@@ -80,16 +79,13 @@ def select_category(aq, user_id, category_path):
     Arguments:
     """
     files = os.listdir(category_path)
-    print("these are the files", files) 
     for file in files:
         if file == 'libraries':
             libraries = os.listdir(os.path.join(category_path, 'libraries'))
-            print("these are the libraries", libraries)
             for name in libraries:
                 select_library(aq, user_id, category_path, name)
         elif file == 'operation_types':
             operation_types = os.listdir(os.path.join(category_path, 'operation_types'))
-            print("these are the operation_types", operation_types)
             for name in operation_types:
                 select_operation_type(aq, user_id, category_path, name)
         else:
