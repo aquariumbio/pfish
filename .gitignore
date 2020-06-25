@@ -3,6 +3,7 @@ resources.py
 
 # test directories and files 
 Test*
+repos* 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

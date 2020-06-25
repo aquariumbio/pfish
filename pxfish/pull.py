@@ -202,8 +202,9 @@ def write_operation_type(path, operation_type):
                     error, file_name, operation_type.name))
             continue
         except UnicodeError as error:
+            message = "Encoding error {} writing file {} for operation type {}"
             logging.warning(
-                "Encoding error {} writing file {} for operation type {}".format(
+                message.format(
                     error, file_name, operation_type.name))
             continue
 

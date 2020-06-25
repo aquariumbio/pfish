@@ -15,7 +15,8 @@ from pull import (
 from push import (
     create_new_operation_type,
     select_library,
-    select_operation_type
+    select_operation_type,
+    select_category
 )
 from paths import (
     create_named_path,
@@ -49,7 +50,7 @@ def main():
     )
     parser.add_argument(
         "-d", "--directory",
-        help="directory for writing files. Created if does not already exist",
+        help="directory for reading or writing files. Created if does not already exist",
         default=os.getcwd()
     )
     parser.add_argument(
@@ -103,6 +104,7 @@ def main():
         logging.warning("Expected an action")
         return
 
+
     # action is push or create
     if not args.category:
         logging.error('Category is required for push and create')
@@ -123,10 +125,8 @@ def main():
     if args.operation_type:
         select_operation_type(aq, category_path, args.operation_type)
         return
-
-    # must push individual library or operation type
-    logging.error("Expected a library or operation type")
-    return
+    
+    select_category(aq, category_path)
 
 
 if __name__ == "__main__":
