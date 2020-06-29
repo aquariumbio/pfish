@@ -50,7 +50,12 @@ def get_library(aq, path, category, library):
         category (String): The category the Library is in
         library (String): The Library to be retrieved
     """
-    retrieved_library = aq.Library.where({"category": category, "name": library})
+    retrieved_library = aq.Library.where(
+        {
+            "category": category,
+            "name": library
+        }
+    )
     if not retrieved_library:
         logging.warning(
             "No Library named {} in Category {}".format(
@@ -71,7 +76,11 @@ def get_operation_type(aq, path, category, operation_type):
         operation_type (String): The OperationType to be retrieved
     """
     retrieved_operation_type = aq.OperationType.where(
-        {"category": category, "name": operation_type})
+        {
+            "category": category,
+            "name": operation_type
+        }
+    )
     if not retrieved_operation_type:
         logging.warning(
             "No Operation Type named {} in Category {}".format(
