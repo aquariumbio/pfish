@@ -51,8 +51,7 @@ def get_library(aq, path, category, library):
         library (String): The Library to be retrieved
     """
     library = aq.Library.where({"category": category, "name": library})
-    if not library:
-        pull(path, operation_types=[], libraries=library)
+    pull(path, operation_types=[], libraries=library)
 
 
 def get_operation_type(aq, path, category, operation_type):
