@@ -77,6 +77,7 @@ def get_operation_type(aq, path, category, operation_type):
             "No Operation Type named {} in Category {}".format(
                 operation_type, category)
         )
+        return
     pull(path, operation_types=retrieved_operation_type)
 
 
