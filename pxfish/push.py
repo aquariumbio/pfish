@@ -96,7 +96,10 @@ def select_category(aq, category_path):
             for name in files:
                 select_operation_type(aq, category_path, name)
         else:
-            pass
+            logging.warning("Unexpected directory entry {} in {}".format(
+                directory_entry,
+                category_path
+            ))
 
 
 def push(aq, directory_path, component_names):
