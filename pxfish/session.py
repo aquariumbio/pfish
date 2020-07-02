@@ -1,5 +1,3 @@
-import os
-
 from config import get_config, config_file_path
 from pydent import AqSession
 
