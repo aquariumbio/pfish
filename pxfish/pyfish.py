@@ -33,18 +33,13 @@ logging.basicConfig(level=logging.INFO)
 
 def main():
     args = get_arguments()
+    # call the function determined by the arguments
     args.func(args)
 
 
 def get_arguments():
     parser = argparse.ArgumentParser(
         description="Pull or Push files from/to Aquarium. Create new operation types")
-
-    parser.add_argument(
-        "-d", "--directory",
-        help="working directory for the command",
-        default=os.getcwd()
-    )
 
     # Create parsers for subcommands
     subparsers = parser.add_subparsers(title="subcommands")
@@ -106,6 +101,16 @@ def get_arguments():
 
 
 def add_code_arguments(parser, *, action):
+    parser.add_argument(
+        "-d", "--directory",
+        help="working directory for the command",
+        default=os.getcwd()
+    )
+    parser.add_argument(
+        "-n", "--name",
+        help="login configuration name",
+        default="local"
+    )
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
