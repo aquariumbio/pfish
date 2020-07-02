@@ -39,7 +39,7 @@ def main():
 
 def get_arguments():
     parser = argparse.ArgumentParser(
-        description="Pull or Push files from/to Aquarium. Create new operation types")
+        description="Create, push and pull Aquarium protocols")
 
     # Create parsers for subcommands
     subparsers = parser.add_subparsers(title="subcommands")
