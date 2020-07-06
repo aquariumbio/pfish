@@ -32,8 +32,7 @@ You must have Docker installed to run the script this way.
 Initially, pfish is configured to connect to a [local Aquarium instance](https://aquariumbio.github.io/aquarium-local/) using the default user login (`neptune`) and password (`aquarium`) at URL (`http://localhost/`).
 So, if you are using that Aquarium user, you don't need to do anything to start with.
 
-However, if you use a different login, you'll want to change the login and password for this local instance.
-To do this, use the command
+To use a different login with the local instance, run the command
 
 ```bash
 pfish configure add -l <user-login> -p <user-password>
@@ -41,8 +40,7 @@ pfish configure add -l <user-login> -p <user-password>
 
 with the new login name and password.
 
-This command is a shortened version of the full `configure add` command using default values for some of the arguments.
-The full `configure add` command is
+To add another login configuration, use the command
 
 ```bash
 pfish configure add -n <configuration-name> -l <user-login> -p <user-password> -u <instance-url>
@@ -50,40 +48,22 @@ pfish configure add -n <configuration-name> -l <user-login> -p <user-password> -
 
 where you specify the configuration-name, user-login, password and instance URL.
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
-Each of these arguments have defaults that correspond to the local configuration:
-
-- the default configuration name is `local`,
-- the login is `neptune`,
-- the password is `aquarium`, and
-- the URL is `http://localhost/`.
-
-So, the command for changing the local user from above
-
-```bash
-pfish configure add -l <user-login> -p <user-password>
-```
-
-uses the configuration name `local` and the URL `http://localhost/`.
+(Each of these arguments have defaults that correspond to the local configuration.)
 
 *Note*: The `configure add` command will overwrite an existing login configuration, as shown in this example.
 
 The most common use of `configure add` is to set up login configurations for different Aquarium instances.
 For instance, a user might have a `production` configuration in addition to the `local` configuration.
-In this case, with they would use the above command giving the configuration name `production` with their login details for the production instance:
+In this case, the `local` configuration is still used by default, but the `production` configuration can be specified when transferring protocols.
 
-```bash
-pfish configure add -n production -l <user-login> -p <user-password> -u <instance-url>
-```
-
-With these settings, the `local` configuration is still used by default, but the `production` configuration can be specified when transferring protocols.
-
-If needed, the default configuration can be set with the command
+To change the default configuration, use the command
 
 ```bash
 pfish configure set-default -n <config-name>
 ```
 
-which you might want to do if you do development on a staging instance rather than a local one.
+with the name of the login configuration that you want to be the default.
+You might want to do this if you do development on a staging instance rather than a local one.
 
 ## Commands
 
