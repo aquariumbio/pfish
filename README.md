@@ -50,7 +50,7 @@ where you specify the configuration-name, user-login, password and instance URL.
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
 (Each of these arguments have defaults that correspond to the local configuration.)
 
-*Note*: The `configure add` command will overwrite an existing login configuration, as shown in this example.
+*Note*: The `configure add` command will overwrite an existing login configuration.
 
 The most common use of `configure add` is to set up login configurations for different Aquarium instances.
 For instance, a user might have a `production` configuration in addition to the `local` configuration.
