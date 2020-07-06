@@ -29,7 +29,7 @@ You must have Docker installed to run the script this way.
 
 ## Configuring
 
-The initial settings for pfish are to connect to a [local Aquarium instance](https://aquariumbio.github.io/aquarium-local/) using the default user login (`neptune`) and password (`aquarium`) at URL (`http://localhost/`).
+Initially, pfish is configured to connect to a [local Aquarium instance](https://aquariumbio.github.io/aquarium-local/) using the default user login (`neptune`) and password (`aquarium`) at URL (`http://localhost/`).
 So, if you are using that Aquarium user, you don't need to do anything to start with.
 
 However, if you use a different login, you'll want to change the login and password for this local instance.
@@ -41,6 +41,7 @@ pfish configure add -l <user-login> -p <user-password>
 
 with the new login name and password.
 
+This command is a shortened version of the full `configure add` command using default values for some of the arguments.
 The full `configure add` command is
 
 ```bash
@@ -64,28 +65,33 @@ pfish configure add -l <user-login> -p <user-password>
 
 uses the configuration name `local` and the URL `http://localhost/`.
 
-**Note**: the `configure add` command will overwrite an existing login configuration, as shown in this example.
+*Note*: The `configure add` command will overwrite an existing login configuration, as shown in this example.
 
-If you also want to be able to push/pull from your production instance, you should create a different login configuration with
-
-The most common use of `configure add` is to set up logins for different Aquarium instances.
+The most common use of `configure add` is to set up login configurations for different Aquarium instances.
 For instance, a user might have a `production` configuration in addition to the `local` configuration.
-The `local` configuration is used by default, and the other commands allow specifying the configuration that should be used.
+In this case, with they would use the above command giving the configuration name `production` with their login details for the production instance:
 
-You can set the default configuration with the command
+```bash
+pfish configure add -n production -l <user-login> -p <user-password> -u <instance-url>
+```
+
+With these settings, the `local` configuration is still used by default, but the `production` configuration can be specified when transferring protocols.
+
+If needed, the default configuration can be set with the command
 
 ```bash
 pfish configure set-default -n <config-name>
 ```
 
-which you might want to do if you do development on a staging server.
+which you might want to do if you do development on a staging instance rather than a local one.
 
 ## Commands
 
-The following commands work with files in the current working directory using the Aquarium instance in the default login configuration.
+All commands other than `configure` by default use the current working directory using the Aquarium instance in the default login configuration.
+These defaults can be overridden with the following options
 
-- To work in a subdirectory of the current working directory, use the option `-d <directory-name>`.
-- To use a different instance, specify the login configuration with the option `-n <config-name>`.
+- `-d <directory-name>` - use the named subdirectory of the current working directory.
+- `-n <config-name>` - use the named login configuration instead of the default.
 
 ### Create
 
@@ -97,7 +103,7 @@ The available create commands are:
    pfish create -c <category-name> -o <operation-type-name>
    ```
 
-2. [creating a library is not currently supported]
+2. [Creating a library is not currently supported. The work-around is to create the library in Aquarium and use pull.]
 
 ### Pull
 
@@ -115,13 +121,13 @@ The available pull commands are:
    pfish pull -c <category_name>
    ```
 
-3. Pull just one operation type
+3. Pull an operation type
 
    ```bash
    pfish pull -c <category_name> -o <operation_type_name>
    ```
 
-4. Pull one library
+4. Pull a library
 
    ```bash
    pfish pull -c <category_name> -l <library_name>
@@ -164,13 +170,14 @@ cd myprotocols
 ```
 
 You can then either create new protocols or pull existing ones from your Aquarium instance.
-Let's first create a protocol using the `create` command
+
+To create a new protocol, use the `create` command
 
 ```bash
 pfish create -c MyCategory -o MyProtocol
 ```
 
-which will create a protocol both in Aquarium and in the current directory.
+which will create the protocol both in Aquarium and in the current directory.
 The local files will be in the directory `mycategory`:
 
 ```bash
@@ -185,21 +192,20 @@ The local files will be in the directory `mycategory`:
             `-- protocol.rb
 ```
 
-Now make an initial git commit
+One the protocol is created, make an initial git commit of the new files with the commands
 
 ```bash
-git add mycategory
+git add mycategory/operation_types/myprotocol
 git commit -m "Add new definition for MyProtocol"
 ```
 
 and then you can edit the files.
 
-> Pfish mangles names to be lowercase with spaces changed to underscores.
+> Notice that pfish uses filenames that are the Aquarium names changed to all lowercase, and spaces changed to underscores.
 > The original names are captured in the `definition.json` file and used when protocols and libraries are pushed.
-> You do need to use the Aquarium names for libraries that you use.
+> You do need to use the Aquarium names for libraries in your protocol or library code.
 
-In the situation where you have protocol code already in Aquarium that you want to work with on disk, you can pull that code and add it to your git repository.
-
+To add protocol code already in Aquarium, use the pull command and add the files to the repository.
 For example, consider a `Cloning` category with the following structure
 
 - Libraries:
