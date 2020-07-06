@@ -161,6 +161,6 @@ def push(aq, directory_path, component_names):
             content=read_file
         )
 
-        logging.info("writing file {}".format(parent_object.name))
+        logging.info("writing file {}".format(parent_object[0].name))
 
         aq.utils.update_code(new_code)
