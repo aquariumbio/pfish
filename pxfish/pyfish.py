@@ -6,6 +6,10 @@ identified in the resources.py file.
 import os
 import argparse
 import logging
+from config import (
+    add_config,
+    set_default_instance
+)
 from pull import (
     get_all,
     get_category,
@@ -22,102 +26,174 @@ from paths import (
     create_named_path,
     makedirectory
 )
-from resources import resources
-from pydent import AqSession
+from session import create_session
 
 logging.basicConfig(level=logging.INFO)
 
 
-def open_aquarium_session():
-    """
-    Starts Aquarium Session
-    """
-    aq = AqSession(
-        resources['aquarium']['login'],
-        resources['aquarium']['password'],
-        resources['aquarium']['url']
-    )
-    return aq
-
-
 def main():
+    args = get_arguments()
+    # call the function determined by the arguments
+    args.func(args)
+
+
+def get_arguments():
     parser = argparse.ArgumentParser(
-        description="Pull or Push files from/to Aquarium. Create new operation types")
-    parser.add_argument(
-        "action",
-        choices=["push", "pull", "create"],
-        help="whether to push or pull Operation Type and/or Library files, or to create a new OperationType"
+        description="Create, push and pull Aquarium protocols")
+
+    # Create parsers for subcommands
+    subparsers = parser.add_subparsers(title="subcommands")
+
+    parser_create = subparsers.add_parser("create")
+    add_code_arguments(parser_create, action="create")
+    parser_create.set_defaults(func=do_create)
+
+    parser_config = subparsers.add_parser("configure")
+    config_subparsers = parser_config.add_subparsers()
+    parser_add = config_subparsers.add_parser(
+        "add",
+        help="Add/update login configuration"
     )
+    parser_add.add_argument(
+        '-n', "--name",
+        help="the name to use for the aquarium instance",
+        default="local"
+    )
+    parser_add.add_argument(
+        "-l", "--login",
+        help="the login name for the aquarium instance",
+        default="neptune"
+    )
+    parser_add.add_argument(
+        "-p", "--password",
+        help="the password for the login",
+        default="aquarium"
+    )
+    parser_add.add_argument(
+        "-u", "--url",
+        help="the URL for the aquarim instance",
+        default="http://localhost/"
+    )
+    parser_add.set_defaults(func=do_config_add)
+
+    parser_default = config_subparsers.add_parser(
+        "set-default",
+        help="set default login configuration"
+    )
+    parser_default.add_argument(
+        '-n',
+        '--name',
+        help="the name of the default login configuration",
+        default="local"
+    )
+    parser_default.set_defaults(func=do_config_default)
+
+    parser_pull = subparsers.add_parser("pull")
+    add_code_arguments(parser_pull, action="pull")
+    parser_pull.set_defaults(func=do_pull)
+
+    parser_push = subparsers.add_parser("push")
+    add_code_arguments(parser_push, action="push")
+    parser_push.set_defaults(func=do_push)
+
+    args = parser.parse_args()
+    return args
+
+
+def add_code_arguments(parser, *, action):
     parser.add_argument(
         "-d", "--directory",
-        help="directory for reading or writing files. Created if does not already exist",
+        help="working directory for the command",
         default=os.getcwd()
     )
     parser.add_argument(
-        "-c", "--category",
-        help="category of the operation type or library"
+        "-n", "--name",
+        help="login configuration name",
+        default="local"
     )
-
+    parser.add_argument(
+        "-c", "--category",
+        help="category of the operation type or library",
+        required=(action == 'create' or action == 'push')
+    )
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-l", "--library", help="the library to pull")
+    group.add_argument(
+        "-l", "--library",
+        help="the library to {}".format(action)
+    )
     group.add_argument(
         "-o", "--operation_type",
-        help="the operation type to pull"
+        help="the operation type to {}".format(action)
     )
 
-    args = parser.parse_args()
 
-    aq = open_aquarium_session()
+def config_path():
+    return os.path.normpath('/script/config')
 
+
+def do_config_add(args):
+    add_config(
+        path=config_path(),
+        key=args.name,
+        login=args.login,
+        password=args.password,
+        url=args.url
+    )
+
+
+def do_config_default(args):
+    set_default_instance(config_path(), name=args.name)
+
+
+def do_create(args):
+    aq = create_session(path=config_path())
     path = os.path.normpath(args.directory)
-    makedirectory(path)
 
-    if args.action == 'pull':
-        if not args.category:
-            if args.library:
-                logging.error("Category required to pull library")
-                return
-
-            if args.operation_type:
-                logging.error("Category required to pull operation type")
-                return
-
-            # no category, library or operation type
-            get_all(aq, path)
-            return
-
-        # have category, check for a library or operation type
-        if args.library:
-            get_library(aq, path, args.category, args.library)
-            return
-
-        if args.operation_type:
-            get_operation_type(aq, path, args.category, args.operation_type)
-            return
-
-        # get whole category
-        get_category(aq, path, args.category)
-        return
-
-    # action was not pull, should be push or create
-    if args.action != 'push' and args.action != 'create':
-        logging.warning("Expected an action")
-        return
-
-
-    # action is push or create
-    if not args.category:
-        logging.error('Category is required for push and create')
-        return
-
-    # have category, look for library or operation type
-    category_path = create_named_path(path, args.category)
-
-    if args.action == 'create' and args.operation_type:
+    if args.operation_type:
         create_new_operation_type(aq, path, args.category, args.operation_type)
         get_operation_type(aq, path, args.category, args.operation_type)
         return
 
+    if args.library:
+        # TODO: implement create library
+        pass
+
+
+def do_pull(args):
+    aq = create_session(path=config_path())
+    path = os.path.normpath(args.directory)
+
+    if not args.category:
+        if args.library:
+            logging.error("Category required to pull library")
+            return
+
+        if args.operation_type:
+            logging.error("Category required to pull operation type")
+            return
+
+        # no category, library or operation type
+        get_all(aq, path)
+        return
+
+    # have category, check for a library or operation type
+    if args.library:
+        get_library(aq, path, args.category, args.library)
+        return
+
+    if args.operation_type:
+        get_operation_type(aq, path, args.category, args.operation_type)
+        return
+
+    # get whole category
+    get_category(aq, path, args.category)
+
+
+def do_push(args):
+    aq = create_session(path=config_path())
+    path = os.path.normpath(args.directory)
+
+    category_path = create_named_path(path, args.category)
     if args.library:
         select_library(aq, category_path, args.library)
         return
@@ -125,7 +201,7 @@ def main():
     if args.operation_type:
         select_operation_type(aq, category_path, args.operation_type)
         return
-    
+
     select_category(aq, category_path)
 
 
