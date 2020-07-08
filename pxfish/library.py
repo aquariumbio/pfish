@@ -13,6 +13,12 @@ from paths import (
     create_library_path,
     makedirectory
 )
+from code import (
+    write_code
+)
+from json import (
+    write_library_definition_json
+)
 
 
 def create_library_path(category_path, library_name):
@@ -59,59 +65,11 @@ def get_library(aq, path, category, library):
     pull(path, operation_types=[], libraries=retrieved_library)
 
 
-def pull(path, operation_types=[], libraries=[]):
-    """
-    Pulls OperationType and/or Library files from the Aquarium instance.
-
-    Arguments:
-        path (String): the path for the directory where files should be written
-        operation_types (List): list of OperationTypes whose files to pull
-        libraries (List): list of Libraries whose files to pull
-    """
-    for operation_type in operation_types:
-        write_operation_type(path, operation_type)
-
-    for library in libraries:
-        write_library(path, library)
-
-
 def get_code_file_names():
     return ['source']
 
+
 # write to files for pull
-def write_code(path, file_name, code_object):
-    """
-    Writes the aquarium code object to the given path.
-
-    Arguments:
-      path (string): the path of the file to be written
-      file_name (string): the name of the file to be written
-      code_object (Code): the code object
-    """
-    file_path = os.path.join(path, file_name)
-    with open(file_path, 'w') as file:
-        file.write(code_object.content)
-
-
-def write_library_definition_json(file_path, library):
-    """
-    Writes the definition of library as JSON to the given file path.
-
-    Arguments:
-      file_path (string): the path to the file as written
-      library (Library): the library for which the definition should be written
-    """
-    library_ser = {}
-    library_ser["id"] = library.id
-    library_ser["name"] = library.name
-    library_ser["parent_class"] = "Library"
-    library_ser["category"] = library.category
-    library_ser["user_id"] = library.source.user_id
-
-    with open(file_path, 'w') as file:
-        file.write(json.dumps(library_ser, indent=2))
-
-
 def write_library(path, library):
     """
     Writes the files for the library to the path.
