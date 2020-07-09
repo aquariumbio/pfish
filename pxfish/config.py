@@ -13,7 +13,6 @@ def add_config(*, path, key, login, password, url):
     Adds the given configuration information to the secrets file in the config
     directory specified by the path.
     """
-
     makedirectory(path)
     file_path = config_file_path(path)
     config = get_config(file_path)
@@ -43,7 +42,7 @@ def get_config(path):
             "local": {
                 "login": "neptune",
                 "password": "aquarium",
-                "aquarium_url": "http://localhost/"
+                "aquarium_url": "http://localhost:3000"
             }
         }
     }

@@ -14,7 +14,7 @@ You must have Docker installed to run the script this way.
 
 - Add `~/bin` to your PATH. How you do this depends on your the shell that you run.
 
-- Clone Parrotfish:
+- Clone Pfish:
 
   ```bash
   git clone https://github.com/klavinslab/pfish.git

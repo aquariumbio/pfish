@@ -16,7 +16,7 @@ from paths import (
 from code import (
     write_code
 )
-from json import (
+from definition import (
     write_library_definition_json
 )
 

@@ -10,19 +10,14 @@ from config import (
     add_config,
     set_default_instance
 )
-from pull import (
+from instance import (
     get_all,
-    get_category,
-    get_library,
-    get_operation_type
+    pull
 )
-from push import (
+from operation_type import (
     create_new_operation_type,
-    select_library,
-    select_operation_type,
-    select_category
 )
-from paths import (
+from library import (
     create_named_path,
     makedirectory
 )

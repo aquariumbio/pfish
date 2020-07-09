@@ -7,16 +7,14 @@ import logging
 import os
 from paths import (
     create_named_path,
-    create_operation_path,
     create_library_path,
     makedirectory
 )
 from code import (
-        write_code
+    create_code_objects,
+    write_code
 )
-from definition import (
-        write_definition_json,
-)
+from definition import write_definition_json
 
 
 def create_operation_path(category_path, operation_type_name):
@@ -115,26 +113,102 @@ def operation_type_code_names():
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
-def field_type_list(field_types, role):
+def select_operation_type(aq, category_path, operation_type_name):
     """
-    Returns the sublist of field types with the given role.
+    Locates the operation type to be pushed
 
     Arguments:
-      field_types (list): the list of field types
-      role (string): the role of field types to be returned
-
-    Returns:
-      list: the sublist of field_types that have the role
+        aq (Session Object): Aquarium session object
+        category_path (String): the directory path for the category
+        operation_type_name (String): the name of the operation type
     """
-    ft_list = []
-    for field_type in field_types:
-        if field_type.role == role:
-            ft_ser = {
-                "name": field_type.name,
-                "part": field_type.part,
-                "array": field_type.array,
-                "routing": field_type.routing
-            }
-            ft_list.append(ft_ser)
-    return ft_list
+    path = create_operation_path(category_path, operation_type_name)
+    push(aq, path, operation_type_code_names())
+
+
+def create_new_operation_type(aq, path, category, operation_type_name):
+    """
+    Creates new operation type on the Aquarium instance.
+    Note: does not create the files locally, they need to be pulled.
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the directory path where the new files will be written
+        category (String): the category for the operation type
+        operation_type_name (String): name of the operation type
+    """
+    code_objects = create_code_objects(aq, operation_type_code_names())
+    new_operation_type = aq.OperationType.new(
+        name=operation_type_name,
+        category=category,
+        protocol=code_objects['protocol'],
+        precondition=code_objects['precondition'],
+        documentation=code_objects['documentation'],
+        cost_model=code_objects['cost_model'])
+    new_operation_type.field_types = {}
+    aq.utils.create_operation_type(new_operation_type)
+
+
+def push(aq, directory_path, component_names):
+    """
+    Pushes files to the Aquarium instance
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        directory_path (String): Directory where files are to be found
+        component_names (List): List of files to push
+    """
+    with open(os.path.join(directory_path, 'definition.json')) as f:
+        definitions = json.load(f)
+
+    for name in component_names:
+        file_name = "{}.rb".format(name)
+        try:
+            with open(os.path.join(directory_path, file_name)) as f:
+                read_file = f.read()
+
+        # TODO: create test file if it doesn't exist?
+
+        except FileNotFoundError as error:
+            logging.warning(
+                "Error {} writing file {} file does not exist".format(
+                    error, file_name))
+            return
+
+        user_id = aq.User.where({"login": aq.login})
+
+        query = {
+            "category": definitions['category'],
+            "name": definitions['name']
+        }
+        if name == 'source':
+            parent_object = aq.Library.where(query)
+            parent_type_name = 'library'
+        else:
+            parent_object = aq.OperationType.where(query)
+            parent_type_name = 'operation type'
+
+        if not parent_object:
+            logging.warning(
+                "No {} {}/{} on {}".format(
+                    parent_type_name,
+                    definitions['category'],
+                    definitions['name'],
+                    # TODO: make the following specific to user instance
+                    "Aquarium instance"
+                )
+            )
+            return
+
+        new_code = aq.Code.new(
+            name=name,
+            parent_id=parent_object[0].id,
+            parent_class=definitions['parent_class'],
+            user_id=user_id,
+            content=read_file
+        )
+
+        logging.info("writing file {}".format(parent_object[0].name))
+
+        aq.utils.update_code(new_code)
 
