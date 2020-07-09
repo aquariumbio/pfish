@@ -15,12 +15,21 @@ from instance import (
     pull
 )
 from operation_type import (
-    create_new_operation_type,
+    get_operation_type,
+    select_operation_type,
+    create_new_operation_type
 )
 from library import (
+    get_library,
+    select_library
+)
+
+from paths import (
     create_named_path,
     makedirectory
 )
+
+from category import get_category
 from session import create_session
 
 logging.basicConfig(level=logging.INFO)

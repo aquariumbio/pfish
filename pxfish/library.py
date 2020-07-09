@@ -62,14 +62,13 @@ def get_library(aq, path, category, library):
                 library, category)
         )
         return
-    pull(path, operation_types=[], libraries=retrieved_library)
+    write_library(path, retrieved_library[0])
 
 
 def get_code_file_names():
     return ['source']
 
 
-# write to files for pull
 def write_library(path, library):
     """
     Writes the files for the library to the path.
