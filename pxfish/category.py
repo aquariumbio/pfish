@@ -2,6 +2,7 @@
 Functions for retrieving categories
 """
 import logging
+import os
 from operation_type import (
     select_operation_type,
     write_operation_type
@@ -12,7 +13,7 @@ from library import (
 )
 
 
-def get_category(aq, path, category):
+def pull_category(aq, path, category):
     """
     Retrieves all the Libraries and Operation Types within a category
 
@@ -23,18 +24,10 @@ def get_category(aq, path, category):
     """
     operation_types = aq.OperationType.where({"category": category})
     libraries = aq.Library.where({"category": category})
-    pull(path, operation_types=operation_types, libraries=libraries)
-
-# This is currently just a repeat of what happnes in all 
-def pull(path, operation_types=[], libraries=[]):
-    """
-    Pulls OperationType and/or Library files from the Aquarium instance.
-
-    Arguments:
-        path (String): the path for the directory where files should be written
-        operation_types (List): list of OperationTypes whose files to pull
-        libraries (List): list of Libraries whose files to pull
-    """
+    
+    if not operation_types and not libraries:
+        logging.error("Category {} was not found.".format(category))
+    
     for operation_type in operation_types:
         write_operation_type(path, operation_type)
 
@@ -51,6 +44,7 @@ def select_category(aq, category_path):
         category_path (String): the directory path for the category
     """
     category_entries = os.listdir(category_path)
+    print(category_entries)
     for directory_entry in category_entries:
         files = os.listdir(os.path.join(category_path, directory_entry))
         if directory_entry == 'libraries':

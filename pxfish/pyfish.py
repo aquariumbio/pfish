@@ -1,35 +1,23 @@
 """
-Script to download OperationType definitions from the aquarium instance
+Script to download OperationType and Library definitions from the aquarium instance
 identified in the resources.py file.
 """
 
 import os
 import argparse
 import logging
+import instance
+import category
+import operation_type
+import library
 from config import (
     add_config,
     set_default_instance
 )
-from instance import (
-    get_all,
-    pull
-)
-from operation_type import (
-    get_operation_type,
-    select_operation_type,
-    create_new_operation_type
-)
-from library import (
-    get_library,
-    select_library
-)
-
 from paths import (
     create_named_path,
     makedirectory
 )
-
-from category import get_category
 from session import create_session
 
 logging.basicConfig(level=logging.INFO)
@@ -154,8 +142,8 @@ def do_create(args):
     path = os.path.normpath(args.directory)
 
     if args.operation_type:
-        create_new_operation_type(aq, path, args.category, args.operation_type)
-        get_operation_type(aq, path, args.category, args.operation_type)
+        operation_type.create_new_operation_type(aq, path, args.category, args.operation_type)
+        operation_type.get_operation_type(aq, path, args.category, args.operation_type)
         return
 
     if args.library:
@@ -177,20 +165,20 @@ def do_pull(args):
             return
 
         # no category, library or operation type
-        get_all(aq, path)
+        instance.pull_all(aq, path)
         return
 
     # have category, check for a library or operation type
     if args.library:
-        get_library(aq, path, args.category, args.library)
+        library.get_library(aq, path, args.category, args.library)
         return
 
     if args.operation_type:
-        get_operation_type(aq, path, args.category, args.operation_type)
+        operation_type.get_operation_type(aq, path, args.category, args.operation_type)
         return
 
     # get whole category
-    get_category(aq, path, args.category)
+    category.pull_category(aq, path, args.category)
 
 
 def do_push(args):
@@ -199,14 +187,14 @@ def do_push(args):
 
     category_path = create_named_path(path, args.category)
     if args.library:
-        select_library(aq, category_path, args.library)
+        library.select_library(aq, category_path, args.library)
         return
 
     if args.operation_type:
-        select_operation_type(aq, category_path, args.operation_type)
+        operation_type.select_operation_type(aq, category_path, args.operation_type)
         return
 
-    select_category(aq, category_path)
+    category.select_category(aq, category_path)
 
 
 if __name__ == "__main__":
