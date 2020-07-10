@@ -210,7 +210,20 @@ def do_push(args):
 
 
 def do_test(args):
-    pass
+    aq = create_session(path=config_path())
+    path = os.path.normpath(args.directory)
+    category_path = create_named_path(path, args.category)
+
+    if args.library:
+        logging.error("Library tests are not currently available")
+        return
+
+    if args.operation_type:
+        logging.error("testing is not currently supported")
+        # TODO: should push and then run test
+        return
+
+    logging.error("An operation type is required to run a test")
 
 
 if __name__ == "__main__":
