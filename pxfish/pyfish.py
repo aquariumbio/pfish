@@ -96,6 +96,10 @@ def get_arguments():
     add_code_arguments(parser_push, action="push")
     parser_push.set_defaults(func=do_push)
 
+    parser_test = subparsers.add_parser("test")
+    add_code_arguments(parser_test, action="test")
+    parser_test.set_defaults(func=do_test)
+
     args = parser.parse_args()
     return args
 
@@ -114,7 +118,7 @@ def add_code_arguments(parser, *, action):
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
-        required=(action == 'create' or action == 'push')
+        required=(action == 'create' or action == 'push' or action == 'test')
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -123,7 +127,7 @@ def add_code_arguments(parser, *, action):
     )
     group.add_argument(
         "-o", "--operation_type",
-        help="the operation type to {}".format(action)
+        help="the operation type to {}".format(action),
     )
 
 
@@ -203,6 +207,10 @@ def do_push(args):
         return
 
     select_category(aq, category_path)
+
+
+def do_test(args):
+    pass
 
 
 if __name__ == "__main__":
