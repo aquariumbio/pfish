@@ -221,6 +221,8 @@ def do_test(args):
     if args.operation_type:
         logging.error("testing is not currently supported")
         # TODO: should push and then run test
+        # raw code would be
+        # result = aq._aqhttp.get("test/run/{}".format(operation_type.id))
         return
 
     logging.error("An operation type is required to run a test")
