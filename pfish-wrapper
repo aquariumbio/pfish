@@ -37,7 +37,12 @@ if [ $1 = "update" ]; then
 elif [ $1 = "version" ]; then
   echo "Pfish version " $VERSION
 else
-  # Set up mounted volumes, environment, and run our containerized command
+  # Set up mounted volumes, environment, and run containerized pfish script:
+  # - use host network
+  # - run interactively
+  # - mount current working directory as working directory in container
+  # - mount user .pfish directory as config directory in container
+  # - set container working directory
   exec docker run \
     --net=host \
     --interactive --tty --rm \
