@@ -6,6 +6,7 @@ on:
     - "!README.md"
     - "!pfish-wrapper"
     - "!pfish-install.sh"
+    - "!Makefile"
 
 jobs:
   build:
