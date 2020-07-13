@@ -231,3 +231,11 @@ pfish push -c Cloning -o "Run Gel"
 ```
 
 to push only that operation type.
+
+## Developer
+
+You can run a shell within the docker container by typing
+
+```bash
+docker run -it --entrypoint /bin/bash aquariumbio/pfish
+```
