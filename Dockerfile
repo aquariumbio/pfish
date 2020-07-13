@@ -4,7 +4,8 @@ RUN pip3 install \
     cliff \
     pydent
  
-RUN mkdir /script
+RUN mkdir /script \
+    mkdir -p /script/config
 WORKDIR /script
 
 COPY ./pxfish .
