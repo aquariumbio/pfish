@@ -4,7 +4,8 @@ on:
     paths:
     - "*"
     - "!README.md"
-    - "!Makefile"
+    - "!pfish-wrapper"
+    - "!pfish-install.sh"
 
 jobs:
   build:
