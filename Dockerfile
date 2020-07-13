@@ -19,7 +19,7 @@ RUN mkdir /wd
 WORKDIR /wd
 
 # run script by default
-CMD [ "python3", "/script/pyfish.py"]
+ENTRYPOINT [ "python3", "/script/pyfish.py"]
 
 # NOTE: to run a shell in the container, you have to override the entrypoint
 # at the command line:
