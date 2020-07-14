@@ -17,7 +17,7 @@ Download the pfish script with the command
 This script will download the pfish script and install it in `~/bin`.
 So, once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
 
-If you don't have `wget` installed, you can download the script and run it at the command line.
+If you don't have `wget` installed, you can clone this repository and run `make install`.
 
 ## Updating
 
