@@ -234,7 +234,19 @@ to push only that operation type.
 
 ## Developer
 
-You can run a shell within the docker container by typing
+This repository is setup with a VS Code devcontainer.
+To use it make sure that you have the VS Code Remote extension installed and use it to open the repository in the container.
+
+> If you change the `requirements.txt` file, you will need to rebuild the devcontainer.
+
+This container uses the Dockerfile in the `.devcontainer` directory, which is configured with development tools – unlike the pfish Dockerfile.
+To allow the pyfish.py script to be run, the devcontainer minimally mounts the config directory and installs the packages using the `requirements.txt` file.
+
+The GitHub repository is configured to run a CI workflow that publishes a Docker image to aquariumbio/pfish. 
+See the files in the `.github` directory for details.
+
+A Makefile is provided to replicate the installation process locally, but is not needed for development.
+Use `make build` to create the pfish Docker image locally, and you can then run a shell within the container by typing
 
 ```bash
 docker run -it --entrypoint /bin/bash aquariumbio/pfish
