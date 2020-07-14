@@ -119,8 +119,7 @@ def select_library(aq, category_path, library_name):
     push(aq, path, ['source'])
 
 
-# Create create library function
-#def create_new_library(aq, path, category, library):
+#def create(aq, path, category, library):
 #    """
 #    Creates new library on the Aquarium instance.
 #    Note: does not create the files locally, they need to be pulled.
@@ -129,14 +128,12 @@ def select_library(aq, category_path, library_name):
 #        aq (Session Object): Aquarium session object
 #        path (String): the directory path where the new files will be written
 #        category (String): the category for the operation type
-#        library_name (String): name of the library
+#        library (String): name of the library to be created
 #    """
 #    code_objects = create_code_objects(aq, library_code_names())
 #    new_library = aq.Library.new(
 #        name=operation_type_name,
 #        category=category,
-#        cost_model=code_objects['cost_model'])
-#    # Trident doesn't have a way to create libraries, so figure this out
 #    aq.utils.create_operation_type(new_operation_type)
 #
 
