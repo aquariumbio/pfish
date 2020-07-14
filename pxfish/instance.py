@@ -1,5 +1,5 @@
-from library import write_library
-from operation_type import write_operation_type
+import library
+import operation_type
 
 
 def pull_all(aq, path):
@@ -13,9 +13,9 @@ def pull_all(aq, path):
     operation_types = aq.OperationType.all()
     libraries = aq.Library.all()
 
-    for operation_type in operation_types:
-        write_operation_type(path, operation_type)
+    for op_type in operation_types:
+        operation_type.write_files(path, op_type)
 
-    for library in libraries:
-        write_library(path, library)
+    for lib in libraries:
+        library.write_files(path, lib)
 

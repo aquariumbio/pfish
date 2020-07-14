@@ -58,11 +58,10 @@ def get_operation_type(aq, path, category, operation_type):
                 operation_type, category)
         )
         return
-    write_operation_type(path, retrieved_operation_type[0])
-    #pull(path, operation_types=retrieved_operation_type)
+    write_files(path, retrieved_operation_type[0])
 
 
-def write_operation_type(path, operation_type):
+def write_files(path, operation_type):
     """
     Writes the files associated with the operation_type to the path.
 
@@ -127,7 +126,7 @@ def select_operation_type(aq, category_path, operation_type_name):
     push(aq, path, operation_type_code_names())
 
 
-def create_new_operation_type(aq, path, category, operation_type_name):
+def create(aq, path, category, operation_type_name):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.

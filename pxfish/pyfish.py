@@ -28,7 +28,6 @@ def main():
     # call the function determined by the arguments
     args.func(args)
 
-
 def get_arguments():
     parser = argparse.ArgumentParser(
         description="Create, push and pull Aquarium protocols")
@@ -142,7 +141,7 @@ def do_create(args):
     path = os.path.normpath(args.directory)
 
     if args.operation_type:
-        operation_type.create_new_operation_type(aq, path, args.category, args.operation_type)
+        operation_type.create(aq, path, args.category, args.operation_type)
         operation_type.get_operation_type(aq, path, args.category, args.operation_type)
         return
 

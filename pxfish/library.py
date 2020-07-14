@@ -69,7 +69,7 @@ def get_code_file_names():
     return ['source']
 
 
-def write_library(path, library):
+def write_files(path, library):
     """
     Writes the files for the library to the path.
 
