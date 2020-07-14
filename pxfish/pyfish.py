@@ -131,7 +131,7 @@ def add_code_arguments(parser, *, action):
     )
     group.add_argument(
         "-o", "--operation_type",
-        help="the operation type to {}".format(action),
+        help="the operation type to {}".format(action)
     )
 
 
@@ -164,7 +164,8 @@ def do_create(args):
 
     if args.library:
         # TODO: implement create library
-        pass
+        logging.error("Creating library currently not implemented")
+        return
 
 
 def do_pull(args):
