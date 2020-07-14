@@ -146,7 +146,7 @@ def create_new_operation_type(aq, path, category, operation_type_name):
         precondition=code_objects['precondition'],
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'])
-    new_operation_type.field_types = {}
+    new_operation_type.field_types = [] 
     aq.utils.create_operation_type(new_operation_type)
 
 
