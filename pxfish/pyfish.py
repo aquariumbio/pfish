@@ -147,7 +147,8 @@ def do_create(args):
 
     if args.operation_type:
         operation_type.create(aq, path, args.category, args.operation_type)
-        operation_type.get_operation_type(aq, path, args.category, args.operation_type)
+        operation_type.get_operation_type(
+            aq, path, args.category, args.operation_type)
         return
 
     if args.library:
@@ -178,7 +179,8 @@ def do_pull(args):
         return
 
     if args.operation_type:
-        operation_type.get_operation_type(aq, path, args.category, args.operation_type)
+        operation_type.get_operation_type(
+            aq, path, args.category, args.operation_type)
         return
 
     # get whole category
@@ -195,7 +197,8 @@ def do_push(args):
         return
 
     if args.operation_type:
-        operation_type.select_operation_type(aq, category_path, args.operation_type)
+        operation_type.select_operation_type(
+            aq, category_path, args.operation_type)
         return
 
     category.select_category(aq, category_path)
