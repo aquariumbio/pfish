@@ -1,31 +1,116 @@
 """
-Functions for pushing Library and Operation Type files to Aquarium
+Functions for pushing, pulling, and creating Operation Types in Aquarium.
 """
 
 import json
 import logging
 import os
-from operation_types import (
-    operation_type_code_names
-)
 from paths import (
+    create_named_path,
     create_library_path,
-    create_operation_path
+    makedirectory
 )
+from code import (
+    create_code_objects,
+    write_code
+)
+from definition import write_definition_json
 
 
-def select_library(aq, category_path, library_name):
+def create_operation_path(category_path, operation_type_name):
     """
-    Locates the library to be pushed
+    Create a path for an operation type within the directory for a category.
+
+    Note: does not create the directory.
+
+    Arguments:
+      category_path (string): the path for the category
+      operation_type_name (string): the name of the operation type
+
+    Returns:
+      string: the path of the operation type
+    """
+    return create_named_path(
+        os.path.join(category_path, 'operation_types'),
+        operation_type_name
+    )
+
+
+def get_operation_type(aq, path, category, operation_type):
+    """
+    Retrieves a single Operation Type Object
 
     Arguments:
         aq (Session Object): Aquarium session object
-        category_path (String): the path to the category containing the library
-        library (string): the Library containing the files to be pushed
+        path (String): the path to where the file will be written
+        category (String): The category the OperationType is in
+        operation_type (String): The OperationType to be retrieved
     """
+    retrieved_operation_type = aq.OperationType.where(
+        {
+            "category": category,
+            "name": operation_type
+        }
+    )
+    if not retrieved_operation_type:
+        logging.warning(
+            "No Operation Type named {} in Category {}".format(
+                operation_type, category)
+        )
+        return
+    write_files(path, retrieved_operation_type[0])
 
-    path = create_library_path(category_path, library_name)
-    push(aq, path, ['source'])
+
+def write_files(path, operation_type):
+    """
+    Writes the files associated with the operation_type to the path.
+
+    Arguments:
+      path (string): the path to where the files will be written
+      operation_type (OperationType): the operation type being written
+    """
+    logging.info("writing operation type {}".format(operation_type.name))
+
+    category_path = create_named_path(path, operation_type.category)
+    makedirectory(category_path)
+    
+    path = create_operation_path(category_path, operation_type.name)
+    makedirectory(path)
+    
+    code_names = operation_type_code_names()
+
+    for name in code_names:
+        code_object = operation_type.code(name)
+        if not code_object:
+            logging.warning(
+                "Missing {} code for operation type {}".format(
+                    operation_type.name, name)
+            )
+            continue
+
+        file_name = "{}.rb".format(name)
+        try:
+            write_code(path, file_name, code_object)
+        except OSError as error:
+            logging.warning(
+                "Error {} writing file {} for operation type {}".format(
+                    error, file_name, operation_type.name))
+            continue
+        except UnicodeError as error:
+            message = "Encoding error {} writing file {} for operation type {}"
+            logging.warning(
+                message.format(
+                    error, file_name, operation_type.name))
+            continue
+
+    write_definition_json(
+        os.path.join(path, 'definition.json'),
+        operation_type
+    )
+
+
+def operation_type_code_names():
+    return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
 def select_operation_type(aq, category_path, operation_type_name):
@@ -41,7 +126,7 @@ def select_operation_type(aq, category_path, operation_type_name):
     push(aq, path, operation_type_code_names())
 
 
-def create_new_operation_type(aq, path, category, operation_type_name):
+def create(aq, path, category, operation_type_name):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -60,46 +145,8 @@ def create_new_operation_type(aq, path, category, operation_type_name):
         precondition=code_objects['precondition'],
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'])
-    new_operation_type.field_types = {}
+    new_operation_type.field_types = [] 
     aq.utils.create_operation_type(new_operation_type)
-
-
-def create_code_objects(aq, component_names):
-    """
-    Creates code objects for each named component.
-
-    Arguments:
-        aq (Session Object): Aquarium session object
-        component_names (List): names of code components
-    """
-    code_objects = {}
-    for name in component_names:
-        code_objects[name] = aq.Code.new(name=name, content='')
-    return code_objects
-
-
-def select_category(aq, category_path):
-    """
-    Finds all Libraries and Operation Types in a specific category
-
-    Arguments:
-        aq (Session Object): Aquarium session object
-        category_path (String): the directory path for the category
-    """
-    category_entries = os.listdir(category_path)
-    for directory_entry in category_entries:
-        files = os.listdir(os.path.join(category_path, directory_entry))
-        if directory_entry == 'libraries':
-            for name in files:
-                select_library(aq, category_path, name)
-        elif directory_entry == 'operation_types':
-            for name in files:
-                select_operation_type(aq, category_path, name)
-        else:
-            logging.warning("Unexpected directory entry {} in {}".format(
-                directory_entry,
-                category_path
-            ))
 
 
 def push(aq, directory_path, component_names):
@@ -164,3 +211,4 @@ def push(aq, directory_path, component_names):
         logging.info("writing file {}".format(parent_object[0].name))
 
         aq.utils.update_code(new_code)
+
