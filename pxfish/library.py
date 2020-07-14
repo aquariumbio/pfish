@@ -62,7 +62,7 @@ def get_library(aq, path, category, library):
                 library, category)
         )
         return
-    write_library(path, retrieved_library[0])
+    write_files(path, retrieved_library[0])
 
 
 def get_code_file_names():

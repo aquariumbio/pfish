@@ -22,11 +22,11 @@ def pull_category(aq, path, category):
     if not operation_types and not libraries:
         logging.error("Category {} was not found.".format(category))
     
-    for operation_type in operation_types:
-        operation_type.write_files(path, operation_type)
+    for op_type in operation_types:
+        operation_type.write_files(path, op_type)
 
-    for library in libraries:
-        library.write_files(path, library)
+    for lib in libraries:
+        library.write_files(path, lib)
 
 
 def select_category(aq, category_path):
