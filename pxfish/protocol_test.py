@@ -1,6 +1,8 @@
 """
 code for running operation type tests
 """
+import json
+
 
 def parse_test_response(response):
     if response.result == "error":
@@ -27,7 +29,7 @@ def parse_test_response(response):
             pass
     else:
         # All tests passed
-        pass 
+        pass
 
     # response.log
 
@@ -67,4 +69,5 @@ def format_table(content):
         formatted.append("<tr>{}</tr>".format(newrow))
 
     formatted.append("</table>")
+    
     return formatted
