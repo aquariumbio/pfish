@@ -30,11 +30,25 @@ check_cmd_in_path docker
 CONFIG_DIR=$HOME/.pfish
 mkdir -p $CONFIG_DIR
 
-# Set up mounted volumes, environment, and run our containerized command
-exec docker run \
-  --net=host \
-  --interactive --tty --rm \
-  --volume "$PWD":/wd \
-  --volume "$CONFIG_DIR:/script/config" \
-  --workdir /wd \
-  "aquariumbio/pfish:$VERSION" "$@"
+if [ "$#" -eq 0 ]; then
+  echo "Expected one or more arguments\nFor more details, run\n pfish --help" >&2
+elif [ $1 = "update" ]; then
+  echo "Updating pfish v.$VERSION (see: https://github.com/aquariumbio/pfish#updating)"
+  exec docker pull "aquariumbio/pfish:$VERSION"
+elif [ $1 = "version" ]; then
+  echo "Pfish version " $VERSION
+else
+  # Set up mounted volumes, environment, and run containerized pfish script:
+  # - use host network
+  # - run interactively
+  # - mount current working directory as working directory in container
+  # - mount user .pfish directory as config directory in container
+  # - set container working directory
+  exec docker run \
+    --net=host \
+    --interactive --tty --rm \
+    --volume "$PWD":/wd \
+    --volume "$CONFIG_DIR:/script/config" \
+    --workdir /wd \
+    "aquariumbio/pfish:$VERSION" "$@"
+fi

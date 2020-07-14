@@ -4,28 +4,35 @@ Scripts for pulling/pushing protocols/libraries to/from Aquarium.
 
 ## Getting started
 
-You must have Docker installed to run the script this way.
+> Previous versions of these instructions had you clone this repository, which is no longer necessary.
 
-- Ensure you have a directory `~/bin`:
+Make sure you have Docker installed.
 
-  ```bash
-  mkdir -p ~/bin
-  ```
-
-- Add `~/bin` to your PATH. How you do this depends on your the shell that you run.
-
-- Clone Pfish:
+Download the pfish script with the command
 
   ```bash
-  git clone https://github.com/klavinslab/pfish.git
+  wget -vO- https://raw.githubusercontent.com/aquariumbio/pfish/master/pfish-install.sh | sh
   ```
 
-- Install the `pfish` script
+This script will download the pfish script and install it in `~/bin`.
+So, once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
 
-  ```bash
-  cd pfish
-  make install
-  ```
+If you don't have `wget` installed, you can download the script and run it at the command line.
+
+## Updating
+
+Pfish doesn't currently track updates itself.
+
+Pfish has two parts: the wrapper script, and the pfish Docker image.
+
+1. Update the wrapper script by running the install script describe above.
+2. Update the pfish image by running
+
+   ```bash
+   pfish update
+   ```
+
+Note that the image is updated more frequently than the wrapper script.
 
 ## Configuring
 
@@ -224,3 +231,11 @@ pfish push -c Cloning -o "Run Gel"
 ```
 
 to push only that operation type.
+
+## Developer
+
+You can run a shell within the docker container by typing
+
+```bash
+docker run -it --entrypoint /bin/bash aquariumbio/pfish
+```

@@ -3,20 +3,21 @@ Script to download OperationType and Library definitions from the aquarium insta
 identified in the resources.py file.
 """
 
-import os
 import argparse
 import logging
 import instance
 import category
 import operation_type
 import library
+import os
+import sys
+
 from config import (
     add_config,
     set_default_instance
 )
 from paths import (
-    create_named_path,
-    makedirectory
+    create_named_path
 )
 from session import create_session
 
@@ -24,11 +25,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
-    args = get_arguments()
+    parser = get_argument_parser()
+    args = parser.parse_args()
     # call the function determined by the arguments
-    args.func(args)
+    try:
+        args.func(args)
+    except AttributeError:
+        parser.print_help(sys.stderr)
 
-def get_arguments():
+
+def get_argument_parser():
     parser = argparse.ArgumentParser(
         description="Create, push and pull Aquarium protocols")
 
@@ -87,8 +93,7 @@ def get_arguments():
     add_code_arguments(parser_push, action="push")
     parser_push.set_defaults(func=do_push)
 
-    args = parser.parse_args()
-    return args
+    return parser
 
 
 def add_code_arguments(parser, *, action):

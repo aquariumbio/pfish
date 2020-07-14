@@ -16,8 +16,4 @@ build:
 	@docker build -t aquariumbio/pfish:$(VERSION) . \
 	&& docker tag aquariumbio/pfish:$(VERSION) aquariumbio/pfish:latest
 
-publish: build
-	@docker push aquariumbio/pfish:$(VERSION) \
-	&& docker push aquariumbio/pfish:latest
-
-.PHONY: all install uninstall build publish
+.PHONY: all install uninstall build
