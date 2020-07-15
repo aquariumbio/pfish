@@ -7,6 +7,11 @@ import operation_type
 import library
 
 
+def is_category(path):
+    entries = os.listdir(path)
+    return set(entries) <= {'libraries', 'operation_types'}
+
+
 def pull_category(aq, path, category):
     """
     Retrieves all the Libraries and Operation Types within a category
