@@ -166,16 +166,7 @@ def do_pull(args):
     path = os.path.normpath(args.directory)
 
     if not args.category:
-        if args.library:
-            logging.error("Category required to pull library")
-            return
-
-        if args.operation_type:
-            logging.error("Category required to pull operation type")
-            return
-
-        # no category, library or operation type
-        instance.pull_all(aq, path)
+        instance.pull(session=aq, path=path)
         return
 
     # have category, check for a library or operation type
@@ -196,7 +187,12 @@ def do_push(args):
     aq = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
+    if not args.category:
+        instance.push(session=aq, path=path)
+        return
+
     category_path = create_named_path(path, args.category)
+
     if args.library:
         library.select_library(aq, category_path, args.library)
         return
@@ -212,20 +208,32 @@ def do_push(args):
 def do_test(args):
     aq = create_session(path=config_path())
     path = os.path.normpath(args.directory)
+
+    if not args.category:
+        instance.run_test(session=aq, path=path)
+        return
+
     category_path = create_named_path(path, args.category)
 
     if args.library:
-        logging.error("Library tests are not currently available")
+        # TODO: should push and then run test
+        library.run_test(
+            session=aq,
+            path=category_path,
+            name=args.library
+        )
         return
 
     if args.operation_type:
-        logging.error("testing is not currently supported")
         # TODO: should push and then run test
-        # raw code would be
-        # result = aq._aqhttp.get("test/run/{}".format(operation_type.id))
+        operation_type.run_test(
+            session=aq,
+            path=category_path,
+            name=args.operation_type
+        )
         return
 
-    logging.error("An operation type is required to run a test")
+    category.run_test(session=aq, path=category_path)
 
 
 if __name__ == "__main__":
