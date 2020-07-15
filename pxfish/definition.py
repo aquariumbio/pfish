@@ -32,7 +32,6 @@ def write_definition_json(file_path, operation_type):
       operation_type (OperationType): the operation type for definition
     """
     ot_ser = {}
-    ot_ser["id"] = operation_type.id
     ot_ser["name"] = operation_type.name
     ot_ser["parent_class"] = "OperationType"
     ot_ser["category"] = operation_type.category
@@ -54,7 +53,6 @@ def write_library_definition_json(file_path, library):
       library (Library): the library for which the definition should be written
     """
     library_ser = {}
-    library_ser["id"] = library.id
     library_ser["name"] = library.name
     library_ser["parent_class"] = "Library"
     library_ser["category"] = library.category
