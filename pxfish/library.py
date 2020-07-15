@@ -119,7 +119,7 @@ def select_library(aq, category_path, library_name):
     push(aq, path, ['source'])
 
 
-#def create(aq, path, category, library):
+# def create(aq, path, category, library):
 #    """
 #    Creates new library on the Aquarium instance.
 #    Note: does not create the files locally, they need to be pulled.
@@ -199,3 +199,7 @@ def push(aq, directory_path, component_names):
         logging.info("writing file {}".format(parent_object[0].name))
 
         aq.utils.update_code(new_code)
+
+
+def run_test(*, session, path, name):
+    logging.error("Library tests are not currently available")

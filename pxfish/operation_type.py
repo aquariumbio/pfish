@@ -212,3 +212,9 @@ def push(aq, directory_path, component_names):
 
         aq.utils.update_code(new_code)
 
+
+def run_test(*, session, path, name):
+    logging.error("testing is not currently supported")
+    # raw code would be
+    # result = session._aqhttp.get("test/run/{}".format(operation_type.id))
+    pass

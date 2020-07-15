@@ -18,10 +18,10 @@ def pull_category(aq, path, category):
     """
     operation_types = aq.OperationType.where({"category": category})
     libraries = aq.Library.where({"category": category})
-    
+
     if not operation_types and not libraries:
         logging.error("Category {} was not found.".format(category))
-    
+
     for op_type in operation_types:
         operation_type.write_files(path, op_type)
 
@@ -52,3 +52,6 @@ def select_category(aq, category_path):
                 category_path
             ))
 
+
+def run_test(*, session, path):
+    logging.error("category tests are not currently available")
