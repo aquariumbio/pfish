@@ -197,16 +197,20 @@ def do_push(args):
     aq = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
-    category_path = create_named_path(path, args.category)
-    if args.library:
-        select_library(aq, category_path, args.library)
+    if args.category:
+        category_path = create_named_path(path, args.category)
+        if args.library:
+            select_library(aq, category_path, args.library)
+            return
+
+        if args.operation_type:
+            select_operation_type(aq, category_path, args.operation_type)
+            return
+
+        select_category(aq, category_path)
         return
 
-    if args.operation_type:
-        select_operation_type(aq, category_path, args.operation_type)
-        return
-
-    select_category(aq, category_path)
+    logging.error("push of directory not implemented")
 
 
 if __name__ == "__main__":
