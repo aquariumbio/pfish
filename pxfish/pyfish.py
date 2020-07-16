@@ -12,6 +12,10 @@ import library
 import os
 import sys
 
+from category import (
+    create_library_path,
+    create_operation_path
+)
 from config import (
     add_config,
     set_default_instance
@@ -194,12 +198,17 @@ def do_push(args):
     category_path = create_named_path(path, args.category)
 
     if args.library:
-        library.select_library(aq, category_path, args.library)
+        library.push(
+            aq,
+            create_library_path(category_path, args.library)
+        )
         return
 
     if args.operation_type:
-        operation_type.select_operation_type(
-            aq, category_path, args.operation_type)
+        operation_type.push(
+            aq,
+            create_operation_path(category_path, args.operation_type)
+        )
         return
 
     category.select_category(aq, category_path)
