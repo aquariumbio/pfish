@@ -1,4 +1,19 @@
 import json
+import os
+from typing import Dict
+
+
+def has_definition(path) -> bool:
+    return 'definition.json' in os.listdir(path)
+
+
+def is_library(obj: Dict) -> bool:
+    return obj['parent_class'] == 'Library'
+
+
+def is_operation_type(obj: Dict) -> bool:
+    return obj['parent_class'] == 'OperationType'
+
 
 def field_type_list(field_types, role):
     """
@@ -22,6 +37,7 @@ def field_type_list(field_types, role):
             }
             ft_list.append(ft_ser)
     return ft_list
+
 
 def write_definition_json(file_path, operation_type):
     """
@@ -61,3 +77,10 @@ def write_library_definition_json(file_path, library):
     with open(file_path, 'w') as file:
         file.write(json.dumps(library_ser, indent=2))
 
+
+def read(path):
+    file_path = os.path.join(path, 'definition.json')
+    with open(file_path) as file:
+        definition = json.load(file)
+
+    return definition
