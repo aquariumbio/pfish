@@ -76,7 +76,7 @@ def pull_category(aq, path, category):
         library.write_files(path, lib)
 
 
-def select_category(aq, category_path):
+def push(aq, category_path):
     """
     Finds all library and operation type files in a specific category
 
@@ -89,10 +89,16 @@ def select_category(aq, category_path):
         files = os.listdir(os.path.join(category_path, directory_entry))
         if directory_entry == 'libraries':
             for name in files:
-                library.select_library(aq, category_path, name)
+                library.push(
+                    aq,
+                    create_library_path(category_path, name)
+                )
         elif directory_entry == 'operation_types':
             for name in files:
-                operation_type.select_operation_type(aq, category_path, name)
+                operation_type.push(
+                    aq,
+                    create_operation_path(category_path, name)
+                )
         else:
             logging.warning("Unexpected directory entry {} in {}".format(
                 directory_entry,

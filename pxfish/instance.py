@@ -40,7 +40,7 @@ def push(*, session, path):
         return
 
     if is_category(path):
-        category.select_category(session, path)
+        category.push(session, path)
         return
 
     entries = os.listdir(path)
@@ -52,7 +52,7 @@ def push(*, session, path):
     for entry in dir_entries:
         entry_path = os.path.join(path, entry)
         if is_category(entry_path):
-            category.select_category(session, entry_path)
+            category.push(session, entry_path)
 
 
 def run_test(*, session, path):

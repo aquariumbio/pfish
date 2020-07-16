@@ -211,7 +211,7 @@ def do_push(args):
         )
         return
 
-    category.select_category(aq, category_path)
+    category.push(aq, category_path)
 
 
 def do_test(args):
