@@ -3,37 +3,34 @@ Functions for pushing, pulling, and creating Operation Types in Aquarium.
 """
 
 import code
+import definition
 import json
 import logging
 import os
-from paths import (
-    create_named_path,
-    create_library_path,
-    makedirectory
-)
+
+from category import create_operation_path
 from code import (
     create_code_objects
 )
-from definition import write_definition_json
+from definition import (
+    write_definition_json
+)
+from paths import (
+    create_named_path,
+    makedirectory
+)
 
 
-def create_operation_path(category_path, operation_type_name):
-    """
-    Create a path for an operation type within the directory for a category.
+def is_operation_type(path):
+    if not os.path.isdir(path):
+        return False
 
-    Note: does not create the directory.
+    try:
+        def_dict = definition.read(path)
+    except FileNotFoundError:
+        return False
 
-    Arguments:
-      category_path (string): the path for the category
-      operation_type_name (string): the name of the operation type
-
-    Returns:
-      string: the path of the operation type
-    """
-    return create_named_path(
-        os.path.join(category_path, 'operation_types'),
-        operation_type_name
-    )
+    return definition.is_operation_type(def_dict)
 
 
 def get_operation_type(aq, path, category, operation_type):
@@ -123,7 +120,7 @@ def select_operation_type(aq, category_path, operation_type_name):
         operation_type_name (String): the name of the operation type
     """
     path = create_operation_path(category_path, operation_type_name)
-    push(aq, path, operation_type_code_names())
+    push(aq, path)
 
 
 def create(aq, path, category, operation_type_name):
@@ -149,7 +146,7 @@ def create(aq, path, category, operation_type_name):
     aq.utils.create_operation_type(new_operation_type)
 
 
-def push(aq, path, component_names):
+def push(aq, path):
     """
     Pushes files to the Aquarium instance
 
@@ -158,20 +155,21 @@ def push(aq, path, component_names):
         path (String): Directory where files are to be found
         component_names (List): List of files to push
     """
-    with open(os.path.join(path, 'definition.json')) as f:
-        definitions = json.load(f)
+    definitions = definition.read(path)
 
     user_id = aq.User.where({"login": aq.login})
     query = {
         "category": definitions['category'],
         "name": definitions['name']
     }
-    if definitions['parent_class'] == 'Library':
+    if definition.is_library(definitions):
         parent_object = aq.Library.where(query)
         parent_type_name = 'library'
-    elif definitions['parent_class'] == 'OperationType':
+        component_names = ['source']
+    elif definition.is_operation_type(definitions):
         parent_object = aq.OperationType.where(query)
         parent_type_name = 'operation type'
+        component_names = operation_type_code_names()
 
     if not parent_object:
         logging.warning(
