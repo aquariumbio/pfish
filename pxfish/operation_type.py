@@ -110,19 +110,6 @@ def operation_type_code_names():
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
-def select_operation_type(aq, category_path, operation_type_name):
-    """
-    Locates the operation type to be pushed
-
-    Arguments:
-        aq (Session Object): Aquarium session object
-        category_path (String): the directory path for the category
-        operation_type_name (String): the name of the operation type
-    """
-    path = create_operation_path(category_path, operation_type_name)
-    push(aq, path)
-
-
 def create(aq, path, category, operation_type_name):
     """
     Creates new operation type on the Aquarium instance.

@@ -95,20 +95,6 @@ def write_files(path, library):
         library_path, 'definition.json'), library)
 
 
-def select_library(aq, category_path, library_name):
-    """
-    Locates the library to be pushed
-
-    Arguments:
-        aq (Session Object): Aquarium session object
-        category_path (String): the path to the category containing the library
-        library (string): the Library containing the files to be pushed
-    """
-
-    path = create_library_path(category_path, library_name)
-    push(aq, path)
-
-
 # def create(aq, path, category, library):
 #    """
 #    Creates new library on the Aquarium instance.
