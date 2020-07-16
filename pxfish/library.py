@@ -3,14 +3,14 @@
 Functions for pushing, pulling, and creating Library files
 """
 import code
+import definition
 import json
 import logging
 import os
 
+from category import create_library_path
 from paths import (
     create_named_path,
-    create_operation_path,
-    create_library_path,
     makedirectory
 )
 from definition import (
@@ -18,23 +18,16 @@ from definition import (
 )
 
 
-def create_library_path(category_path, library_name):
-    """
-    Create a path for a library within the directory for a category.
+def is_library(path):
+    if not os.path.isdir(path):
+        return False
 
-    Note: does not create the directory.
+    try:
+        def_dict = definition.read(path)
+    except FileNotFoundError:
+        return False
 
-    Arguments:
-      category_path (string): the path for the category
-      library_name (string): the name of the library
-
-    Returns:
-      string: the path of the library
-    """
-    return create_named_path(
-        os.path.join(category_path, 'libraries'),
-        library_name
-    )
+    return definition.is_library(def_dict)
 
 
 def get_library(aq, path, category, library):
@@ -113,7 +106,7 @@ def select_library(aq, category_path, library_name):
     """
 
     path = create_library_path(category_path, library_name)
-    push(aq, path, ['source'])
+    push(aq, path)
 
 
 # def create(aq, path, category, library):
@@ -134,29 +127,31 @@ def select_library(aq, category_path, library_name):
 #    aq.utils.create_operation_type(new_operation_type)
 #
 
-def push(aq, directory_path, component_names):
+def push(aq, path):
     """
     Pushes files to the Aquarium instance
 
     Arguments:
         aq (Session Object): Aquarium session object
-        directory_path (String): Directory where files are to be found
+        path (String): Directory where files are to be found
         component_names (List): List of files to push
     """
-    with open(os.path.join(directory_path, 'definition.json')) as f:
-        definitions = json.load(f)
+    definitions = definition.read(path)
 
     user_id = aq.User.where({"login": aq.login})
     query = {
         "category": definitions['category'],
         "name": definitions['name']
     }
-    if definitions['parent_class'] == 'Library':
+    if definition.is_library(definitions):
         parent_object = aq.Library.where(query)
         parent_type_name = 'library'
-    elif definitions['parent_class'] == 'OperationType':
+        component_names = ['source']
+    elif definition.is_operation_type(definitions):
         parent_object = aq.OperationType.where(query)
         parent_type_name = 'operation type'
+        component_names = ['protocol', 'precondition',
+                           'cost_model', 'documentation', 'test']
 
     if not parent_object:
         logging.warning(
@@ -171,7 +166,7 @@ def push(aq, directory_path, component_names):
         return
 
     for name in component_names:
-        read_file = code.read(path=directory_path, name=name)
+        read_file = code.read(path=path, name=name)
         if read_file is None:
             return
 
