@@ -1,6 +1,11 @@
+import category
+import definition
 import library
 import logging
 import operation_type
+import os
+
+from category import is_category
 
 
 def pull(*, session, path):
@@ -22,8 +27,59 @@ def pull(*, session, path):
 
 
 def push(*, session, path):
-    logging.error("push of directory not implemented")
+    if not os.path.isdir(path):
+        logging.warning("Path {} is not a directory. Cannot push".format(path))
+        return
+
+    if definition.has_definition(path):
+        def_dict = definition.read(path)
+        if definition.is_library(def_dict):
+            operation_type.push(session, path)
+        elif definition.is_operation_type(def_dict):
+            library.push(session, path)
+        return
+
+    if is_category(path):
+        category.select_category(session, path)
+        return
+
+    entries = os.listdir(path)
+    dir_entries = [entry for entry in entries if os.path.isdir(entry)]
+    if not dir_entries:
+        logging.warning("Nothing to push in path {}".format(path))
+        return
+
+    for entry in dir_entries:
+        entry_path = os.path.join(path, entry)
+        if is_category(entry_path):
+            category.select_category(session, entry_path)
 
 
 def run_test(*, session, path):
-    logging.error("all tests are not currently available")
+    if not os.path.isdir(path):
+        logging.warning(
+            "Path {} is not a directory. Cannot run tests".format(path))
+        return
+
+    if definition.has_definition(path):
+        def_dict = definition.read(path)
+        if definition.is_library(def_dict):
+            operation_type.run_test(session=session, path=path)
+        elif definition.is_operation_type(def_dict):
+            library.run_test(session=session, path=path)
+        return
+
+    if is_category(path):
+        category.run_test(session=session, path=path)
+        return
+
+    entries = os.listdir(path)
+    dir_entries = [entry for entry in entries if os.path.isdir(entry)]
+    if not dir_entries:
+        logging.warning("Nothing to push in path {}".format(path))
+        return
+
+    for entry in dir_entries:
+        entry_path = os.path.join(path, entry)
+        if is_category(entry_path):
+            category.run_test(session=session, path=entry_path)
