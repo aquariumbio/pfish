@@ -161,8 +161,8 @@ def do_create(args):
 
     if args.library:
         # TODO: implement create library
-        library.create(aq, path, category, library):
-        logging.error("Creating library currently not implemented")
+        library.create(aq, path, category, library)
+#        logging.error("Creating library currently not implemented")
         return
 
 

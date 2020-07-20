@@ -97,7 +97,7 @@ def push(aq, category_path):
             for name in files:
                 operation_type.push(
                     aq,
-                    create_operation_path(category_path, name)
+                    operation_type.create_operation_path(category_path, name)
                 )
         else:
             logging.warning("Unexpected directory entry {} in {}".format(

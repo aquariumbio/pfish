@@ -8,7 +8,7 @@ import json
 import logging
 import os
 
-from category import create_operation_path
+#from category import create_operation_path
 from code import (
     create_code_objects
 )
@@ -186,6 +186,25 @@ def push(aq, path):
         logging.info("writing file {}".format(parent_object[0].name))
 
         aq.utils.update_code(new_code)
+
+
+def create_operation_path(category_path, operation_type_name):
+    """
+    Create a path for an operation type within the directory for a category.
+
+    Note: does not create the directory.
+
+    Arguments:
+      category_path (string): the path for the category
+      operation_type_name (string): the name of the operation type
+
+    Returns:
+      string: the path of the operation type
+    """
+    return create_named_path(
+        os.path.join(category_path, 'operation_types'),
+        operation_type_name
+    )
 
 
 def run_test(*, session, path, name):

@@ -7,7 +7,7 @@ import json
 import logging
 import os
 
-from category import create_library_path
+#from category import create_library_path
 from paths import (
     create_named_path,
     makedirectory
@@ -70,7 +70,7 @@ def write_files(path, library):
 
     category_path = create_named_path(path, library.category)
     makedirectory(category_path)
-    library_path = create_library_path(category_path, library.name)
+    library_path = library.create_library_path(category_path, library.name)
     makedirectory(library_path)
 
     code_object = library.code("source")
@@ -94,7 +94,7 @@ def write_files(path, library):
         library_path, 'definition.json'), library)
 
 
- def create(aq, path, category, library):
+def create(aq, path, category, library):
     """
     Creates new library on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -167,6 +167,25 @@ def push(aq, path):
         logging.info("writing file {}".format(parent_object[0].name))
 
         aq.utils.update_code(new_code)
+
+
+def create_library_path(category_path, library_name):
+    """
+    Create a path for a library within the directory for a category.
+
+    Note: does not create the directory.
+
+    Arguments:
+      category_path (string): the path for the category
+      library_name (string): the name of the library
+
+    Returns:
+      string: the path of the library
+    """
+    return create_named_path(
+        os.path.join(category_path, 'libraries'),
+        library_name
+    )
 
 
 def run_test(*, session, path, name):
