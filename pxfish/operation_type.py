@@ -8,7 +8,6 @@ import json
 import logging
 import os
 
-#from category import create_operation_path
 from code import (
     create_code_objects
 )
@@ -208,7 +207,11 @@ def create_operation_path(category_path, operation_type_name):
 
 
 def run_test(*, session, path, name):
-    logging.error("testing is not currently supported")
+#    logging.error("testing is not currently supported")
     # raw code would be
-    # result = session._aqhttp.get("test/run/{}".format(operation_type.id))
-    pass
+    print("inside run test function")
+    retrieved_operation_type = session.OperationType.find(14)
+    print(retrieved_operation_type)
+    # aq.utils.create_operation_type(new_operation_type)
+    result = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
+    print(result)
