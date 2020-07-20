@@ -104,11 +104,11 @@ def create(aq, path, category, library):
         category (String): the category for the operation type
         library (String): name of the library to be created
     """
-    code_objects = create_code_objects(aq, library_code_names())
+    code_objects = code.create_code_objects(aq, get_code_file_names())
     new_library = aq.Library.new(
-        name=operation_type_name,
+        name=library,
         category=category,
-        protocol=code_objects['protocol'])
+        source=code_objects['source'])
     aq.utils.create_library(new_library)
 
 

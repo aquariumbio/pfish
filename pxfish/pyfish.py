@@ -157,7 +157,7 @@ def do_create(args):
 
     if args.library:
         # TODO: implement create library
-        library.create(aq, path, category, library)
+        library.create(aq, path, args.category, args.library)
 #        logging.error("Creating library currently not implemented")
         return
 
@@ -202,14 +202,14 @@ def do_push(args):
     if args.library:
         library.push(
             aq,
-            create_library_path(category_path, args.library)
+            library.create_library_path(category_path, args.library)
         )
         return
 
     if args.operation_type:
         operation_type.push(
             aq,
-            create_operation_path(category_path, args.operation_type)
+            operation_type.create_operation_path(category_path, args.operation_type)
         )
         return
 
