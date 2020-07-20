@@ -94,23 +94,24 @@ def write_files(path, library):
         library_path, 'definition.json'), library)
 
 
-# def create(aq, path, category, library):
-#    """
-#    Creates new library on the Aquarium instance.
-#    Note: does not create the files locally, they need to be pulled.
-#
-#    Arguments:
-#        aq (Session Object): Aquarium session object
-#        path (String): the directory path where the new files will be written
-#        category (String): the category for the operation type
-#        library (String): name of the library to be created
-#    """
-#    code_objects = create_code_objects(aq, library_code_names())
-#    new_library = aq.Library.new(
-#        name=operation_type_name,
-#        category=category,
-#    aq.utils.create_operation_type(new_operation_type)
-#
+ def create(aq, path, category, library):
+    """
+    Creates new library on the Aquarium instance.
+    Note: does not create the files locally, they need to be pulled.
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        path (String): the directory path where the new files will be written
+        category (String): the category for the operation type
+        library (String): name of the library to be created
+    """
+    code_objects = create_code_objects(aq, library_code_names())
+    new_library = aq.Library.new(
+        name=operation_type_name,
+        category=category,
+        protocol=code_objects['protocol'])
+    aq.utils.create_library(new_library)
+
 
 def push(aq, path):
     """
