@@ -7,7 +7,6 @@ import json
 import logging
 import os
 
-#from category import create_library_path
 from paths import (
     create_named_path,
     makedirectory
@@ -70,7 +69,7 @@ def write_files(path, library):
 
     category_path = create_named_path(path, library.category)
     makedirectory(category_path)
-    library_path = library.create_library_path(category_path, library.name)
+    library_path = create_library_path(category_path, library.name)
     makedirectory(library_path)
 
     code_object = library.code("source")

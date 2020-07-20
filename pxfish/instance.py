@@ -18,7 +18,7 @@ def pull(*, session, path):
     """
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
-
+     
     for op_type in operation_types:
         operation_type.write_files(path, op_type)
 

@@ -16,43 +16,43 @@ def is_category(path):
     return set(entries) <= {'libraries', 'operation_types'}
 
 
-def create_library_path(category_path, library_name):
-    """
-    Create a path for a library within the directory for a category.
+#def create_library_path(category_path, library_name):
+#    """
+#    Create a path for a library within the directory for a category.
+#
+#    Note: does not create the directory.
+#
+#    Arguments:
+#      category_path (string): the path for the category
+#      library_name (string): the name of the library
+#
+#    Returns:
+#      string: the path of the library
+#    """
+#    return create_named_path(
+#        os.path.join(category_path, 'libraries'),
+#        library_name
+#    )
+#
 
-    Note: does not create the directory.
-
-    Arguments:
-      category_path (string): the path for the category
-      library_name (string): the name of the library
-
-    Returns:
-      string: the path of the library
-    """
-    return create_named_path(
-        os.path.join(category_path, 'libraries'),
-        library_name
-    )
-
-
-def create_operation_path(category_path, operation_type_name):
-    """
-    Create a path for an operation type within the directory for a category.
-
-    Note: does not create the directory.
-
-    Arguments:
-      category_path (string): the path for the category
-      operation_type_name (string): the name of the operation type
-
-    Returns:
-      string: the path of the operation type
-    """
-    return create_named_path(
-        os.path.join(category_path, 'operation_types'),
-        operation_type_name
-    )
-
+#def create_operation_path(category_path, operation_type_name):
+#    """
+#    Create a path for an operation type within the directory for a category.
+#
+#    Note: does not create the directory.
+#
+#    Arguments:
+#      category_path (string): the path for the category
+#      operation_type_name (string): the name of the operation type
+#
+#    Returns:
+#      string: the path of the operation type
+#    """
+#    return create_named_path(
+#        os.path.join(category_path, 'operation_types'),
+#        operation_type_name
+#    )
+#
 
 def pull_category(aq, path, category):
     """
@@ -91,7 +91,7 @@ def push(aq, category_path):
             for name in files:
                 library.push(
                     aq,
-                    create_library_path(category_path, name)
+                    library.create_library_path(category_path, name)
                 )
         elif directory_entry == 'operation_types':
             for name in files:
