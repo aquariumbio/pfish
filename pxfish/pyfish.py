@@ -12,10 +12,6 @@ import library
 import os
 import sys
 
-from category import (
-    create_library_path,
-    create_operation_path
-)
 from config import (
     add_config,
     set_default_instance
@@ -170,22 +166,27 @@ def do_pull(args):
     aq = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
-    if not args.category:
+    if args.category:
+    # have category, check for a library or operation type
+        if args.library:
+            library.get_library(aq, path, args.category, args.library)
+            return
+
+        if args.operation_type:
+            operation_type.get_operation_type(
+                aq, path, args.category, args.operation_type)
+            return
+
+        category.pull_category(aq, path, args.category)
+        return
+    
+    if args.library or args.operation_type:
+        logging.error("To pull an operation type or library, you must enter a category")
+        return  
+    else:
         instance.pull(session=aq, path=path)
         return
 
-    # have category, check for a library or operation type
-    if args.library:
-        library.get_library(aq, path, args.category, args.library)
-        return
-
-    if args.operation_type:
-        operation_type.get_operation_type(
-            aq, path, args.category, args.operation_type)
-        return
-
-    # get whole category
-    category.pull_category(aq, path, args.category)
 
 
 def do_push(args):
