@@ -18,6 +18,9 @@ from paths import (
     create_named_path,
     makedirectory
 )
+from protocol_test import (
+    parse_test_response
+)
 
 
 def is_operation_type(path):
@@ -207,11 +210,12 @@ def create_operation_path(category_path, operation_type_name):
 
 
 def run_test(*, session, path, name):
-#    logging.error("testing is not currently supported")
-    # raw code would be
+    retrieved_operation_type = session.OperationType.find(11)
+    #session.utils.test_operation_type(retrieved_operation_type)
+    response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
+    print("__________________") 
     print("inside run test function")
-    retrieved_operation_type = session.OperationType.find(14)
-    print(retrieved_operation_type)
-    # aq.utils.create_operation_type(new_operation_type)
-    result = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
-    print(result)
+    print(type(response))
+    print("response", json.dumps(response, indent=2))
+    print("________________")
+    parse_test_response(response) 

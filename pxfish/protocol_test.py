@@ -5,6 +5,10 @@ import json
 
 
 def parse_test_response(response):
+
+    print("in parse response")
+    print(response.keys())
+    print(response["result"])
     if response.result == "error":
         if response.error_type == "error":
             # response.message
@@ -28,10 +32,9 @@ def parse_test_response(response):
         for entry in response.exception_backtrace:
             pass
     else:
-        # All tests passed
-        pass
+        print("All tests passed")
 
-    # response.log
+    print(response.log)
 
     # response.backtrace
     time = None
@@ -39,9 +42,10 @@ def parse_test_response(response):
         if entry.operation == "display":
             # previous value of time
             for show_object in entry.content:
+                # These are all tables -- is this meant to be the place for the table function/
                 # see showmatch in markdown converter
                 # "line" is object {"key": "value"}
-                pass
+                print(show_object)
             time = entry.time
         elif entry.operation == "error":
             # see error.md
