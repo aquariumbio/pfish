@@ -151,14 +151,12 @@ def do_create(args):
 
     if args.operation_type:
         operation_type.create(aq, path, args.category, args.operation_type)
-        operation_type.get_operation_type(
+        operation_type.pull(
             aq, path, args.category, args.operation_type)
         return
 
     if args.library:
-        # TODO: implement create library
         library.create(aq, path, args.category, args.library)
-#        logging.error("Creating library currently not implemented")
         return
 
 
@@ -173,7 +171,7 @@ def do_pull(args):
             return
 
         if args.operation_type:
-            operation_type.get_operation_type(
+            operation_type.pull(
                 aq, path, args.category, args.operation_type)
             return
 
@@ -186,7 +184,6 @@ def do_pull(args):
     else:
         instance.pull(session=aq, path=path)
         return
-
 
 
 def do_push(args):

@@ -35,7 +35,7 @@ def is_operation_type(path):
     return definition.is_operation_type(def_dict)
 
 
-def get_operation_type(aq, path, category, operation_type, test=False):
+def get_operation_type(aq, path, category, operation_type):
     """
     Retrieves a single Operation Type Object
 
@@ -57,10 +57,12 @@ def get_operation_type(aq, path, category, operation_type, test=False):
                 operation_type, category)
         )
         return
-    if test:
-        return retrieved_operation_type[0]
-    else:
-        write_files(path, retrieved_operation_type[0])
+
+    return retrieved_operation_type[0]
+
+def pull(aq, path, category, operation_type):
+    retrieved_operation_type = get_operation_type(aq, path, category, operation_type) 
+    write_files(path, retrieved_operation_type)
 
 
 def write_files(path, operation_type):
@@ -78,13 +80,10 @@ def write_files(path, operation_type):
 
     path = create_operation_path(category_path, operation_type.name)
     makedirectory(path)
-
     code_names = operation_type_code_names()
 
     for name in code_names:
         code_object = operation_type.code(name)
-        print(name)
-        print(code_object)
         if not code_object:
             logging.warning(
                 "Missing {} code for operation type {}".format(
@@ -215,10 +214,16 @@ def create_operation_path(category_path, operation_type_name):
 
 
 def run_test(*, session, path, category, name):
-    #retrieved_operation_type = session.OperationType.find(11)
-    retrieved_operation_type = get_operation_type(session, path, category, name, test=True)
-    #session.utils.test_operation_type(retrieved_operation_type)
-    print(retrieved_operation_type)
-    print(retrieved_operation_type.id)
+    """
+    Run tests for specified operation type
+
+    Arguments: 
+        session (Session Object): Aquarium session object
+        path (String): the path to where the file will be written
+        category (String): The category the OperationType is in
+        name (String): The name of the OperationType to be retrieved
+    """ 
+    retrieved_operation_type = get_operation_type(session, path, category, name)
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response) 
+

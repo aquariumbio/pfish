@@ -34,13 +34,10 @@ def parse_test_response(response):
 #show messages on the screen -- send things to std out 
 # or turning json into markdown 
 
-    print(response["backtrace"])
-    print(len(response["backtrace"]))
     # response.backtrace
     time = None
     for entry in response["backtrace"]:
         print("-------------")
-        print(type(entry))
         print(entry)
         print("____________")
         if entry["operation"] == "display":
@@ -51,8 +48,8 @@ def parse_test_response(response):
 #                # see showmatch in markdown converter
 #                # "line" is object {"key": "value"}
 #            time = entry["time"]
-#        elif entry["operation"] == "error":
-#            print("error") # see error.md
+        elif entry["operation"] == "error":
+            print("error") # see error.md
 #        else:
 #            print("asdfasfasdfasasadfas")
 #
