@@ -80,6 +80,8 @@ def write_files(path, operation_type):
 
     for name in code_names:
         code_object = operation_type.code(name)
+        print(name)
+        print(code_object)
         if not code_object:
             logging.warning(
                 "Missing {} code for operation type {}".format(
@@ -213,9 +215,4 @@ def run_test(*, session, path, name):
     retrieved_operation_type = session.OperationType.find(11)
     #session.utils.test_operation_type(retrieved_operation_type)
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
-    print("__________________") 
-    print("inside run test function")
-    print(type(response))
-    print("response", json.dumps(response, indent=2))
-    print("________________")
     parse_test_response(response) 

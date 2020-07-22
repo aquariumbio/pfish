@@ -5,53 +5,57 @@ import json
 
 
 def parse_test_response(response):
-
-    print("in parse response")
-    print(response.keys())
-    print(response["result"])
-    if response.result == "error":
-        if response.error_type == "error":
+    if response["result"] == "error":
+        if response["error_type"] == "error":
             # response.message
             pass
-        elif response.error_type == "assertion_failure":
+        elif response["error_type"] == "assertion_failure":
             # "Test failure: " response.message
             pass
-        elif response.error_type == "protocol_syntax_error":
+        elif response["error_type"] == "protocol_syntax_error":
             # "Syntax error in protocol: " response.message
             pass
-        elif response.error_type == "protocol_error":
+        elif response["error_type"] == "protocol_error":
             # "Execution error in protocol: " response.message
             pass
-        elif response.error_type == "test_syntax_error":
+        elif response["error_type"] == "test_syntax_error":
             # "Syntax error in test: "
             pass
-        elif response.error_type == "test_error":
+        elif response["error_type"] == "test_error":
             # "Execution error in test: "
             pass
 
-        for entry in response.exception_backtrace:
-            pass
+       # for entry in response.exception_backtrace:
+       #     pass
     else:
         print("All tests passed")
 
-    print(response.log)
+#    print(response.log)
+#show messages on the screen -- send things to std out 
+# or turning json into markdown 
 
+    print(response["backtrace"])
+    print(len(response["backtrace"]))
     # response.backtrace
     time = None
-    for entry in response.backtrace:
-        if entry.operation == "display":
-            # previous value of time
-            for show_object in entry.content:
-                # These are all tables -- is this meant to be the place for the table function/
-                # see showmatch in markdown converter
-                # "line" is object {"key": "value"}
+    for entry in response["backtrace"]:
+        print("-------------")
+        print(type(entry))
+        print(entry)
+        print("____________")
+        if entry["operation"] == "display":
+#            # previous value of time
+            for show_object in entry["content"]:
                 print(show_object)
-            time = entry.time
-        elif entry.operation == "error":
-            # see error.md
-            pass
-
-
+                print("_____")
+#                # see showmatch in markdown converter
+#                # "line" is object {"key": "value"}
+#            time = entry["time"]
+#        elif entry["operation"] == "error":
+#            print("error") # see error.md
+#        else:
+#            print("asdfasfasdfasasadfas")
+#
 def format_table(content):
     formatted = ["<table>"]
     ary = json.loads(content)
