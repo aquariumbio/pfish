@@ -226,8 +226,9 @@ def do_test(args):
 
     category_path = create_named_path(path, args.category)
 
+ #   do_push(args)
+
     if args.library:
-        # TODO: should push and then run test
         library.run_test(
             session=aq,
             path=category_path,
@@ -236,9 +237,9 @@ def do_test(args):
         return
 
     if args.operation_type:
-        # TODO: should push and then run test
         operation_type.run_test(
             session=aq,
+            category=args.category,
             path=category_path,
             name=args.operation_type
         )

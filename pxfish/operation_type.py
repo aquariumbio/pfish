@@ -35,7 +35,7 @@ def is_operation_type(path):
     return definition.is_operation_type(def_dict)
 
 
-def get_operation_type(aq, path, category, operation_type):
+def get_operation_type(aq, path, category, operation_type, test=False):
     """
     Retrieves a single Operation Type Object
 
@@ -57,7 +57,10 @@ def get_operation_type(aq, path, category, operation_type):
                 operation_type, category)
         )
         return
-    write_files(path, retrieved_operation_type[0])
+    if test:
+        return retrieved_operation_type[0]
+    else:
+        write_files(path, retrieved_operation_type[0])
 
 
 def write_files(path, operation_type):
@@ -211,8 +214,11 @@ def create_operation_path(category_path, operation_type_name):
     )
 
 
-def run_test(*, session, path, name):
-    retrieved_operation_type = session.OperationType.find(11)
+def run_test(*, session, path, category, name):
+    #retrieved_operation_type = session.OperationType.find(11)
+    retrieved_operation_type = get_operation_type(session, path, category, name, test=True)
     #session.utils.test_operation_type(retrieved_operation_type)
+    print(retrieved_operation_type)
+    print(retrieved_operation_type.id)
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response) 
