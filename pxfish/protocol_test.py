@@ -5,6 +5,7 @@ import json
 
 
 def parse_test_response(response):
+    print(response)
     if response["result"] == "error":
         if response["error_type"] == "error":
             # response.message
@@ -30,28 +31,20 @@ def parse_test_response(response):
     else:
         print("All tests passed")
 
-#    print(response.log)
-#show messages on the screen -- send things to std out 
-# or turning json into markdown 
-
+    print(response.log)
     # response.backtrace
     time = None
     for entry in response["backtrace"]:
-        print("-------------")
-        print(entry)
-        print("____________")
         if entry["operation"] == "display":
 #            # previous value of time
             for show_object in entry["content"]:
                 print(show_object)
-                print("_____")
 #                # see showmatch in markdown converter
 #                # "line" is object {"key": "value"}
 #            time = entry["time"]
         elif entry["operation"] == "error":
             print("error") # see error.md
-#        else:
-#            print("asdfasfasdfasasadfas")
+
 #
 def format_table(content):
     formatted = ["<table>"]

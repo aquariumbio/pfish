@@ -16,44 +16,6 @@ def is_category(path):
     return set(entries) <= {'libraries', 'operation_types'}
 
 
-#def create_library_path(category_path, library_name):
-#    """
-#    Create a path for a library within the directory for a category.
-#
-#    Note: does not create the directory.
-#
-#    Arguments:
-#      category_path (string): the path for the category
-#      library_name (string): the name of the library
-#
-#    Returns:
-#      string: the path of the library
-#    """
-#    return create_named_path(
-#        os.path.join(category_path, 'libraries'),
-#        library_name
-#    )
-#
-
-#def create_operation_path(category_path, operation_type_name):
-#    """
-#    Create a path for an operation type within the directory for a category.
-#
-#    Note: does not create the directory.
-#
-#    Arguments:
-#      category_path (string): the path for the category
-#      operation_type_name (string): the name of the operation type
-#
-#    Returns:
-#      string: the path of the operation type
-#    """
-#    return create_named_path(
-#        os.path.join(category_path, 'operation_types'),
-#        operation_type_name
-#    )
-#
-
 def pull_category(aq, path, category):
     """
     Retrieves all the Libraries and Operation Types within a category
@@ -78,7 +40,7 @@ def pull_category(aq, path, category):
 
 def push(aq, category_path):
     """
-    Finds all library and operation type files in a specific category
+    Finds and pushes all library and operation type files in a specific category
 
     Arguments:
         aq (Session Object): Aquarium session object
@@ -106,5 +68,24 @@ def push(aq, category_path):
             ))
 
 
-def run_test(*, session, path):
-    logging.error("category tests are not currently available")
+def run_test(*, session, category_path, path):
+    #logging.error("category tests are not currently available")
+    """
+    Finds all library and operation type files in a specific category
+
+    Arguments:
+        aq (Session Object): Aquarium session object
+        category_path (String): the directory path for the category
+    """
+    category_entries = os.listdir(category_path)
+    for directory_entry in category_entries:
+        files = os.listdir(os.path.join(category_path, directory_entry))
+        if directory_entry == 'operation_types':
+            for name in files:
+                if name == "test.rb":
+                    operation_type.test(*, session, path, category, name):
+        else:
+            logging.warning("Unexpected directory entry {} in {}".format(
+                directory_entry,
+                category_path
+            ))
