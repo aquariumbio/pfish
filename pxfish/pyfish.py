@@ -146,104 +146,109 @@ def do_config_default(args):
 
 
 def do_create(args):
-    aq = create_session(path=config_path())
+    session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
     if args.operation_type:
-        operation_type.create(aq, path, args.category, args.operation_type)
+        operation_type.create(session, path, args.category, args.operation_type)
         operation_type.pull(
-            aq, path, args.category, args.operation_type)
+            session, path, args.category, args.operation_type)
         return
 
     if args.library:
-        library.create(aq, path, args.category, args.library)
+        library.create(session, path, args.category, args.library)
         return
 
 
 def do_pull(args):
-    aq = create_session(path=config_path())
+    session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
     if args.category:
     # have category, check for a library or operation type
         if args.library:
-            library.get_library(aq, path, args.category, args.library)
+            library.get_library(session, path, args.category, args.library)
             return
 
         if args.operation_type:
             operation_type.pull(
-                aq, path, args.category, args.operation_type)
+                session, path, args.category, args.operation_type)
             return
 
-        category.pull_category(aq, path, args.category)
+        category.pull_category(session, path, args.category)
         return
     
     if args.library or args.operation_type:
         logging.error("To pull an operation type or library, you must enter a category")
         return  
     else:
-        instance.pull(session=aq, path=path)
+        instance.pull(session=session, path=path)
         return
 
 
 def do_push(args):
-    aq = create_session(path=config_path())
+    session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
     if not args.category:
-        instance.push(session=aq, path=path)
+        instance.push(session=session, path=path)
         return
 
     category_path = create_named_path(path, args.category)
 
     if args.library:
         library.push(
-            aq,
+            session,
             library.create_library_path(category_path, args.library)
         )
         return
 
     if args.operation_type:
         operation_type.push(
-            aq,
+            session,
             operation_type.create_operation_path(category_path, args.operation_type)
         )
         return
 
-    category.push(aq, category_path)
+    category.push(session, category_path)
 
 
 def do_test(args):
-    aq = create_session(path=config_path())
+    session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
-
-    if not args.category:
-        instance.run_test(session=aq, path=path)
-        return
 
     category_path = create_named_path(path, args.category)
 
  #   do_push(args)
 
-    if args.library:
-        library.run_test(
-            session=aq,
-            path=category_path,
-            name=args.library
-        )
+    # have category, check for a library or operation type
+    if args.category:
+        if args.library:
+            library.run_test(
+                session=session,
+                path=category_path,
+                name=args.library
+            )
+            return
+
+        if args.operation_type:
+            operation_type.get_test(
+                session=session,
+                category=args.category,
+                name=args.operation_type
+            )
+            return
+
+        category.get_tests(session=session, category=args.category)
         return
 
-    if args.operation_type:
-        operation_type.get_test(
-            session=aq,
-            category=args.category,
-            #path=category_path,
-            name=args.operation_type
-        )
+    if args.library or args.operation_type:
+        logging.error("To test a single operation type or library, you must enter a category")
+        return  
+    else:
+        instance.run_test(session=session, path=path)
         return
-
-    category.get_tests(session=aq, category=args.category)
-
-
+    
+    
 if __name__ == "__main__":
     main()

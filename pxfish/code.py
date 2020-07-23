@@ -19,12 +19,12 @@ def write(path, file_name, code_object):
         file.write(code_object.content)
 
 
-def create_code_objects(aq, component_names):
+def create_code_objects(session, component_names):
     """
     Creates code objects for each named component.
 
     Arguments:
-        aq (Session Object): Aquarium session object
+        session (Session Object): Aquarium session object
         component_names (List): names of code components
     """
     code_objects = {}

@@ -28,12 +28,12 @@ def is_library(path):
     return definition.is_library(def_dict)
 
 
-def get_library(aq, path, category, library):
+def get_library(session, path, category, library):
     """
     Retrieves a single Library Object
 
     Arguments:
-        aq (Session Object): Aquarium session object
+        session (Session Object): Aquarium session object
         path (String): the path to where the file will be written
         category (String): The category the Library is in
         library (String): The Library to be retrieved
@@ -93,18 +93,18 @@ def write_files(path, library):
         library_path, 'definition.json'), library)
 
 
-def create(aq, path, category, library):
+def create(session, path, category, library):
     """
     Creates new library on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
 
     Arguments:
-        aq (Session Object): Aquarium session object
+        session (Session Object): Aquarium session object
         path (String): the directory path where the new files will be written
         category (String): the category for the operation type
         library (String): name of the library to be created
     """
-    code_objects = code.create_code_objects(aq, get_code_file_names())
+    code_objects = code.create_code_objects(session, get_code_file_names())
     new_library = session.Library.new(
         name=library,
         category=category,
@@ -112,12 +112,12 @@ def create(aq, path, category, library):
     session.utils.create_library(new_library)
 
 
-def push(aq, path):
+def push(session, path):
     """
     Pushes files to the Aquarium instance
 
     Arguments:
-        aq (Session Object): Aquarium session object
+        session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
         component_names (List): List of files to push
     """

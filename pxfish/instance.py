@@ -13,7 +13,7 @@ def pull(*, session, path):
     Pulls OperationType and/or Library files from the Aquarium instance.
 
     Arguments:
-        aq (Session Object): Aquarium session object
+        session (Session Object): Aquarium session object
         path (String): the path to where the files will be written
     """
     operation_types = session.OperationType.all()
