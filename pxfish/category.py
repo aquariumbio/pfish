@@ -25,8 +25,8 @@ def pull_category(aq, path, category):
         path (String): the path to where the files will be written
         category (String): the category name
     """
-    operation_types = aq.OperationType.where({"category": category})
-    libraries = aq.Library.where({"category": category})
+    operation_types = session.OperationType.where({"category": category})
+    libraries = session.Library.where({"category": category})
 
     if not operation_types and not libraries:
         logging.error("Category {} was not found.".format(category))
@@ -68,7 +68,7 @@ def push(aq, category_path):
             ))
 
 
-def run_test(*, session, category):
+def get_tests(*, session, category):
     """
     Finds all library and operation type files in a specific category
 
@@ -76,7 +76,7 @@ def run_test(*, session, category):
         aq (Session Object): Aquarium session object
         category_path (String): the directory path for the category
     """
-    operation_types = aq.OperationType.where({"category": category})
+    operation_types = session.OperationType.where({"category": category})
     
     for op_type in operation_types:
         operation_type.run_test(session, op_type)

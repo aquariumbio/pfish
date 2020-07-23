@@ -44,7 +44,7 @@ def get_operation_type(aq, category, operation_type):
         category (String): The category the OperationType is in
         operation_type (String): The OperationType to be retrieved
     """
-    retrieved_operation_type = aq.OperationType.where(
+    retrieved_operation_type = session.OperationType.where(
         {
             "category": category,
             "name": operation_type
@@ -128,7 +128,7 @@ def create(aq, path, category, operation_type_name):
         operation_type_name (String): name of the operation type
     """
     code_objects = create_code_objects(aq, operation_type_code_names())
-    new_operation_type = aq.OperationType.new(
+    new_operation_type = session.OperationType.new(
         name=operation_type_name,
         category=category,
         protocol=code_objects['protocol'],
@@ -136,7 +136,7 @@ def create(aq, path, category, operation_type_name):
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'])
     new_operation_type.field_types = []
-    aq.utils.create_operation_type(new_operation_type)
+    session.utils.create_operation_type(new_operation_type)
 
 
 def push(aq, path):
@@ -150,17 +150,17 @@ def push(aq, path):
     """
     definitions = definition.read(path)
 
-    user_id = aq.User.where({"login": aq.login})
+    user_id = session.User.where({"login": session.login})
     query = {
         "category": definitions['category'],
         "name": definitions['name']
     }
     if definition.is_library(definitions):
-        parent_object = aq.Library.where(query)
+        parent_object = session.Library.where(query)
         parent_type_name = 'library'
         component_names = ['source']
     elif definition.is_operation_type(definitions):
-        parent_object = aq.OperationType.where(query)
+        parent_object = session.OperationType.where(query)
         parent_type_name = 'operation type'
         component_names = operation_type_code_names()
 
@@ -181,7 +181,7 @@ def push(aq, path):
         if read_file is None:
             return
 
-        new_code = aq.Code.new(
+        new_code = session.Code.new(
             name=name,
             parent_id=parent_object[0].id,
             parent_class=definitions['parent_class'],
@@ -191,7 +191,7 @@ def push(aq, path):
 
         logging.info("writing file {}".format(parent_object[0].name))
 
-        aq.utils.update_code(new_code)
+        session.utils.update_code(new_code)
 
 
 def create_operation_path(category_path, operation_type_name):

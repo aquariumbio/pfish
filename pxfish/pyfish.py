@@ -234,15 +234,15 @@ def do_test(args):
         return
 
     if args.operation_type:
-        operation_type.run_test(
+        operation_type.get_test(
             session=aq,
             category=args.category,
-            path=category_path,
+            #path=category_path,
             name=args.operation_type
         )
         return
 
-    category.run_test(session=aq, path=category_path)
+    category.get_tests(session=aq, category=args.category)
 
 
 if __name__ == "__main__":

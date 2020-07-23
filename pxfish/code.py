@@ -29,7 +29,7 @@ def create_code_objects(aq, component_names):
     """
     code_objects = {}
     for name in component_names:
-        code_objects[name] = aq.Code.new(name=name, content='')
+        code_objects[name] = session.Code.new(name=name, content='')
     return code_objects
 
 

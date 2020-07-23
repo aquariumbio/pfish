@@ -38,7 +38,7 @@ def get_library(aq, path, category, library):
         category (String): The category the Library is in
         library (String): The Library to be retrieved
     """
-    retrieved_library = aq.Library.where(
+    retrieved_library = session.Library.where(
         {
             "category": category,
             "name": library
@@ -105,11 +105,11 @@ def create(aq, path, category, library):
         library (String): name of the library to be created
     """
     code_objects = code.create_code_objects(aq, get_code_file_names())
-    new_library = aq.Library.new(
+    new_library = session.Library.new(
         name=library,
         category=category,
         source=code_objects['source'])
-    aq.utils.create_library(new_library)
+    session.utils.create_library(new_library)
 
 
 def push(aq, path):
@@ -123,17 +123,17 @@ def push(aq, path):
     """
     definitions = definition.read(path)
 
-    user_id = aq.User.where({"login": aq.login})
+    user_id = session.User.where({"login": session.login})
     query = {
         "category": definitions['category'],
         "name": definitions['name']
     }
     if definition.is_library(definitions):
-        parent_object = aq.Library.where(query)
+        parent_object = session.Library.where(query)
         parent_type_name = 'library'
         component_names = ['source']
     elif definition.is_operation_type(definitions):
-        parent_object = aq.OperationType.where(query)
+        parent_object = session.OperationType.where(query)
         parent_type_name = 'operation type'
         component_names = ['protocol', 'precondition',
                            'cost_model', 'documentation', 'test']
@@ -155,7 +155,7 @@ def push(aq, path):
         if read_file is None:
             return
 
-        new_code = aq.Code.new(
+        new_code = session.Code.new(
             name=name,
             parent_id=parent_object[0].id,
             parent_class=definitions['parent_class'],
@@ -165,7 +165,7 @@ def push(aq, path):
 
         logging.info("writing file {}".format(parent_object[0].name))
 
-        aq.utils.update_code(new_code)
+        session.utils.update_code(new_code)
 
 
 def create_library_path(category_path, library_name):
