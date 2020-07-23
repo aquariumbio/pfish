@@ -35,13 +35,12 @@ def is_operation_type(path):
     return definition.is_operation_type(def_dict)
 
 
-def get_operation_type(aq, path, category, operation_type):
+def get_operation_type(aq, category, operation_type):
     """
     Retrieves a single Operation Type Object
 
     Arguments:
         aq (Session Object): Aquarium session object
-        path (String): the path to where the file will be written
         category (String): The category the OperationType is in
         operation_type (String): The OperationType to be retrieved
     """
@@ -60,8 +59,9 @@ def get_operation_type(aq, path, category, operation_type):
 
     return retrieved_operation_type[0]
 
+
 def pull(aq, path, category, operation_type):
-    retrieved_operation_type = get_operation_type(aq, path, category, operation_type) 
+    retrieved_operation_type = get_operation_type(aq, category, operation_type) 
     write_files(path, retrieved_operation_type)
 
 
@@ -213,17 +213,20 @@ def create_operation_path(category_path, operation_type_name):
     )
 
 
-def run_test(*, session, path, category, name):
+def get_test(session, category, name):
+    retrieved_operation_type = get_operation_type(session, category, name)
+    run_test(session, retrieved_operation_type)
+
+
+def run_test(session, operation_type):
     """
     Run tests for specified operation type
 
     Arguments: 
         session (Session Object): Aquarium session object
-        path (String): the path to where the file will be written
         category (String): The category the OperationType is in
         name (String): The name of the OperationType to be retrieved
     """ 
-    retrieved_operation_type = get_operation_type(session, path, category, name)
-    response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
+    response = session._aqhttp.get("test/run/{}".format(operation_type.id))
     parse_test_response(response) 
 
