@@ -44,7 +44,7 @@ def parse_test_response(response):
 #            time = entry["time"]
         elif entry["operation"] == "error":
             print("error") # see error.md
-
+    return
 #
 def format_table(content):
     formatted = ["<table>"]

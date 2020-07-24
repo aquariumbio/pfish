@@ -32,10 +32,10 @@ def pull_category(session, path, category):
         logging.error("Category {} was not found.".format(category))
 
     for op_type in operation_types:
-        operation_type.write_files(path, op_type)
+        operation_type.write_files(session, path, op_type)
 
     for lib in libraries:
-        library.write_files(path, lib)
+        library.write_files(session, path, lib)
 
 
 def push(session, category_path):
@@ -77,7 +77,7 @@ def get_tests(*, session, category):
         category_path (String): the directory path for the category
     """
     operation_types = session.OperationType.where({"category": category})
-    
+    print("Operation Types", operation_types)   
     for op_type in operation_types:
         logging.info("Testing Operation Type {}.".format(op_type.name))
         operation_type.run_test(session, op_type)

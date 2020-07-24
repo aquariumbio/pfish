@@ -62,10 +62,10 @@ def get_operation_type(session, category, operation_type):
 
 def pull(session, path, category, operation_type):
     retrieved_operation_type = get_operation_type(session, category, operation_type) 
-    write_files(path, retrieved_operation_type)
+    write_files(session, path, retrieved_operation_type)
 
 
-def write_files(path, operation_type):
+def write_files(session, path, operation_type):
     """
     Writes the files associated with the operation_type to the path.
 
@@ -86,9 +86,10 @@ def write_files(path, operation_type):
         code_object = operation_type.code(name)
         if not code_object:
             logging.warning(
-                "Missing {} code for operation type {}".format(
+                "Missing {} code for operation type {} -- creating file".format(
                     operation_type.name, name)
             )
+            code_object = create_code_objects(session, [name])
             continue
 
         file_name = "{}.rb".format(name)
@@ -134,7 +135,8 @@ def create(session, path, category, operation_type_name):
         protocol=code_objects['protocol'],
         precondition=code_objects['precondition'],
         documentation=code_objects['documentation'],
-        cost_model=code_objects['cost_model'])
+        cost_model=code_objects['cost_model'],
+        test=code_objects['test'])
     new_operation_type.field_types = []
     session.utils.create_operation_type(new_operation_type)
 
@@ -227,6 +229,8 @@ def run_test(session, operation_type):
         category (String): The category the OperationType is in
         name (String): The name of the OperationType to be retrieved
     """ 
+    logging.info("sending request for {}".format(operation_type.name))
     response = session._aqhttp.get("test/run/{}".format(operation_type.id))
     parse_test_response(response) 
+    return
 

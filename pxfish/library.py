@@ -50,14 +50,14 @@ def get_library(session, path, category, library):
                 library, category)
         )
         return
-    write_files(path, retrieved_library[0])
+    write_files(session, path, retrieved_library[0])
 
 
 def get_code_file_names():
     return ['source']
 
 
-def write_files(path, library):
+def write_files(session, path, library):
     """
     Writes the files for the library to the path.
 

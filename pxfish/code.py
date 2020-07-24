@@ -29,7 +29,9 @@ def create_code_objects(session, component_names):
     """
     code_objects = {}
     for name in component_names:
+        print("writing code object for ", name)
         code_objects[name] = session.Code.new(name=name, content='')
+        print("Here it is, ", code_objects[name])
     return code_objects
 
 
