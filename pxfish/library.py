@@ -69,7 +69,12 @@ def write_files(session, path, library):
 
     category_path = create_named_path(path, library.category)
     makedirectory(category_path)
-    library_path = create_library_path(category_path, library.name)
+
+    library_paty =  create_named_path(
+        os.path.join(category_path, 'libraries'),
+        library_name
+    )
+
     makedirectory(library_path)
 
     code_object = library.code("source")
@@ -166,25 +171,6 @@ def push(session, path):
         logging.info("writing file {}".format(parent_object[0].name))
 
         session.utils.update_code(new_code)
-
-
-def create_library_path(category_path, library_name):
-    """
-    Create a path for a library within the directory for a category.
-
-    Note: does not create the directory.
-
-    Arguments:
-      category_path (string): the path for the category
-      library_name (string): the name of the library
-
-    Returns:
-      string: the path of the library
-    """
-    return create_named_path(
-        os.path.join(category_path, 'libraries'),
-        library_name
-    )
 
 
 def run_test(*, session, path, name):

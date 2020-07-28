@@ -78,7 +78,11 @@ def write_files(session, path, operation_type):
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
 
-    path = create_operation_path(category_path, operation_type.name)
+    path = create_named_path(
+        os.path.join(category_path, 'operation_types'),
+        operation_type.name
+    )
+
     makedirectory(path)
     code_names = operation_type_code_names()
 
@@ -90,6 +94,7 @@ def write_files(session, path, operation_type):
                     operation_type.name, name)
             )
             code_object = create_code_objects(session, [name])
+            # not sure how to get this to save -- maybe need to update pydent?
             continue
 
         file_name = "{}.rb".format(name)
@@ -194,25 +199,6 @@ def push(session, path):
         logging.info("writing file {}".format(parent_object[0].name))
 
         session.utils.update_code(new_code)
-
-
-def create_operation_path(category_path, operation_type_name):
-    """
-    Create a path for an operation type within the directory for a category.
-
-    Note: does not create the directory.
-
-    Arguments:
-      category_path (string): the path for the category
-      operation_type_name (string): the name of the operation type
-
-    Returns:
-      string: the path of the operation type
-    """
-    return create_named_path(
-        os.path.join(category_path, 'operation_types'),
-        operation_type_name
-    )
 
 
 def get_test(session, category, name):

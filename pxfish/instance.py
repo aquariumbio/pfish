@@ -20,10 +20,10 @@ def pull(*, session, path):
     libraries = session.Library.all()
      
     for op_type in operation_types:
-        operation_type.write_files(path, op_type)
+        operation_type.write_files(session, path, op_type)
 
     for lib in libraries:
-        library.write_files(path, lib)
+        library.write_files(session, path, lib)
 
 
 def push(*, session, path):
