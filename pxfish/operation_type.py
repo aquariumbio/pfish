@@ -162,6 +162,7 @@ def push(session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
+    
     if definition.is_library(definitions):
         parent_object = session.Library.where(query)
         parent_type_name = 'library'
@@ -184,6 +185,7 @@ def push(session, path):
         return
 
     for name in component_names:
+        print("reading file", name)
         read_file = code.read(path=path, name=name)
         if read_file is None:
             return

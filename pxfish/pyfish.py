@@ -189,27 +189,26 @@ def do_pull(args):
 def do_push(args):
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
-
     if not args.category:
         instance.push(session=session, path=path)
         return
 
     category_path = create_named_path(path, args.category)
-
     if args.library:
         library.push(
             session,
-            library.create_library_path(category_path, args.library)
+            library.create_library_path(category_path, args.library, object_type="libraries")
         )
         return
 
     if args.operation_type:
+        print("operation type is", args.operation_type)
         operation_type.push(
             session,
-            operation_type.create_operation_path(category_path, args.operation_type)
+            operation_type.create_named_path(category_path, args.operation_type, object_type="operation_types")
         )
         return
-
+    
     category.push(session, category_path)
 
 

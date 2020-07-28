@@ -31,7 +31,7 @@ def simplename(name):
     return re.sub(r'\W|^(?=\d)', '_', name).lower()
 
 
-def create_named_path(path, name):
+def create_named_path(path, name, object_type=None):
     """
     Create a path for a named object (operation type/library).
     Joins the canonical form of the object name to the base path.
@@ -46,4 +46,6 @@ def create_named_path(path, name):
     Returns:
       string: the path of the named object
     """
+    if object_type:
+        path = os.path.join(path, object_type)
     return os.path.join(path, simplename(name))
