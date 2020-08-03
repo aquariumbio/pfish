@@ -79,10 +79,8 @@ def write_files(session, path, operation_type):
     makedirectory(category_path)
 
     path = create_named_path(
-        os.path.join(category_path, 'operation_types'),
-        operation_type.name
-    )
-
+        category_path, operation_type.name, object_type='operation_types')
+    
     makedirectory(path)
     code_names = operation_type_code_names()
 
@@ -93,8 +91,24 @@ def write_files(session, path, operation_type):
                 "Missing {} code for operation type {} -- creating file".format(
                     operation_type.name, name)
             )
-            code_object = create_code_objects(session, [name])
-            # not sure how to get this to save -- maybe need to update pydent?
+            #code_object = create_code_objects(session, [name])
+# needs operation type id, name, content 
+            op_data = {}
+            op_data['id'] = operation_type.id 
+            op_data['content'] = ""
+            op_data['name'] = "test" 
+            print("Printing op data") 
+            print(op_data)
+            print(type(op_data))
+            json_data = json.dumps(op_data)
+            print("printing json data") 
+            print(json_data)
+            print(type(json_data)) 
+
+            logging.info("sending request for {}".format(operation_type.name))
+            response = session._aqhttp.post("operation_types/code", json_data=json.dumps(op_data))
+            
+        # not sure how to get this to save -- maybe need to update pydent?
             continue
 
         file_name = "{}.rb".format(name)
