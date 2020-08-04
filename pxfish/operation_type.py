@@ -91,24 +91,15 @@ def write_files(session, path, operation_type):
                 "Missing {} code for operation type {} -- creating file".format(
                     operation_type.name, name)
             )
-            #code_object = create_code_objects(session, [name])
-# needs operation type id, name, content 
-            op_data = {}
-            op_data['id'] = operation_type.id 
-            op_data['content'] = ""
-            op_data['name'] = "test" 
-            print("Printing op data") 
-            print(op_data)
-            print(type(op_data))
-            json_data = json.dumps(op_data)
-            print("printing json data") 
-            print(json_data)
-            print(type(json_data)) 
+
+            code_object_data = {}
+            code_object_data['id'] = operation_type.id 
+            code_object_data['content'] = ""
+            code_object_data['name'] = name 
 
             logging.info("sending request for {}".format(operation_type.name))
-            response = session._aqhttp.post("operation_types/code", json_data=json.dumps(op_data))
+            response = session._aqhttp.post("operation_types/code", json_data=code_object_data)
             
-        # not sure how to get this to save -- maybe need to update pydent?
             continue
 
         file_name = "{}.rb".format(name)
