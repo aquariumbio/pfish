@@ -2,30 +2,45 @@
 code for running operation type tests
 """
 import json
+import logging
 
 
 def parse_test_response(response):
-    print(response)
+
     if response["result"] == "error":
         if response["error_type"] == "error":
-            # response.message
-            pass
-        elif response["error_type"] == "assertion_failure":
-            # "Test failure: " response.message
-            pass
-        elif response["error_type"] == "protocol_syntax_error":
-            # "Syntax error in protocol: " response.message
-            pass
-        elif response["error_type"] == "protocol_error":
-            # "Execution error in protocol: " response.message
-            pass
-        elif response["error_type"] == "test_syntax_error":
-            # "Syntax error in test: "
-            pass
-        elif response["error_type"] == "test_error":
-            # "Execution error in test: "
-            pass
+            logging.error(response["message"])
 
+        elif response["error_type"] == "assertion_failure":
+            logging.info(
+                    "Test failure: {}".format(
+                        response["message"])
+                    )
+
+        elif response["error_type"] == "protocol_syntax_error":
+            logging.info(
+                    "Syntax error in protocol: {}".format(
+                        response["message"])
+                    )
+
+        elif response["error_type"] == "protocol_error":
+            logging.info(
+                    "Execution error in protocol: {}".format(
+                        response["message"])
+                    )
+
+        elif response["error_type"] == "test_syntax_error":
+            logging.info(
+                    "Syntax error in test: {}".format(
+                        response["message"])
+                    )
+
+        elif response["error_type"] == "test_error":
+            logging.info(
+                    "Execution error in test: {} ".format(
+                        response["message"])
+                    )
+        return
        # for entry in response.exception_backtrace:
        #     pass
     else:

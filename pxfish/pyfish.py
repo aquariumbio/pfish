@@ -204,7 +204,6 @@ def do_push(args):
         return
 
     if args.operation_type:
-        print("operation type is", args.operation_type)
         operation_type.push(
             session,
             operation_type.create_named_path(category_path, args.operation_type, object_type="operation_types")
@@ -215,12 +214,11 @@ def do_push(args):
 
 
 def do_test(args):
+    #do_push(args) 
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
     category_path = create_named_path(path, args.category)
-
- #   do_push(args)
 
     # have category, check for a library or operation type
     if args.category:
