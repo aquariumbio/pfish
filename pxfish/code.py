@@ -7,7 +7,7 @@ import os
 
 def write(path, file_name, code_object):
     """
-    Writes the aquarium code object to the given path.
+    Writes the content of the aquarium code object to the given path.
 
     Arguments:
       path (string): the path of the file to be written
@@ -28,10 +28,11 @@ def create_code_objects(session, component_names):
         component_names (List): names of code components
     """
     code_objects = {}
+    path = os.path.normpath("protocol_templates")
+     
     for name in component_names:
-        #content = read(path=)     
-        print("writing code object for ", name)
-        code_objects[name] = session.Code.new(name=name, content='')
+        default_content = read(path=path, name=name)
+        code_objects[name] = session.Code.new(name=name, content=default_content)
     return code_objects
 
 

@@ -100,7 +100,7 @@ def write_files(session, path, operation_type):
             logging.info("sending request for {}".format(operation_type.name))
             response = session._aqhttp.post("operation_types/code", json_data=code_object_data)
             
-            continue
+#            continue
 
         file_name = "{}.rb".format(name)
         try:
