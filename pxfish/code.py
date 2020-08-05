@@ -5,7 +5,7 @@ import logging
 import os
 
 
-def write(path, file_name, code_object):
+def write(*, path, file_name, code_object):
     """
     Writes the content of the aquarium code object to the given path.
 
@@ -19,7 +19,7 @@ def write(path, file_name, code_object):
         file.write(code_object.content)
 
 
-def create_code_objects(session, component_names):
+def create_code_objects(*, session, component_names):
     """
     Creates code objects for each named component.
 

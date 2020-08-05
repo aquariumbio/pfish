@@ -35,37 +35,37 @@ def is_operation_type(path):
     return definition.is_operation_type(def_dict)
 
 
-def get_operation_type(session, category, operation_type):
+def get_operation_type(*, session, category, name):
     """
     Retrieves a single Operation Type Object
 
     Arguments:
         session (Session Object): Aquarium session object
         category (String): The category the OperationType is in
-        operation_type (String): The OperationType to be retrieved
+        name (String): The name of the OperationType to be retrieved
     """
     retrieved_operation_type = session.OperationType.where(
         {
             "category": category,
-            "name": operation_type
+            "name": name
         }
     )
     if not retrieved_operation_type:
         logging.warning(
             "No Operation Type named {} in Category {}".format(
-                operation_type, category)
+                name, category)
         )
         return
 
     return retrieved_operation_type[0]
 
 
-def pull(session, path, category, operation_type):
-    retrieved_operation_type = get_operation_type(session, category, operation_type) 
-    write_files(session, path, retrieved_operation_type)
+def pull(*, session, path, category, name):
+    retrieved_operation_type = get_operation_type(session, category, name) 
+    write_files(session=session, path=path, operation_type=retrieved_operation_type)
 
 
-def write_files(session, path, operation_type):
+def write_files(*, session, path, operation_type):
     """
     Writes the files associated with the operation_type to the path.
 
@@ -125,7 +125,7 @@ def operation_type_code_names():
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
-def create(session, path, category, operation_type_name):
+def create(*, session, path, category, name):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -134,11 +134,11 @@ def create(session, path, category, operation_type_name):
         session (Session Object): Aquarium session object
         path (String): the directory path where the new files will be written
         category (String): the category for the operation type
-        operation_type_name (String): name of the operation type
+        name (String): name of the operation type
     """
     code_objects = create_code_objects(session, operation_type_code_names())
     new_operation_type = session.OperationType.new(
-        name=operation_type_name,
+        name=name,
         category=category,
         protocol=code_objects['protocol'],
         precondition=code_objects['precondition'],
@@ -149,14 +149,13 @@ def create(session, path, category, operation_type_name):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(session, path):
+def push(*, session, path):
     """
     Pushes files to the Aquarium instance
 
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
-        component_names (List): List of files to push
     """
     definitions = definition.read(path)
 
@@ -200,8 +199,8 @@ def push(session, path):
         session.utils.update_code(new_code)
 
 
-def get_test(session, category, name):
-    retrieved_operation_type = get_operation_type(session, category, name)
+def get_test(*, session, category, name):
+    retrieved_operation_type = get_operation_type(session=session, category=category, name=name)
     run_test(session=session, operation_type=retrieved_operation_type)
 
 

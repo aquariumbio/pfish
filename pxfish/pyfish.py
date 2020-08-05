@@ -150,15 +150,17 @@ def do_create(args):
     path = os.path.normpath(args.directory)
 
     if args.operation_type:
-        operation_type.create(session, path, args.category, args.operation_type)
+        operation_type.create(
+                session=session, path=path, category=args.category, name=args.operation_type)
         operation_type.pull(
-            session, path, args.category, args.operation_type)
+                session=session, path=path, category=args.category, name=args.operation_type)
         return
 
     if args.library:
-        library.create(session, path, args.category, args.library)
+        library.create(
+                session=session, path=path, category=args.category, name=args.library)
         library.get_library(
-                session, path, args.category, args.library)
+                session=session, path=path, category=args.category, name=args.library)
         return
 
 
@@ -169,15 +171,15 @@ def do_pull(args):
     if args.category:
     # have category, check for a library or operation type
         if args.library:
-            library.get_library(session, path, args.category, args.library)
+            library.get_library(session=session, path=path, category=args.category, name=args.library)
             return
 
         if args.operation_type:
             operation_type.pull(
-                session, path, args.category, args.operation_type)
+                session=session, path=path, category=args.category, name=args.operation_type)
             return
 
-        category.pull(session, path, args.category)
+        category.pull(session=session, path=path, name=args.category)
         return
     
     if args.library or args.operation_type:
@@ -198,21 +200,21 @@ def do_push(args):
     category_path = create_named_path(path, args.category)
     if args.library:
         library.push(
-            session,
-            library.create_named_path(
+            session=session,
+            path=create_named_path(
                 category_path, args.library, object_type="libraries")
         )
         return
 
     if args.operation_type:
         operation_type.push(
-            session,
-            operation_type.create_named_path(
+            session=session,
+            path=create_named_path(
                 category_path, args.operation_type, object_type="operation_types")
         )
         return
     
-    category.push(session, category_path)
+    category.push(session=session, path=category_path)
 
 
 def do_test(args):
@@ -240,7 +242,7 @@ def do_test(args):
             )
             return
 
-        category.get_tests(session=session, category=args.category)
+        category.get_tests(session=session, name=args.category)
         return
 
     if args.library or args.operation_type:

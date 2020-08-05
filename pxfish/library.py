@@ -28,7 +28,7 @@ def is_library(path):
     return definition.is_library(def_dict)
 
 
-def get_library(session, path, category, library):
+def get_library(*, session, path, category, name):
     """
     Retrieves a single Library Object
 
@@ -36,29 +36,29 @@ def get_library(session, path, category, library):
         session (Session Object): Aquarium session object
         path (String): the path to where the file will be written
         category (String): The category the Library is in
-        library (String): The Library to be retrieved
+        name (String): The name of the Library to be retrieved
     """
     retrieved_library = session.Library.where(
         {
             "category": category,
-            "name": library
+            "name": name
         }
     )
     if not retrieved_library:
         logging.warning(
             "No Library named {} in Category {}".format(
-                library, category)
+                name, category)
         )
         return
 
-    write_files(session, path, retrieved_library[0])
+    write_files(session=session, path=path, library=retrieved_library[0])
 
 
 def get_code_file_names():
     return ['source']
 
 
-def write_files(session, path, library):
+def write_files(*, session, path, library):
     """
     Writes the files for the library to the path.
 
@@ -97,11 +97,13 @@ def write_files(session, path, library):
             "Encoding error {} writing file {} for library {}".format(
                 error, file_name, library.name))
 
-    write_library_definition_json(os.path.join(
-        library_path, 'definition.json'), library)
+    write_library_definition_json(
+            os.path.join(
+                library_path, 'definition.json'
+                ), library)
 
 
-def create(session, path, category, library):
+def create(*, session, path, category, name):
     """
     Creates new library on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -110,17 +112,17 @@ def create(session, path, category, library):
         session (Session Object): Aquarium session object
         path (String): the directory path where the new files will be written
         category (String): the category for the operation type
-        library (String): name of the library to be created
+        name (String): name of the library to be created
     """
     code_objects = code.create_code_objects(session, get_code_file_names())
     new_library = session.Library.new(
-        name=library,
+        name=name,
         category=category,
         source=code_objects['source'])
     session.utils.create_library(new_library)
 
 
-def push(session, path):
+def push(*, session, path):
     """
     Pushes files to the Aquarium instance
 
