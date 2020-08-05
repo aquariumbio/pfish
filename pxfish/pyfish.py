@@ -157,6 +157,8 @@ def do_create(args):
 
     if args.library:
         library.create(session, path, args.category, args.library)
+        library.get_library(
+                session, path, args.category, args.library)
         return
 
 

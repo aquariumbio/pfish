@@ -70,9 +70,9 @@ def write_files(session, path, library):
     category_path = create_named_path(path, library.category)
     makedirectory(category_path)
 
-    library_paty =  create_named_path(
+    library_path =  create_named_path(
         os.path.join(category_path, 'libraries'),
-        library_name
+        library.name
     )
 
     makedirectory(library_path)
