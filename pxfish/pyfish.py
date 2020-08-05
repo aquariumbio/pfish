@@ -159,7 +159,7 @@ def do_create(args):
     if args.library:
         library.create(
                 session=session, path=path, category=args.category, name=args.library)
-        library.get_library(
+        library.pull(
                 session=session, path=path, category=args.category, name=args.library)
         return
 
@@ -171,12 +171,13 @@ def do_pull(args):
     if args.category:
     # have category, check for a library or operation type
         if args.library:
-            library.get_library(session=session, path=path, category=args.category, name=args.library)
+            library.pull(
+                    session=session, path=path, category=args.category, name=args.library)
             return
 
         if args.operation_type:
             operation_type.pull(
-                session=session, path=path, category=args.category, name=args.operation_type)
+                    session=session, path=path, category=args.category, name=args.operation_type)
             return
 
         category.pull(session=session, path=path, name=args.category)
@@ -229,27 +230,27 @@ def do_test(args):
         if args.library:
             library.run_test(
                 session=session,
-                path=category_path,
+                category=category_path,
                 name=args.library
             )
             return
 
         if args.operation_type:
-            operation_type.get_test(
+            operation_type.run_test(
                 session=session,
                 category=args.category,
                 name=args.operation_type
             )
             return
 
-        category.get_tests(session=session, name=args.category)
+        category.run_tests(session=session, name=args.category)
         return
 
     if args.library or args.operation_type:
         logging.error("To test a single operation type or library, you must enter a category")
         return  
     else:
-        instance.run_test(session=session, path=path)
+        instance.run_tests(session=session, path=path)
         return
     
     

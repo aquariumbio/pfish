@@ -19,13 +19,15 @@ def pull(*, session, path):
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
     for op_type in operation_types:
-        operation_type.write_files(session, path, op_type)
+        operation_type.write_files(session=session, path=path, operation_type=op_type)
 
     for lib in libraries:
-        library.write_files(session, path, lib)
+        library.write_files(session=session, path=path, library=lib)
 
 
 def push(*, session, path):
+    """
+    """
     if not os.path.isdir(path):
         logging.warning("Path {} is not a directory. Cannot push".format(path))
         return
@@ -33,9 +35,9 @@ def push(*, session, path):
     if definition.has_definition(path):
         def_dict = definition.read(path)
         if definition.is_operation_type(def_dict):
-            operation_type.push(session, path)
+            operation_type.push(session=session, path=path)
         elif definition.is_library(def_dict):
-            library.push(session, path)
+            library.push(session=session, path=path)
         return
 
     if is_category(path):
@@ -51,10 +53,10 @@ def push(*, session, path):
     for entry in dir_entries:
         entry_path = os.path.join(path, entry)
         if is_category(entry_path):
-            category.push(session, entry_path)
+            category.push(session=session, path=entry_path)
 
 
-def run_test(*, session, path):
+def run_tests(*, session, path):
     if not os.path.isdir(path):
         logging.warning(
             "Path {} is not a directory. Cannot run tests".format(path))

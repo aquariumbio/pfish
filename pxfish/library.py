@@ -28,7 +28,7 @@ def is_library(path):
     return definition.is_library(def_dict)
 
 
-def get_library(*, session, path, category, name):
+def pull(*, session, path, category, name):
     """
     Retrieves a single Library Object
 
@@ -73,8 +73,7 @@ def write_files(*, session, path, library):
     makedirectory(category_path)
 
     library_path =  create_named_path(
-        os.path.join(category_path, library.name, object_type="libraries"),
-    )
+            category_path, library.name, object_type="libraries")
 
     makedirectory(library_path)
 
@@ -88,7 +87,7 @@ def write_files(*, session, path, library):
     file_name = 'source.rb'
 
     try:
-        code.write(library_path, file_name, code_object)
+        code.write(path=library_path, file_name=file_name, code_object=code_object)
     except OSError as error:
         logging.warning("Error {} writing file {} for library {}".format(
             error, file_name, library.name))
@@ -114,7 +113,7 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the library to be created
     """
-    code_objects = code.create_code_objects(session, get_code_file_names())
+    code_objects = code.create_code_objects(session=session, component_names=get_code_file_names())
     new_library = session.Library.new(
         name=name,
         category=category,
@@ -172,5 +171,5 @@ def push(*, session, path):
         session.utils.update_code(new_code)
 
 
-def run_test(*, session, path, name):
+def run_test(*, session, category, name):
     logging.error("Library tests are not currently available")

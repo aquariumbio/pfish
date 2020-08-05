@@ -29,10 +29,10 @@ def pull(*, session, path, name):
     libraries = session.Library.where({"category": name})
 
     if not operation_types and not libraries:
-        logging.error("Category {} was not found.".format(category))
+        logging.error("Category {} was not found.".format(name))
 
     for op_type in operation_types:
-        operation_type.write_files(session=session, path=path, operation=op_type)
+        operation_type.write_files(session=session, path=path, operation_type=op_type)
 
     for lib in libraries:
         library.write_files(session=session, path=path, library=lib)
@@ -68,7 +68,7 @@ def push(*, session, path):
             ))
 
 
-def get_tests(*, session, name):
+def run_tests(*, session, name):
     """
     Finds all library and operation type files in a specific category
 
@@ -79,6 +79,6 @@ def get_tests(*, session, name):
     operation_types = session.OperationType.where({"category": name})
     for op_type in operation_types:
         logging.info("Testing Operation Type {}.".format(op_type.name))
-        operation_type.run_test(session=session, operation_type=op_type)
+        operation_type.run_test(session=session, category=name, name=op_type)
 
 

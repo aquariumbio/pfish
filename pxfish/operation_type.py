@@ -61,7 +61,7 @@ def get_operation_type(*, session, category, name):
 
 
 def pull(*, session, path, category, name):
-    retrieved_operation_type = get_operation_type(session, category, name) 
+    retrieved_operation_type = get_operation_type(session=session, category=category, name=name) 
     write_files(session=session, path=path, operation_type=retrieved_operation_type)
 
 
@@ -102,7 +102,7 @@ def write_files(*, session, path, operation_type):
             
         file_name = "{}.rb".format(name)
         try:
-            code.write(path, file_name, code_object)
+            code.write(path=path, file_name=file_name, code_object=code_object)
         except OSError as error:
             logging.warning(
                 "Error {} writing file {} for operation type {}".format(
@@ -136,7 +136,7 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the operation type
     """
-    code_objects = create_code_objects(session, operation_type_code_names())
+    code_objects = create_code_objects(session=session, component_names=operation_type_code_names())
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -199,21 +199,23 @@ def push(*, session, path):
         session.utils.update_code(new_code)
 
 
-def get_test(*, session, category, name):
-    retrieved_operation_type = get_operation_type(session=session, category=category, name=name)
-    run_test(session=session, operation_type=retrieved_operation_type)
+#def get_test(*, session, category, name):
+#    retrieved_operation_type = get_operation_type(session=session, category=category, name=name)
+#    run_test(session=session, operation_type=retrieved_operation_type)
+#
 
-
-def run_test(*, session, operation_type):
+def run_test(*, session, category, operation_type):
     """
     Run tests for specified operation type
 
     Arguments: 
         session (Session Object): Aquarium session object
-        operation_type (Operation Type): Aquarium Operation Type object 
+        category (String): Category operation type is found in
+        name (String): name of the Operation Type to be tested
     """ 
     logging.info("Sending request for {}".format(operation_type.name))
-    response = session._aqhttp.get("test/run/{}".format(operation_type.id))
+    retrieved_operation_type = get_operation_type(session=session, category=category, name=name)
+    response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response) 
     return
 
