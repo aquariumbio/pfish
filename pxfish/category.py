@@ -16,7 +16,7 @@ def is_category(path):
     return set(entries) <= {'libraries', 'operation_types'}
 
 
-def pull_category(session, path, category):
+def pull(session, path, category):
     """
     Retrieves all the Libraries and Operation Types within a category
 
@@ -53,13 +53,13 @@ def push(session, category_path):
             for name in files:
                 library.push(
                     session,
-                    library.create_library_path(category_path, name)
+                    create_named_path(category_path, name, object_type='libraries')
                 )
         elif directory_entry == 'operation_types':
             for name in files:
                 operation_type.push(
                     session,
-                    operation_type.create_operation_path(category_path, name)
+                    operation_type.create_named_path(category_path, name, object_type='operation_types')
                 )
         else:
             logging.warning("Unexpected directory entry {} in {}".format(
@@ -74,12 +74,11 @@ def get_tests(*, session, category):
 
     Arguments:
         session (Session Object): Aquarium session object
-        category_path (String): the directory path for the category
+        category (String): the directory path for the category
     """
     operation_types = session.OperationType.where({"category": category})
-    print("Operation Types", operation_types)   
     for op_type in operation_types:
         logging.info("Testing Operation Type {}.".format(op_type.name))
-        operation_type.run_test(session, op_type)
+        operation_type.run_test(session=session, operation_type=op_type)
 
 

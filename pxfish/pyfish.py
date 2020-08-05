@@ -177,7 +177,7 @@ def do_pull(args):
                 session, path, args.category, args.operation_type)
             return
 
-        category.pull_category(session, path, args.category)
+        category.pull(session, path, args.category)
         return
     
     if args.library or args.operation_type:
@@ -199,14 +199,16 @@ def do_push(args):
     if args.library:
         library.push(
             session,
-            library.create_library_path(category_path, args.library, object_type="libraries")
+            library.create_named_path(
+                category_path, args.library, object_type="libraries")
         )
         return
 
     if args.operation_type:
         operation_type.push(
             session,
-            operation_type.create_named_path(category_path, args.operation_type, object_type="operation_types")
+            operation_type.create_named_path(
+                category_path, args.operation_type, object_type="operation_types")
         )
         return
     

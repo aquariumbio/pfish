@@ -50,6 +50,7 @@ def get_library(session, path, category, library):
                 library, category)
         )
         return
+
     write_files(session, path, retrieved_library[0])
 
 
@@ -62,6 +63,7 @@ def write_files(session, path, library):
     Writes the files for the library to the path.
 
     Arguments:
+      session (Session Object): Aquarium session object  
       path (string): the path of the file to write
       library (Library): the library whose definition will be written
     """
@@ -71,8 +73,7 @@ def write_files(session, path, library):
     makedirectory(category_path)
 
     library_path =  create_named_path(
-        os.path.join(category_path, 'libraries'),
-        library.name
+        os.path.join(category_path, library.name, object_type="libraries"),
     )
 
     makedirectory(library_path)
@@ -83,7 +84,9 @@ def write_files(session, path, library):
             "Ignored library {} missing library code".format(
                 library.name)
         )
+
     file_name = 'source.rb'
+
     try:
         code.write(library_path, file_name, code_object)
     except OSError as error:
@@ -124,7 +127,6 @@ def push(session, path):
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
-        component_names (List): List of files to push
     """
     definitions = definition.read(path)
 
@@ -133,15 +135,10 @@ def push(session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
-    if definition.is_library(definitions):
-        parent_object = session.Library.where(query)
-        parent_type_name = 'library'
-        component_names = ['source']
-    elif definition.is_operation_type(definitions):
-        parent_object = session.OperationType.where(query)
-        parent_type_name = 'operation type'
-        component_names = ['protocol', 'precondition',
-                           'cost_model', 'documentation', 'test']
+        
+    parent_object = session.Library.where(query)
+    parent_type_name = 'library'
+    component_names = ['source']
 
     if not parent_object:
         logging.warning(

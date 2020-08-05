@@ -18,7 +18,6 @@ def pull(*, session, path):
     """
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
-     
     for op_type in operation_types:
         operation_type.write_files(session, path, op_type)
 
@@ -33,9 +32,9 @@ def push(*, session, path):
 
     if definition.has_definition(path):
         def_dict = definition.read(path)
-        if definition.is_library(def_dict):
+        if definition.is_operation_type(def_dict):
             operation_type.push(session, path)
-        elif definition.is_operation_type(def_dict):
+        elif definition.is_library(def_dict):
             library.push(session, path)
         return
 
@@ -63,9 +62,9 @@ def run_test(*, session, path):
 
     if definition.has_definition(path):
         def_dict = definition.read(path)
-        if definition.is_library(def_dict):
+        if definition.is_operation_type(def_dict):
             operation_type.run_test(session=session, path=path)
-        elif definition.is_operation_type(def_dict):
+        elif definition.is_library(def_dict):
             library.run_test(session=session, path=path)
         return
 

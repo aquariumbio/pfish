@@ -10,42 +10,48 @@ def parse_test_response(response):
     if response["result"] == "error":
         if response["error_type"] == "error":
             logging.error(response["message"])
+            return
 
         elif response["error_type"] == "assertion_failure":
             logging.info(
                     "Test failure: {}".format(
                         response["message"])
                     )
+            return
 
         elif response["error_type"] == "protocol_syntax_error":
             logging.info(
                     "Syntax error in protocol: {}".format(
                         response["message"])
                     )
+            return
 
         elif response["error_type"] == "protocol_error":
             logging.info(
                     "Execution error in protocol: {}".format(
                         response["message"])
                     )
+            return
 
         elif response["error_type"] == "test_syntax_error":
             logging.info(
                     "Syntax error in test: {}".format(
                         response["message"])
                     )
+            return
 
         elif response["error_type"] == "test_error":
             logging.info(
                     "Execution error in test: {} ".format(
                         response["message"])
                     )
-        return
+            return
+        
        # for entry in response.exception_backtrace:
        #     pass
     else:
         print("All tests passed")
-
+        return
     print(response.log)
     # response.backtrace
     time = None

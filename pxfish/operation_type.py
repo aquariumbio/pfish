@@ -100,8 +100,6 @@ def write_files(session, path, operation_type):
             logging.info("sending request for {}".format(operation_type.name))
             response = session._aqhttp.post("operation_types/code", json_data=code_object_data)
             
-#            continue
-
         file_name = "{}.rb".format(name)
         try:
             code.write(path, file_name, code_object)
@@ -167,15 +165,10 @@ def push(session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
-    
-    if definition.is_library(definitions):
-        parent_object = session.Library.where(query)
-        parent_type_name = 'library'
-        component_names = ['source']
-    elif definition.is_operation_type(definitions):
-        parent_object = session.OperationType.where(query)
-        parent_type_name = 'operation type'
-        component_names = operation_type_code_names()
+   
+    parent_object = session.OperationType.where(query)
+    parent_type_name = 'operation type'
+    component_names = operation_type_code_names()
 
     if not parent_object:
         logging.warning(
@@ -190,7 +183,6 @@ def push(session, path):
         return
 
     for name in component_names:
-        print("reading file", name)
         read_file = code.read(path=path, name=name)
         if read_file is None:
             return
@@ -210,19 +202,18 @@ def push(session, path):
 
 def get_test(session, category, name):
     retrieved_operation_type = get_operation_type(session, category, name)
-    run_test(session, retrieved_operation_type)
+    run_test(session=session, operation_type=retrieved_operation_type)
 
 
-def run_test(session, operation_type):
+def run_test(*, session, operation_type):
     """
     Run tests for specified operation type
 
     Arguments: 
         session (Session Object): Aquarium session object
-        category (String): The category the OperationType is in
-        name (String): The name of the OperationType to be retrieved
+        operation_type (Operation Type): Aquarium Operation Type object 
     """ 
-    logging.info("sending request for {}".format(operation_type.name))
+    logging.info("Sending request for {}".format(operation_type.name))
     response = session._aqhttp.get("test/run/{}".format(operation_type.id))
     parse_test_response(response) 
     return
