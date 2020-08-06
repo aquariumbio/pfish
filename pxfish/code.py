@@ -21,19 +21,49 @@ def write(*, path, file_name, code_object):
 
 def create_code_objects(*, session, component_names):
     """
-    Creates code objects for each named component.
+    Creates code objects for each named component 
 
     Arguments:
         session (Session Object): Aquarium session object
         component_names (List): names of code components
     """
     code_objects = {}
-    path = os.path.normpath("protocol_templates")
      
     for name in component_names:
-        default_content = read(path=path, name=name)
+        default_content = add_default_content(session=session, name=name) 
         code_objects[name] = session.Code.new(name=name, content=default_content)
     return code_objects
+
+
+def add_default_content(*, session, name):
+    """
+    Retrieves default content for code files
+
+    Arguments:
+        session (Session Object): Aquarium session object
+        name: name of file whose contents to retrieve 
+    """ 
+    path = os.path.normpath("protocol_templates")
+    return read(path=path, name=name) 
+
+
+def create_code_object(*, session, name, operation_type): 
+    """
+    Creates a single code object for an existing operation type
+
+    Arguments:
+        session (Session Object): Aquarium session object
+        name (String): name of code object to be created
+        operation_type (Operation Type): operation type code object will be linked to 
+    """
+
+    data = {}
+    data['id'] = operation_type.id 
+    data['content'] = add_default_content(session=session, name=name) 
+    data['name'] = name 
+
+    logging.info("sending request for {}".format(operation_type.name))
+    response = session._aqhttp.post("operation_types/code", json_data=data)
 
 
 def read(*, path, name):

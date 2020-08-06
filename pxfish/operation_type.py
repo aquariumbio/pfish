@@ -9,6 +9,7 @@ import logging
 import os
 
 from code import (
+    create_code_object,
     create_code_objects
 )
 from definition import (
@@ -86,21 +87,17 @@ def write_files(*, session, path, operation_type):
 
     for name in code_names:
         code_object = operation_type.code(name)
+ 
         if not code_object:
             logging.warning(
                 "Missing {} code for operation type {} -- creating file".format(
                     operation_type.name, name)
             )
 
-            code_object_data = {}
-            code_object_data['id'] = operation_type.id 
-            code_object_data['content'] = ""
-            code_object_data['name'] = name 
-
-            logging.info("sending request for {}".format(operation_type.name))
-            response = session._aqhttp.post("operation_types/code", json_data=code_object_data)
+            create_code_object(session=session, name=name, operation_type=operation_type) 
             
         file_name = "{}.rb".format(name)
+
         try:
             code.write(path=path, file_name=file_name, code_object=code_object)
         except OSError as error:
