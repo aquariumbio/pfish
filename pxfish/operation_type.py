@@ -95,7 +95,7 @@ def write_files(*, session, path, operation_type):
             )
 
             create_code_object(session=session, name=name, operation_type=operation_type) 
-            
+ # TODO: add something so it pulls the new text once it creates the file           
         file_name = "{}.rb".format(name)
 
         try:
@@ -165,7 +165,7 @@ def push(*, session, path):
     parent_object = session.OperationType.where(query)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
-
+# TODO: Change so it only pushes test file when testing 
     if not parent_object:
         logging.warning(
             "No {} {}/{} on {}".format(
@@ -196,17 +196,23 @@ def push(*, session, path):
         session.utils.update_code(new_code)
 
 
-def run_test(*, session, category, operation_type):
+def run_test(*, session, path, category, name):
     """
     Run tests for specified operation type
 
     Arguments: 
         session (Session Object): Aquarium session object
+        path (String): Path to file
         category (String): Category operation type is found in
         name (String): name of the Operation Type to be tested
     """ 
-    logging.info("Sending request for {}".format(operation_type.name))
-    retrieved_operation_type = get_operation_type(session=session, category=category, name=name)
+    logging.info("Sending request for {}".format(name))
+    
+    push(session=session, path=path)
+
+    retrieved_operation_type = get_operation_type(
+                                session=session, category=category, name=name)
+
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response) 
     return

@@ -68,7 +68,7 @@ def push(*, session, path):
             ))
 
 
-def run_tests(*, session, name):
+def run_tests(*, session, path, name):
     """
     Finds all library and operation type files in a specific category
 
@@ -76,9 +76,24 @@ def run_tests(*, session, name):
         session (Session Object): Aquarium session object
         name (String): the name of the category to be tested
     """
-    operation_types = session.OperationType.where({"category": name})
+   # should give you path to cat/operation_types 
+   # then each entry is an ot 
+    entries = os.listdir(path)
+    dir_entries = [entry for entry in entries if os.path.isdir(entry)]
+    if not dir_entries:
+        logging.warning("Nothing to push in path {}".format(path))
+        return
+
+    for entry in dir_entries:
+        entry_path = os.path.join(path, entry)
+        if is_category(entry_path):
+            category.push(session=session, path=entry_path)
+        run_test(session=session, path=path, category=category, name=entry)
+# instead of getting them all -- getting the names that are in the directory 
+    #operation_types = session.OperationType.where({"category": name})
     for op_type in operation_types:
+        path = create_named_path(path, name, subdirectory="operation_types")
         logging.info("Testing Operation Type {}.".format(op_type.name))
-        operation_type.run_test(session=session, category=name, name=op_type)
+        operation_type.run_test(session=session, path=path, category=name, name=op_type)
 
 

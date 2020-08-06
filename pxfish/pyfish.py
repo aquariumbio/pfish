@@ -226,7 +226,9 @@ def do_test(args):
         if args.library:
             library.run_test(
                 session=session,
-                category=category_path,
+                path= create_named_path(
+                        category_path, args.operation_type, subdirectory="libraries"),
+                category=args.category,
                 name=args.library
             )
             return
@@ -234,12 +236,14 @@ def do_test(args):
         if args.operation_type:
             operation_type.run_test(
                 session=session,
+                path= create_named_path(
+                        category_path, args.operation_type, subdirectory="operation_types"),
                 category=args.category,
                 name=args.operation_type
             )
             return
 
-        category.run_tests(session=session, name=args.category)
+        category.run_tests(session=session, path=category_path, name=args.category)
         return
 
     if args.library or args.operation_type:
