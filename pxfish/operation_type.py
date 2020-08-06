@@ -80,7 +80,7 @@ def write_files(*, session, path, operation_type):
     makedirectory(category_path)
 
     path = create_named_path(
-        category_path, operation_type.name, object_type='operation_types')
+        category_path, operation_type.name, subdirectory='operation_types')
     
     makedirectory(path)
     code_names = operation_type_code_names()
@@ -195,11 +195,6 @@ def push(*, session, path):
 
         session.utils.update_code(new_code)
 
-
-#def get_test(*, session, category, name):
-#    retrieved_operation_type = get_operation_type(session=session, category=category, name=name)
-#    run_test(session=session, operation_type=retrieved_operation_type)
-#
 
 def run_test(*, session, category, operation_type):
     """

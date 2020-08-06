@@ -53,13 +53,13 @@ def push(*, session, path):
             for name in files:
                 library.push(
                     session=session,
-                    path=create_named_path(path, name, object_type='libraries')
+                    path=create_named_path(path, name, subdirectory='libraries')
                 )
         elif directory_entry == 'operation_types':
             for name in files:
                 operation_type.push(
                     session=session,
-                    path=create_named_path(path, name, object_type='operation_types')
+                    path=create_named_path(path, name, subdirectory='operation_types')
                 )
         else:
             logging.warning("Unexpected directory entry {} in {}".format(

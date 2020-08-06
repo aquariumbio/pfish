@@ -51,19 +51,18 @@ def pull(*, session, path, category, name):
         )
         return
 
-    write_files(session=session, path=path, library=retrieved_library[0])
+    write_files(path=path, library=retrieved_library[0])
 
 
 def get_code_file_names():
     return ['source']
 
 
-def write_files(*, session, path, library):
+def write_files(*, path, library):
     """
     Writes the files for the library to the path.
 
     Arguments:
-      session (Session Object): Aquarium session object  
       path (string): the path of the file to write
       library (Library): the library whose definition will be written
     """
@@ -73,11 +72,12 @@ def write_files(*, session, path, library):
     makedirectory(category_path)
 
     library_path =  create_named_path(
-            category_path, library.name, object_type="libraries")
+            category_path, library.name, subdirectory="libraries")
 
     makedirectory(library_path)
 
     code_object = library.code("source")
+
     if not code_object:
         logging.warning(
             "Ignored library {} missing library code".format(
@@ -113,7 +113,9 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the library to be created
     """
-    code_objects = code.create_code_objects(session=session, component_names=get_code_file_names())
+    code_objects = code.create_code_objects(
+            session=session, component_names=get_code_file_names()
+            )
     new_library = session.Library.new(
         name=name,
         category=category,
