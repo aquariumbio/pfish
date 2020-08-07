@@ -27,6 +27,11 @@ def pull(*, session, path):
 
 def push(*, session, path):
     """
+    Pushes all files in directory to instance
+
+    Arguments:
+        session (Session): Aquarium session object
+        path (String): path to directory
     """
     if not os.path.isdir(path):
         logging.warning("Path {} is not a directory. Cannot push".format(path))
@@ -44,8 +49,9 @@ def push(*, session, path):
         category.push(session, path)
         return
 
-    entries = os.listdir(path)
-    dir_entries = [entry for entry in entries if os.path.isdir(entry)]
+    entries = os.listdir(path) # otherwise, get all the entries (categories)
+    dir_entries = [entry for entry in entries if os.path.isdir(os.path.join(path, entry))]
+
     if not dir_entries:
         logging.warning("Nothing to push in path {}".format(path))
         return
@@ -57,11 +63,19 @@ def push(*, session, path):
 
 
 def run_tests(*, session, path):
+    """
+    Runs tests on all operation types in directory
+
+    Arguments:
+        session (Session): Aquarium session object
+        path (String): path to directory
+    """
     if not os.path.isdir(path):
         logging.warning(
             "Path {} is not a directory. Cannot run tests".format(path))
         return
 
+# TODO: change get operation type to work without a category?
     if definition.has_definition(path):
         def_dict = definition.read(path)
         if definition.is_operation_type(def_dict):
@@ -71,16 +85,18 @@ def run_tests(*, session, path):
         return
 
     if is_category(path):
-        category.run_test(session=session, path=path)
+        name = os.basename(path)
+        category.run_test(session=session, path=path, name=name)
         return
 
     entries = os.listdir(path)
-    dir_entries = [entry for entry in entries if os.path.isdir(entry)]
-    if not dir_entries:
-        logging.warning("Nothing to push in path {}".format(path))
-        return
+    dir_entries = [entry for entry in entries if os.path.isdir(os.path.join(path, entry))]
 
+    if not dir_entries:
+        logging.warning("Nothing to test in path {}".format(path))
+        return
+#
     for entry in dir_entries:
         entry_path = os.path.join(path, entry)
         if is_category(entry_path):
-            category.run_test(session=session, path=entry_path)
+            category.run_tests(session=session, path=entry_path, name=entry)

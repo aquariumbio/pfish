@@ -79,8 +79,13 @@ def write_library_definition_json(file_path, library):
 
 
 def read(path):
+    """
+    Reads definition.json file at given location
+
+    Arguments:
+    path (String): path to definition file
+    """ 
     file_path = os.path.join(path, 'definition.json')
     with open(file_path) as file:
         definition = json.load(file)
-
     return definition

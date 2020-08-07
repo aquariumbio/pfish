@@ -165,7 +165,9 @@ def push(*, session, path):
     parent_object = session.OperationType.where(query)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
+
 # TODO: Change so it only pushes test file when testing 
+
     if not parent_object:
         logging.warning(
             "No {} {}/{} on {}".format(

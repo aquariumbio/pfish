@@ -6,7 +6,13 @@ import logging
 
 
 def parse_test_response(response):
+    """
+    Reports test results 
 
+    Arguments:
+        response (dict): response received after running test  
+    """
+    print("\n*********************************")
     if response["result"] == "error":
         if response["error_type"] == "error":
             logging.error(response["message"])
@@ -54,6 +60,7 @@ def parse_test_response(response):
         return
     print(response.log)
     # response.backtrace
+    print("*********************************\n")
     time = None
     for entry in response["backtrace"]:
         if entry["operation"] == "display":

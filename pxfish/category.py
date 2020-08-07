@@ -70,25 +70,26 @@ def push(*, session, path):
 
 def run_tests(*, session, path, name):
     """
-    Finds all library and operation type files in a specific category
+    Runs tests for all library and operation type files in a specific category
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): path to category directory
-        name (String): the name of the category to be tested
+        path (String): path to category
+        name (String): name of the category to be tested
     """
-    category_entries = os.listdir(path) # lists, operation_types and libraries 
-
+    category_entries = os.listdir(path) 
+    print(category_entries)
     for subdirectory_entry in category_entries:
-        path = os.path.join(path, subdirectory_entry) # dir/category/operation_types 
+        path = os.path.join(path, subdirectory_entry)
 
         if subdirectory_entry == "libraries":
             logging.warning("Tests not available for libraries") 
 
         elif subdirectory_entry == "operation_types":
-            files = os.listdir(path) # list op types rna_seq, make_media, etc.
+            files = os.listdir(path)
+            print(files)
             for filename in files:
-                entry_path = os.path.join(path, filename) # dir/category/operation_types/rna_seq
+                entry_path = os.path.join(path, filename)
                 operation_type.run_test(
                         session=session, path=entry_path, category=name, name=filename)
         else:

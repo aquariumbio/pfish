@@ -67,6 +67,13 @@ def create_code_object(*, session, name, operation_type):
 
 
 def read(*, path, name):
+    """
+    Reads file at given location 
+
+    Arguments: 
+        path (String): path to file
+        name (String): name of file
+    """
     file_name = "{}.rb".format(name)
     try:
         with open(os.path.join(path, file_name)) as f:

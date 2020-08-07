@@ -114,6 +114,7 @@ def add_code_arguments(parser, *, action):
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
+        # TODO: Do we want to require a category for testing?
         required=(action == 'create' or action == 'push' or action == 'test')
     )
     group = parser.add_mutually_exclusive_group()
@@ -163,6 +164,7 @@ def do_create(args):
                 session=session, path=path, category=args.category, name=args.library)
         return
 
+# TODO: Add logging statement for incomplete arguments
 
 def do_pull(args):
     session = create_session(path=config_path())
@@ -185,6 +187,10 @@ def do_pull(args):
     
     if args.library or args.operation_type:
         logging.error("To pull an operation type or library, you must enter a category")
+        return 
+    
+    instance.pull(session=aq, path=path)	
+    return
 
 
 def do_push(args):
@@ -215,14 +221,12 @@ def do_push(args):
 
 
 def do_test(args):
-    #do_push(args) 
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
-    category_path = create_named_path(path, args.category)
-
     # have category, check for a library or operation type
     if args.category:
+        category_path = create_named_path(path, args.category)
         if args.library:
             library.run_test(
                 session=session,
@@ -249,7 +253,7 @@ def do_test(args):
     if args.library or args.operation_type:
         logging.error("To test a single operation type or library, you must enter a category")
         return  
-        
+    
     instance.run_tests(session=session, path=path)
     
     
