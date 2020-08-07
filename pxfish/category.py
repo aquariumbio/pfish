@@ -88,8 +88,9 @@ def run_tests(*, session, path, name):
         elif subdirectory_entry == "operation_types":
             files = os.listdir(path) # list op types rna_seq, make_media, etc.
             for filename in files:
-                path = os.path.join(path, filename) # dir/category/operation_types/rna_seq
-                operation_type.run_test(session=session, path=path, category=name, name=filename)
+                entry_path = os.path.join(path, filename) # dir/category/operation_types/rna_seq
+                operation_type.run_test(
+                        session=session, path=entry_path, category=name, name=filename)
         else:
             logging.warning("Unexpected directory entry {} in {}".format(
                 subdirectory_entry,
