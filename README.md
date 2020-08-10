@@ -96,10 +96,10 @@ The available create commands are:
 
 The available pull commands are:
 
-1. Pull all libraries and operation types in the default Aquarium instance:
+1. Pull all libraries and operation types in the default Aquarium instance. If you do not specify a directory name, files will be pulled into your current working directory.:
 
    ```bash
-   pfish pull
+   pfish pull -d <directory_name>
    ```
 
 2. Pull all operations and libraries from a category

@@ -35,7 +35,7 @@ def pull(*, session, path, name):
         operation_type.write_files(session=session, path=path, operation_type=op_type)
 
     for lib in libraries:
-        library.write_files(session=session, path=path, library=lib)
+        library.write_files(path=path, library=lib)
 
 
 def push(*, session, path):
