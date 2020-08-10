@@ -189,7 +189,7 @@ def do_pull(args):
         logging.error("To pull an operation type or library, you must enter a category")
         return 
     
-    instance.pull(session=aq, path=path)	
+    instance.pull(session=session, path=path)	
     return
 
 
