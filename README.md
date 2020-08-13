@@ -167,6 +167,7 @@ pfish create -c MyCategory -o MyProtocol
 which will create the protocol both in Aquarium and in the current directory.
 The local files will be in the directory `mycategory`:
 
+If the category doesn't already exist in Aquarium, it will be added.
 ```bash
 .
 `-- mycategory
@@ -231,6 +232,12 @@ pfish push -c Cloning -o "Run Gel"
 ```
 
 to push only that operation type.
+
+If you change files in different operation types, you can push the whole category at once by running 
+
+```
+pfish push -c Cloning
+```
 
 ## Developer
 

@@ -1,0 +1,9 @@
+usage: pyfish.py [-h] {create,configure,pull,push,test} ...
+
+Create, push and pull Aquarium protocols
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+subcommands:
+  {create,configure,pull,push,test}
