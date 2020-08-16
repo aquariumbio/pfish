@@ -1,30 +1,69 @@
 import subprocess
 import time
-
-log_file = open("test_output.txt", 'w')
+import os 
+# Create log file
+#log_file = open("test_output.txt", 'w')
 
 # print("Prints Help Text")
 # test_results = subprocess.run(["python3", "../pxfish/pyfish.py", "-h"], stdout=log_file)
 
-# List files and check if they are there 
-# add time marker or random number to these 
+# Creaet unique names for tests 
 timestamp = time.strftime("%y%m%d%H%M%S")
-directory_name = "DirNameTest" + timestamp
-category_name = "New Category" + timestamp
-operation_type_name = "new op type name" + timestamp 
 
+directory = "DirName" + timestamp
+category = "Category_name" + timestamp
+operation_type = "optype_name" + timestamp 
+library = "lib_name" + timestamp
+    
+# create op_type
 
-print("creates op type")
-#test_results = subprocess.run(["python3", "pyfish.py", "create", "-d", "DirNameTest2", "-c", "ScriptTest", "-o", "OTScript23"])
-# Pushes files 
+path = os.path.normpath(directory)
+# create category and operation type 
+create_ot_results = subprocess.run(["python3", "pyfish.py", "create", 
+                        "-d", directory, 
+                        "-c", category, 
+                        "-o", operation_type])
+
+print("Create Op Type exit codes: %d" % create_ot_results.returncode )
+
+category_path = os.path.join(path, category)
+subdirectory_path = os.path.join(category_path, "operation_types")
+file_path = os.path.join(subdirectory_path, operation_type)
+protocol_path = os.path.join(file_path, "protocol.rb")
+
+with open(protocol_path, 'w') as file:
+    file.write(timestamp)
+
+with open("test.txt", "a") as myfile:
+    myfile.write("appended text")
+
+# create category and library  
+#create_lib_results = subprocess.run(["python3", "pyfish.py", "create", 
+#                        "-d", directory, 
+#                        "-c", category,
+#                        "-l", library])
+#
+#print("Create Library exit codes: %d" % create_lib_results.returncode )
+#
+# change op_type file 
+
+# change library file 
+
+# push op_type file 
+
+# push library file 
+
+# pull op_type file 
+
+# pull library file 
+
+# check for changes 
+
 #test_file = open("/directory_name/category_name/operation_type_name")
-# Open File and add lines 
 #test_results = subprocess.run(["python3", "pyfish.py", "push", "-d", "DirNameTest2", "-c", "ScriptTest", "-o", "OTScript23"])
-# print("Pulls Files")
-# test_results = subprocess.run(["python3", "../pxfish/pyfish.py", "pull", "-d", "DirNameTest"])
+#test_results = subprocess.run(["python3", "../pxfish/pyfish.py", "pull", "-d", "DirNameTest"])
 
 
-print("The exit code was: %d" % test_results.returncode )
 
-log_file.close()
+#log_file.close()
 

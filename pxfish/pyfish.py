@@ -36,7 +36,7 @@ def main():
 
 def get_argument_parser():
     parser = argparse.ArgumentParser(
-        description="Create, push and pull Aquarium protocols")
+        description="Create, push, pull, and test Aquarium protocols")
 
     # Create parsers for subcommands
     subparsers = parser.add_subparsers(title="subcommands")
@@ -149,22 +149,26 @@ def do_config_default(args):
 def do_create(args):
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
+    
+    if args.category:
 
-    if args.operation_type:
-        operation_type.create(
-                session=session, path=path, category=args.category, name=args.operation_type)
-        operation_type.pull(
-                session=session, path=path, category=args.category, name=args.operation_type)
-        return
+        if args.operation_type:
+            operation_type.create(
+                    session=session, path=path, category=args.category, name=args.operation_type)
+            operation_type.pull(
+                    session=session, path=path, category=args.category, name=args.operation_type)
+            return
 
-    if args.library:
-        library.create(
-                session=session, path=path, category=args.category, name=args.library)
-        library.pull(
-                session=session, path=path, category=args.category, name=args.library)
-        return
+        if args.library:
+            library.create(
+                    session=session, path=path, category=args.category, name=args.library)
+            library.pull(
+                    session=session, path=path, category=args.category, name=args.library)
+            return
+    else:
+        logging.error("To create an operation type or library, you must enter a category")
+        return 
 
-# TODO: Add logging statement for incomplete arguments
 
 def do_pull(args):
     session = create_session(path=config_path())
