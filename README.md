@@ -1,6 +1,6 @@
 # Parrotfish (aka Phoenixfish)
 
-Scripts for pulling/pushing protocols/libraries to/from Aquarium.
+Scripts for pulling/pushing protocols/libraries to/from Aquarium and for running tests.
 
 ## Getting started
 
@@ -25,14 +25,14 @@ Pfish doesn't currently track updates itself.
 
 Pfish has two parts: the wrapper script, and the pfish Docker image.
 
-1. Update the wrapper script by running the install script mentioned above.
+1. Update the wrapper script by running the install script `make install` mentioned above.
 2. Update the pfish image by running
 
    ```bash
    pfish update
    ```
 
-Note that the image is updated more frequently than the wrapper script.
+*Note*: The image is updated more frequently than the wrapper script.
 
 ## Configuring
 
@@ -57,7 +57,7 @@ where you specify the configuration-name, user-login, password and instance URL.
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
 (Each of these arguments have defaults that correspond to the local configuration.)
 
-*Note*: The `configure add` command will overwrite an existing login configuration.
+*Note*: The `configure add` command will overwrite any existing login configuration.
 
 The most common use of `configure add` is to set up login configurations for different Aquarium instances.
 For instance, a user might have a `production` configuration in addition to the `local` configuration.
@@ -90,13 +90,19 @@ The available create commands are:
    pfish create -c <category-name> -o <operation-type-name>
    ```
 
-2. [Creating a library is not currently supported. The work-around is to create the library in Aquarium and use pull.]
+2. Create a library. 
+
+   ```bash
+   pfish create -c <category-name> -l <library-name>
+   ```
 
 ### Pull
 
 The available pull commands are:
 
-1. Pull all libraries and operation types in the default Aquarium instance. If you do not specify a directory name, files will be pulled into your current working directory.:
+*Note*: If you do not specify a directory name, files will be pulled into your current working directory.
+
+1. Pull all libraries and operation types in the default Aquarium instance. 
 
    ```bash
    pfish pull -d <directory_name>
@@ -108,13 +114,13 @@ The available pull commands are:
    pfish pull -c <category_name>
    ```
 
-3. Pull an operation type
+3. Pull a single operation type
 
    ```bash
    pfish pull -c <category_name> -o <operation_type_name>
    ```
 
-4. Pull a library
+4. Pull a single library
 
    ```bash
    pfish pull -c <category_name> -l <library_name>
@@ -122,17 +128,23 @@ The available pull commands are:
 
 ### Push
 
-_Note_: You must create protocols and libraries using the `create` command before pushing them to Aquarium.
+_Note_: If a protocol/library does not already exist in Aquarium, you must create it  using the `create` command before pushing to Aquarium.
 
 The available push commands are:
 
-1. Push a category:
+1. Push all files in directory:
+
+   ```bash
+   pfish push -d <directory_name>
+   ```
+
+2. Push a category:
 
    ```bash
    pfish push -c <category_name>
    ```
 
-2. Push a library:
+3. Push a library:
 
    ```bash
    pfish push -c <category_name> -l <library_name>
@@ -143,6 +155,23 @@ The available push commands are:
    ```bash
    pfish push -c <category_name> -o <operation_type_name>
    ```
+
+### Test
+
+The available test commands are: 
+
+1. Test an Operation Type
+
+   ```bash
+   pfish test -c <category_name> -o <operation_type_name>
+   ```
+
+2. Test all Operation Types in a Category 
+
+
+3. Test all Operation Types in a Directory
+
+4. Test Libraries: Not yet implemented
 
 ## Developing protocols
 
