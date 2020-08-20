@@ -85,6 +85,11 @@ def write_files(*, session, path, operation_type):
     makedirectory(path)
     code_names = operation_type_code_names()
 
+    write_definition_json(
+        os.path.join(path, 'definition.json'),
+        operation_type
+    )
+
     for name in code_names:
         code_object = operation_type.code(name)
  
@@ -95,7 +100,8 @@ def write_files(*, session, path, operation_type):
             )
 
             create_code_object(session=session, name=name, operation_type=operation_type) 
- # TODO: add something so it pulls the new text once it creates the file           
+
+    # TODO: add something so it pulls the new text once it creates the file           
         file_name = "{}.rb".format(name)
 
         try:
@@ -111,11 +117,6 @@ def write_files(*, session, path, operation_type):
                 message.format(
                     error, file_name, operation_type.name))
             continue
-
-    write_definition_json(
-        os.path.join(path, 'definition.json'),
-        operation_type
-    )
 
 
 def operation_type_code_names():

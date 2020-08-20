@@ -163,13 +163,20 @@ The available test commands are:
 1. Test an Operation Type
 
    ```bash
-   pfish test -c <category_name> -o <operation_type_name>
+   pfish test
    ```
 
 2. Test all Operation Types in a Category 
 
+   ```bash
+   pfish test -c <category_name>
+   ```
 
 3. Test all Operation Types in a Directory
+
+   ```bash
+   pfish test -c <category_name> -o <operation_type_name>
+   ```
 
 4. Test Libraries: Not yet implemented
 
