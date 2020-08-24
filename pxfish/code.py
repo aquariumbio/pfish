@@ -12,7 +12,7 @@ def write(*, path, file_name, code_object):
     Arguments:
       path (string): the path of the file to be written
       file_name (string): the name of the file to be written
-      code_object (Code): the code object
+      code_object (Code): the code object to be written
     """
     file_path = os.path.join(path, file_name)
     with open(file_path, 'w') as file:
@@ -21,46 +21,50 @@ def write(*, path, file_name, code_object):
 
 def create_code_objects(*, session, component_names):
     """
-    Creates code objects for each named component 
+    Creates code objects for each named component.
 
     Arguments:
         session (Session Object): Aquarium session object
         component_names (List): names of code components
+
+    Returns:
+        code_objects (Dictionary): Dictionary with component names as keys
+        and retrieved Code objects as values.
     """
     code_objects = {}
-     
+
     for name in component_names:
-        default_content = add_default_content(session=session, name=name) 
-        code_objects[name] = session.Code.new(name=name, content=default_content)
+        default_content = add_default_content(name)
+        code_objects[name] = session.Code.new(
+                                    name=name, content=default_content)
     return code_objects
 
 
-def add_default_content(*, session, name):
+def add_default_content(name):
     """
-    Retrieves default content for code files
+    Retrieves default content for code files.
 
     Arguments:
-        session (Session Object): Aquarium session object
-        name: name of file whose contents to retrieve 
-    """ 
+        name (String): name of file whose contents to retrieve
+    """
     path = os.path.normpath("protocol_templates")
-    return read(path=path, name=name) 
+    return read(path=path, name=name)
 
 
-def create_code_object(*, session, name, operation_type): 
+def create_code_object(*, session, name, operation_type):
     """
-    Creates a single code object for an existing operation type
+    Creates a single code object for an existing operation type.
 
     Arguments:
         session (Session Object): Aquarium session object
-        name (String): name of code object to be created
-        operation_type (Operation Type): operation type code object will be linked to 
+        name (String): name of the code object to be created
+        operation_type (Operation Type): operation type code object links to
     """
 
     data = {}
-    data['id'] = operation_type.id 
-    data['content'] = add_default_content(session=session, name=name) 
-    data['name'] = name 
+    data['id'] = operation_type.id
+    data['content'] = add_default_content(name)
+    data['name'] = name
 
     logging.info("sending request for {}".format(operation_type.name))
     response = session._aqhttp.post("operation_types/code", json_data=data)
@@ -68,16 +72,19 @@ def create_code_object(*, session, name, operation_type):
 
 def read(*, path, name):
     """
-    Reads file at given location 
+    Reads file at given location.
 
-    Arguments: 
+    Arguments:
         path (String): path to file
         name (String): name of file
+
+        Raises:
+            FileNotFoundError: file not located on given path
     """
     file_name = "{}.rb".format(name)
     try:
-        with open(os.path.join(path, file_name)) as f:
-            return f.read()
+        with open(os.path.join(path, file_name)) as file:
+            return file.read()
     except FileNotFoundError as error:
         logging.warning(
             "Error {} reading expected code file {}".format(

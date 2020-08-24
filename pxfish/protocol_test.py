@@ -7,10 +7,10 @@ import logging
 
 def parse_test_response(response):
     """
-    Reports test results 
+    Reports test results
 
     Arguments:
-        response (dict): response received after running test  
+        response (dict): response received after running test
     """
     print("\n*********************************")
     if response["result"] == "error":
@@ -52,7 +52,7 @@ def parse_test_response(response):
                         response["message"])
                     )
             return
-        
+       
        # for entry in response.exception_backtrace:
        #     pass
     else:

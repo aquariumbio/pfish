@@ -8,7 +8,8 @@ import library
 from paths import create_named_path
 
 
-def is_category(path):
+def is_category(path): # come back to this
+    """Checks path to see if it leads to a category directory."""
     if not os.path.isdir(path):
         return False
 
@@ -18,11 +19,11 @@ def is_category(path):
 
 def pull(*, session, path, name):
     """
-    Retrieves all the Libraries and Operation Types within a category
+    Retrieves all Libraries and Operation Types within a category.
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): the path to where the files will be written
+        path (String): the path where the files will be written
         name (String): the category name
     """
     operation_types = session.OperationType.where({"category": name})
@@ -32,7 +33,8 @@ def pull(*, session, path, name):
         logging.error("Category {} was not found.".format(name))
 
     for op_type in operation_types:
-        operation_type.write_files(session=session, path=path, operation_type=op_type)
+        operation_type.write_files(session=session, path=path,
+                                   operation_type=op_type)
 
     for lib in libraries:
         library.write_files(path=path, library=lib)
@@ -40,11 +42,11 @@ def pull(*, session, path, name):
 
 def push(*, session, path):
     """
-    Finds and pushes all library and operation type files in a specific category
+    Finds all library and operation type files in a specific category.
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): the directory path for the category
+        path (String): the path the category
     """
     category_entries = os.listdir(path)
     for directory_entry in category_entries:
@@ -53,13 +55,15 @@ def push(*, session, path):
             for name in files:
                 library.push(
                     session=session,
-                    path=create_named_path(path, name, subdirectory='libraries')
+                    path=create_named_path(
+                            path, name, subdirectory='libraries')
                 )
         elif directory_entry == 'operation_types':
             for name in files:
                 operation_type.push(
                     session=session,
-                    path=create_named_path(path, name, subdirectory='operation_types')
+                    path=create_named_path(
+                            path, name, subdirectory='operation_types')
                 )
         else:
             logging.warning("Unexpected directory entry {} in {}".format(
@@ -70,20 +74,19 @@ def push(*, session, path):
 
 def run_tests(*, session, path, name):
     """
-    Runs tests for all library and operation type files in a specific category
+    Runs tests for all library and operation type files in a specific category.
 
     Arguments:
         session (Session Object): Aquarium session object
         path (String): path to category
         name (String): name of the category to be tested
     """
-    category_entries = os.listdir(path) 
-    print(category_entries)
+    category_entries = os.listdir(path)
     for subdirectory_entry in category_entries:
         path = os.path.join(path, subdirectory_entry)
 
         if subdirectory_entry == "libraries":
-            logging.warning("Tests not available for libraries") 
+            logging.warning("Tests not available for libraries")
 
         elif subdirectory_entry == "operation_types":
             files = os.listdir(path)
@@ -91,7 +94,8 @@ def run_tests(*, session, path, name):
             for filename in files:
                 entry_path = os.path.join(path, filename)
                 operation_type.run_test(
-                        session=session, path=entry_path, category=name, name=filename)
+                        session=session, path=entry_path,
+                        category=name, name=filename)
         else:
             logging.warning("Unexpected directory entry {} in {}".format(
                 subdirectory_entry,

@@ -1,3 +1,5 @@
+"""Functions to create definition files with library or operation type data"""
+
 import json
 import os
 from typing import Dict
@@ -17,14 +19,14 @@ def is_operation_type(obj: Dict) -> bool:
 
 def field_type_list(field_types, role):
     """
-    Returns the sublist of field types with the given role.
+    Returns sublist of field types with the given role.
 
     Arguments:
-      field_types (list): the list of field types
-      role (string): the role of field types to be returned
+      field_types (List): the list of field types
+      role (String): the role of field types to be returned (e.g. "input")
 
     Returns:
-      list: the sublist of field_types that have the role
+      list: the sublist of field_types that have the specified role
     """
     ft_list = []
     for field_type in field_types:
@@ -45,7 +47,7 @@ def write_definition_json(file_path, operation_type):
 
     Arguments:
       file_path (string): the path of the file to write
-      operation_type (OperationType): the operation type for definition
+      operation_type (OperationType): the operation type being defined
     """
     ot_ser = {}
     ot_ser["name"] = operation_type.name
@@ -65,7 +67,7 @@ def write_library_definition_json(file_path, library):
     Writes the definition of library as JSON to the given file path.
 
     Arguments:
-      file_path (string): the path to the file as written
+      file_path (String): the path to the file as written
       library (Library): the library for which the definition should be written
     """
     library_ser = {}
@@ -80,11 +82,11 @@ def write_library_definition_json(file_path, library):
 
 def read(path):
     """
-    Reads definition.json file at given location
+    Reads definition.json file at given location.
 
     Arguments:
-    path (String): path to definition file
-    """ 
+        path (String): path to definition file
+    """
     file_path = os.path.join(path, 'definition.json')
     with open(file_path) as file:
         definition = json.load(file)

@@ -1,9 +1,11 @@
+"""Functions to pull or push all files in a directory"""
+
+import logging
+import os
 import category
 import definition
 import library
-import logging
 import operation_type
-import os
 
 from category import is_category
 
@@ -19,16 +21,19 @@ def pull(*, session, path):
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
     for op_type in operation_types:
-        operation_type.write_files(session=session, path=path, operation_type=op_type)
+        operation_type.write_files(session=session, path=path,
+                                operation_type=op_type)
 
-# might need to add session back in if you want it to do a create for tests -- if we add library tests
+    # TODO: might need to add session back in if we add library tests
     for lib in libraries:
         library.write_files(path=path, library=lib)
 
 
 def push(*, session, path):
     """
-    Pushes all files in directory to instance
+    Pushes all files in directory to instance.
+
+    If the path isn't a directory, returns.
 
     Arguments:
         session (Session): Aquarium session object
@@ -37,7 +42,13 @@ def push(*, session, path):
     if not os.path.isdir(path):
         logging.warning("Path {} is not a directory. Cannot push".format(path))
         return
-# if it's a folder -- e.g. RNASeq -- then just push that, but, we won't have the category
+ 
+    # if the path is to a category, call push category
+    if is_category(path):
+        category.push(session, path)
+        return
+
+    # if the path is to a folder -- e.g. RNASeq -- then just push that 
     if definition.has_definition(path):
         def_dict = definition.read(path)
         if definition.is_operation_type(def_dict):
@@ -46,14 +57,10 @@ def push(*, session, path):
             library.push(session=session, path=path)
         return
 
-    if is_category(path):
-        category.push(session, path)
-        return
-
-    cat_entries = os.listdir(path) # otherwise, get all the cat_entries (categories)
-    dir_entries = [entry for cat_entry in cat_entries 
+    categories = os.listdir(path)  # get all categories in the directory
+    dir_entries = [entry for entry in categories
                     if os.path.isdir(os.path.join(path, entry))]
-
+    
     if not dir_entries:
         logging.warning("Nothing to push in path {}".format(path))
         return

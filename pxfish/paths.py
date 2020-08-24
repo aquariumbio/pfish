@@ -8,10 +8,10 @@ import re
 
 def makedirectory(directory_name):
     """
-    Create the directory with the given name.
+    Creates the directory with the given name.
 
     Arguments:
-      directory_name (string): the name of the directory
+      directory_name (String): the name of the directory
     """
     if not os.path.exists(directory_name):
         os.makedirs(directory_name)
@@ -19,7 +19,7 @@ def makedirectory(directory_name):
 
 def simplename(name):
     """
-    Convert operation/library name to a string for use as a file name.
+    Converts operation/library name to a string for use as a file name.
     Replaces whitespace to underscores and changes characters to lowercase.
 
     Arguments:
@@ -33,15 +33,16 @@ def simplename(name):
 
 def create_named_path(path, name, subdirectory=None):
     """
-    Create a path for a named object (operation type/library).
+    Creates a path for a named object (operation type/library).
     Joins the canonical form of the object name to the base path.
     The canonical name is created using the simplename function.
 
     Note: does not create the directory.
 
     Arguments:
-      path (string): the base path
-      name (string): the name of the object
+      path (String): the base path
+      name (String): the name of the object
+      subdirectory (String): name for subdirectory, if any (default=None)
 
     Returns:
       string: the path of the named object

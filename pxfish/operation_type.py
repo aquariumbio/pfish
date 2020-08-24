@@ -2,11 +2,10 @@
 Functions for pushing, pulling, and creating Operation Types in Aquarium.
 """
 
-import code
-import definition
-import json
 import logging
 import os
+import code
+import definition
 
 from code import (
     create_code_object,
@@ -38,7 +37,7 @@ def is_operation_type(path):
 
 def get_operation_type(*, session, category, name):
     """
-    Retrieves a single Operation Type Object
+    Retrieves a single Operation Type Object.
 
     Arguments:
         session (Session Object): Aquarium session object
@@ -62,8 +61,11 @@ def get_operation_type(*, session, category, name):
 
 
 def pull(*, session, path, category, name):
-    retrieved_operation_type = get_operation_type(session=session, category=category, name=name) 
-    write_files(session=session, path=path, operation_type=retrieved_operation_type)
+    """Retrieves operation types, and calls function to write the files"""
+    retrieved_operation_type = get_operation_type(session=session,
+                                                   category=category, name=name)
+    write_files(session=session, path=path,
+                operation_type=retrieved_operation_type)
 
 
 def write_files(*, session, path, operation_type):
@@ -71,8 +73,13 @@ def write_files(*, session, path, operation_type):
     Writes the files associated with the operation_type to the path.
 
     Arguments:
-      path (string): the path to where the files will be written
-      operation_type (OperationType): the operation type being written
+        session (Session Object): Aquarium Session object
+        path (String): the path to where the files will be written
+        operation_type (OperationType): the operation type being written
+# TODO: fill in
+    Raises:
+        OSError:
+        UnicodeError:
     """
     logging.info("writing operation type {}".format(operation_type.name))
 
@@ -81,7 +88,7 @@ def write_files(*, session, path, operation_type):
 
     path = create_named_path(
         category_path, operation_type.name, subdirectory='operation_types')
-    
+
     makedirectory(path)
     code_names = operation_type_code_names()
 
@@ -92,16 +99,17 @@ def write_files(*, session, path, operation_type):
 
     for name in code_names:
         code_object = operation_type.code(name)
- 
+
         if not code_object:
             logging.warning(
                 "Missing {} code for operation type {} -- creating file".format(
                     operation_type.name, name)
             )
 
-            create_code_object(session=session, name=name, operation_type=operation_type) 
+            create_code_object(session=session,
+                                name=name, operation_type=operation_type)
 
-    # TODO: add something so it pulls the new text once it creates the file           
+# TODO: add something so it pulls the new text once it creates the file
         file_name = "{}.rb".format(name)
 
         try:
@@ -120,6 +128,7 @@ def write_files(*, session, path, operation_type):
 
 
 def operation_type_code_names():
+    """Returns names of code objects associated with operation types."""
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
@@ -134,7 +143,8 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the operation type
     """
-    code_objects = create_code_objects(session=session, component_names=operation_type_code_names())
+    code_objects = create_code_objects(session=session, 
+                                        component_names=operation_type_code_names())
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -167,7 +177,7 @@ def push(*, session, path):
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
 
-# TODO: Change so it only pushes test file when testing 
+# TODO: Change so it only pushes test file when testing
 
     if not parent_object:
         logging.warning(
@@ -201,22 +211,22 @@ def push(*, session, path):
 
 def run_test(*, session, path, category, name):
     """
-    Run tests for specified operation type
+    Run tests for specified operation type.
 
     Arguments: 
         session (Session Object): Aquarium session object
         path (String): Path to file
         category (String): Category operation type is found in
         name (String): name of the Operation Type to be tested
-    """ 
+    """
     logging.info("Sending request for {}".format(name))
-    
+ 
     push(session=session, path=path)
 
     retrieved_operation_type = get_operation_type(
                                 session=session, category=category, name=name)
 
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
-    parse_test_response(response) 
+    parse_test_response(response)
     return
 

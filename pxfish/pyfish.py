@@ -1,16 +1,16 @@
 """
-Script to download OperationType and Library definitions from the aquarium instance
-identified in the resources.py file.
+Script to download OperationType and Library files from
+the configured aquarium instance
 """
 
 import argparse
 import logging
+import os
+import sys
 import instance
 import category
 import operation_type
 import library
-import os
-import sys
 
 from config import (
     add_config,
@@ -115,7 +115,7 @@ def add_code_arguments(parser, *, action):
         "-c", "--category",
         help="category of the operation type or library",
         # TODO: Do we want to require a category for testing?
-        required=(action == 'create' or action == 'push' or action == 'test')
+        required=(action == 'create' or action == 'test')
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -154,20 +154,28 @@ def do_create(args):
 
         if args.operation_type:
             operation_type.create(
-                    session=session, path=path, category=args.category, name=args.operation_type)
+                session=session, path=path,
+                category=args.category,
+                name=args.operation_type)
             operation_type.pull(
-                    session=session, path=path, category=args.category, name=args.operation_type)
+                session=session, path=path,
+                category=args.category,
+                name=args.operation_type)
             return
 
         if args.library:
             library.create(
-                    session=session, path=path, category=args.category, name=args.library)
+                    session=session, path=path,
+                    category=args.category,
+                    name=args.library)
             library.pull(
-                    session=session, path=path, category=args.category, name=args.library)
+                    session=session, path=path,
+                    category=args.category,
+                    name=args.library)
             return
     else:
         logging.error("To create an operation type or library, you must enter a category")
-        return 
+        return
 
 
 def do_pull(args):
@@ -178,12 +186,14 @@ def do_pull(args):
     # have category, check for a library or operation type
         if args.library:
             library.pull(
-                    session=session, path=path, category=args.category, name=args.library)
+                    session=session, path=path,
+                    category=args.category, name=args.library)
             return
 
         if args.operation_type:
             operation_type.pull(
-                    session=session, path=path, category=args.category, name=args.operation_type)
+                    session=session, path=path, 
+                    category=args.category, name=args.operation_type)
             return
 
         category.pull(session=session, path=path, name=args.category)
@@ -191,20 +201,26 @@ def do_pull(args):
     
     if args.library or args.operation_type:
         logging.error("To pull an operation type or library, you must enter a category")
-        return 
+        return
     
-    instance.pull(session=session, path=path)	
+    instance.pull(session=session, path=path)
     return
 
 
 def do_push(args):
     session = create_session(path=config_path())
+    # if no dir given, dir is cwd eg -- in my test it would be pxfish dir
+    # but in real life it would be some repo
     path = os.path.normpath(args.directory)
+
+    # if no category is given
     if not args.category:
         instance.push(session=session, path=path)
         return
 
     category_path = create_named_path(path, args.category)
+# Shouldn't need category, because you can get it from the definition file
+# but need to rearrange how it does paths
     if args.library:
         library.push(
             session=session,
@@ -217,7 +233,8 @@ def do_push(args):
         operation_type.push(
             session=session,
             path=create_named_path(
-                category_path, args.operation_type, subdirectory="operation_types")
+                category_path, args.operation_type, 
+                subdirectory="operation_types")
         )
         return
     
@@ -234,8 +251,9 @@ def do_test(args):
         if args.library:
             library.run_test(
                 session=session,
-                path= create_named_path(
-                        category_path, args.operation_type, subdirectory="libraries"),
+                path=create_named_path(
+                        category_path, args.operation_type,
+                        subdirectory="libraries"),
                 category=args.category,
                 name=args.library
             )
@@ -244,22 +262,24 @@ def do_test(args):
         if args.operation_type:
             operation_type.run_test(
                 session=session,
-                path= create_named_path(
-                        category_path, args.operation_type, subdirectory="operation_types"),
+                path=create_named_path(
+                        category_path, args.operation_type,
+                        subdirectory="operation_types"),
                 category=args.category,
                 name=args.operation_type
             )
             return
 
-        category.run_tests(session=session, path=category_path, name=args.category)
+        category.run_tests(
+                session=session, path=category_path, name=args.category)
         return
 
     if args.library or args.operation_type:
         logging.error("To test a single operation type or library, you must enter a category")
-        return  
-    
+        return
+ 
     instance.run_tests(session=session, path=path)
-    
-    
+  
+
 if __name__ == "__main__":
     main()

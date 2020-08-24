@@ -1,11 +1,12 @@
 """
-Functions for pushing, pulling, and creating Library files
+Functions for pushing, pulling, and creating Library files.
 """
-import code
-import definition
+
 import json
 import logging
 import os
+import code
+import definition
 
 from paths import (
     create_named_path,
@@ -17,6 +18,7 @@ from definition import (
 
 
 def is_library(path):
+    """Checks whether definiton file is at path, and is for a library"""
     if not os.path.isdir(path):
         return False
 
@@ -30,11 +32,11 @@ def is_library(path):
 
 def pull(*, session, path, category, name):
     """
-    Retrieves a single Library Object
+    Retrieves a single Library Object.
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): the path to where the file will be written
+        path (String): the path where the file will be written
         category (String): The category the Library is in
         name (String): The name of the Library to be retrieved
     """
@@ -55,6 +57,7 @@ def pull(*, session, path, category, name):
 
 
 def get_code_file_names():
+    """Gets code file names associated with library"""
     return ['source']
 
 
@@ -71,7 +74,7 @@ def write_files(*, path, library):
     category_path = create_named_path(path, library.category)
     makedirectory(category_path)
 
-    library_path =  create_named_path(
+    library_path = create_named_path(
             category_path, library.name, subdirectory="libraries")
 
     makedirectory(library_path)
@@ -125,11 +128,11 @@ def create(*, session, path, category, name):
 
 def push(*, session, path):
     """
-    Pushes files to the Aquarium instance
+    Pushes files to the Aquarium instance.
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): Directory where files are to be found
+        path (String): path to files to be pushed
     """
     definitions = definition.read(path)
 
@@ -138,7 +141,7 @@ def push(*, session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
-        
+ 
     parent_object = session.Library.where(query)
     parent_type_name = 'library'
     component_names = ['source']

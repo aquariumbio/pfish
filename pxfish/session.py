@@ -1,3 +1,5 @@
+"""Functions to create an Aquarium session object through pydent"""
+
 from config import get_config, config_file_path
 from pydent import AqSession
 
@@ -6,9 +8,11 @@ def create_session(*, path):
     """
     Create an aquarium session connected to the named Aquarium instance.
 
-    :param path: the config directory path
-    :type path: str
-    :return: new AqSession
+    Arguements:
+        path (String): the config directory path
+ 
+    Returns:
+        Aquarium Session Object
     """
     file_path = config_file_path(path)
     config = get_config(file_path)
@@ -24,6 +28,7 @@ def create_session(*, path):
         credentials["aquarium_url"]
     )
 
+    session.set_verbose(verbose=False)
     return session
 
 
