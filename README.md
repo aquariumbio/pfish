@@ -45,7 +45,7 @@ To use a different login with the local instance, run the command
 pfish configure add -l <user-login> -p <user-password>
 ```
 
-with the new login name and password.
+with the new login name and password. The name of this configuration will be automatically set to "local".
 
 To add another login configuration, use the command
 
@@ -57,7 +57,7 @@ where you specify the configuration-name, user-login, password and instance URL.
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
 (Each of these arguments have defaults that correspond to the local configuration.)
 
-*Note*: The `configure add` command will overwrite any existing login configuration.
+*Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
 The most common use of `configure add` is to set up login configurations for different Aquarium instances.
 For instance, a user might have a `production` configuration in addition to the `local` configuration.
@@ -71,6 +71,12 @@ pfish configure set-default -n <config-name>
 
 with the name of the login configuration that you want to be the default.
 You might want to do this if you do development on a staging instance rather than a local one.
+
+To list all the available configurations, use the command:
+
+```bash
+pfish configure show-config
+```
 
 ## Commands
 
@@ -138,7 +144,7 @@ The available push commands are:
    pfish push -d <directory_name>
    ```
 
-2. Push a category:
+2. Push all files in a category:
 
    ```bash
    pfish push -c <category_name>

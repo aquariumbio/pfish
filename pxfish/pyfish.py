@@ -106,10 +106,6 @@ def get_argument_parser():
     add_code_arguments(parser_test, action="test")
     parser_test.set_defaults(func=do_test)
 
-#    parser_show = subparsers.add_parser("show")
-#    add_code_arguments(parser_show, action="show")
-#    parser_show.set_defaults(func=do_config_show)
-#
     return parser
 
 
@@ -161,8 +157,7 @@ def do_config_default(args):
 
 
 def do_config_show(args):
-    #    list_configurations(path=config_path())
-    show_config(config_path)
+    show_config(path=config_path())
 
 
 def do_create(args):
