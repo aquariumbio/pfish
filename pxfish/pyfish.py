@@ -14,7 +14,8 @@ import library
 
 from config import (
     add_config,
-    set_default_instance
+    set_default_instance,
+    show_config
 )
 from paths import (
     create_named_path
@@ -47,6 +48,7 @@ def get_argument_parser():
 
     parser_config = subparsers.add_parser("configure")
     config_subparsers = parser_config.add_subparsers()
+
     parser_add = config_subparsers.add_parser(
         "add",
         help="Add/update login configuration"
@@ -85,6 +87,13 @@ def get_argument_parser():
     )
     parser_default.set_defaults(func=do_config_default)
 
+    parser_show = config_subparsers.add_parser(
+        "show-config",
+        help="show all configurations"
+    )
+
+    parser_show.set_defaults(func=do_config_show)
+
     parser_pull = subparsers.add_parser("pull")
     add_code_arguments(parser_pull, action="pull")
     parser_pull.set_defaults(func=do_pull)
@@ -97,6 +106,10 @@ def get_argument_parser():
     add_code_arguments(parser_test, action="test")
     parser_test.set_defaults(func=do_test)
 
+#    parser_show = subparsers.add_parser("show")
+#    add_code_arguments(parser_show, action="show")
+#    parser_show.set_defaults(func=do_config_show)
+#
     return parser
 
 
@@ -129,7 +142,8 @@ def add_code_arguments(parser, *, action):
 
 
 def config_path():
-    return os.path.normpath('/script/config')
+    # return os.path.normpath('/script/config')
+    return os.path.normpath('test_config')
 
 
 def do_config_add(args):
@@ -146,10 +160,15 @@ def do_config_default(args):
     set_default_instance(config_path(), name=args.name)
 
 
+def do_config_show(args):
+    #    list_configurations(path=config_path())
+    show_config(config_path)
+
+
 def do_create(args):
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
-    
+ 
     if args.category:
 
         if args.operation_type:
@@ -233,11 +252,11 @@ def do_push(args):
         operation_type.push(
             session=session,
             path=create_named_path(
-                category_path, args.operation_type, 
+                category_path, args.operation_type,
                 subdirectory="operation_types")
         )
         return
-    
+ 
     category.push(session=session, path=category_path)
 
 
@@ -277,7 +296,7 @@ def do_test(args):
     if args.library or args.operation_type:
         logging.error("To test a single operation type or library, you must enter a category")
         return
- 
+
     instance.run_tests(session=session, path=path)
   
 
