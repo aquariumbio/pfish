@@ -7,7 +7,6 @@ from paths import makedirectory
 
 
 def config_file_path(path):
-    print(path)
     return os.path.join(path, 'config.json')
 
 
@@ -51,20 +50,18 @@ def get_config(path):
     }
 
 
-def show_config(path):
+def show_config(*, path):
     """List all named configurations"""
-    configurations = get_config(path) # this will either return the json file, or just the default
-    for name, instance in configurations["instances"]:
-        print(name)
-        print(name["aquarium_url"])
-    print(configurations)
+    configurations = get_config(path)
+
+    for name, configuration in configurations["instances"].items():
+        print("Name: {}\tLogin: {}\t URL: {}".format(
+            name, configuration["login"], configuration["aquarium_url"]))
 
 
 def set_default_instance(path, *, name):
     file_path = config_file_path(path)
     config = get_config(file_path)
-#    print(config)
-#    print(type(config))
     config["default"] = name
 
     with open(file_path, 'w') as file:

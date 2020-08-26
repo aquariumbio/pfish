@@ -141,7 +141,7 @@ def push(*, session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
- 
+
     parent_object = session.Library.where(query)
     parent_type_name = 'library'
     component_names = ['source']

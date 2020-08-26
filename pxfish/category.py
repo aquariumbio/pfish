@@ -8,7 +8,7 @@ import library
 from paths import create_named_path
 
 
-def is_category(path): # come back to this
+def is_category(path):
     """Checks path to see if it leads to a category directory."""
     if not os.path.isdir(path):
         return False
@@ -83,15 +83,15 @@ def run_tests(*, session, path, name):
     """
     category_entries = os.listdir(path)
     for subdirectory_entry in category_entries:
-        path = os.path.join(path, subdirectory_entry)
 
         if subdirectory_entry == "libraries":
             logging.warning("Tests not available for libraries")
 
         elif subdirectory_entry == "operation_types":
+            path = os.path.join(path, subdirectory_entry)
             files = os.listdir(path)
-            print(files)
             for filename in files:
+                logging.info("Testing Operation Type {}".format(filename))
                 entry_path = os.path.join(path, filename)
                 operation_type.run_test(
                         session=session, path=entry_path,

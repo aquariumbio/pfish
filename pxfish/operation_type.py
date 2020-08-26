@@ -62,8 +62,9 @@ def get_operation_type(*, session, category, name):
 
 def pull(*, session, path, category, name):
     """Retrieves operation types, and calls function to write the files"""
-    retrieved_operation_type = get_operation_type(session=session,
-                                                   category=category, name=name)
+    retrieved_operation_type = get_operation_type(
+                                            session=session,
+                                            category=category, name=name)
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
@@ -76,10 +77,6 @@ def write_files(*, session, path, operation_type):
         session (Session Object): Aquarium Session object
         path (String): the path to where the files will be written
         operation_type (OperationType): the operation type being written
-# TODO: fill in
-    Raises:
-        OSError:
-        UnicodeError:
     """
     logging.info("writing operation type {}".format(operation_type.name))
 
@@ -172,7 +169,7 @@ def push(*, session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
-   
+ 
     parent_object = session.OperationType.where(query)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
@@ -185,7 +182,7 @@ def push(*, session, path):
                 parent_type_name,
                 definitions['category'],
                 definitions['name'],
-                # TODO: make the following specific to user instance
+               # TODO: make the following specific to user instance
                 "Aquarium instance"
             )
         )
@@ -213,14 +210,14 @@ def run_test(*, session, path, category, name):
     """
     Run tests for specified operation type.
 
-    Arguments: 
+    Arguments:
         session (Session Object): Aquarium session object
         path (String): Path to file
         category (String): Category operation type is found in
         name (String): name of the Operation Type to be tested
     """
     logging.info("Sending request for {}".format(name))
- 
+
     push(session=session, path=path)
 
     retrieved_operation_type = get_operation_type(
@@ -229,4 +226,3 @@ def run_test(*, session, path, category, name):
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response)
     return
-

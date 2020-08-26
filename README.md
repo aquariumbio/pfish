@@ -114,7 +114,7 @@ The available pull commands are:
    pfish pull -d <directory_name>
    ```
 
-2. Pull all operations and libraries from a category
+2. Pull all operation types and libraries from a category
 
    ```bash
    pfish pull -c <category_name>
@@ -134,7 +134,7 @@ The available pull commands are:
 
 ### Push
 
-_Note_: If a protocol/library does not already exist in Aquarium, you must create it  using the `create` command before pushing to Aquarium.
+_Note_: If a protocol/library does not already exist in Aquarium, you must create it using the `create` command before pushing to Aquarium.
 
 The available push commands are:
 

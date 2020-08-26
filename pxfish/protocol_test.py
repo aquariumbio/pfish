@@ -12,7 +12,7 @@ def parse_test_response(response):
     Arguments:
         response (dict): response received after running test
     """
-    print("\n*********************************")
+
     if response["result"] == "error":
         if response["error_type"] == "error":
             logging.error(response["message"])
@@ -52,48 +52,49 @@ def parse_test_response(response):
                         response["message"])
                     )
             return
-       
-       # for entry in response.exception_backtrace:
-       #     pass
+
     else:
-        print("All tests passed")
+        logging.info(
+                "All tests passed")
         return
-    print(response.log)
-    # response.backtrace
-    print("*********************************\n")
-    time = None
-    for entry in response["backtrace"]:
-        if entry["operation"] == "display":
+
+    # for entry in response.exception_backtrace:
+    #     pass
+
+
+# time = None
+#    for entry in response["backtrace"]:
+#        if entry["operation"] == "display":
 #            # previous value of time
-            for show_object in entry["content"]:
-                print(show_object)
+#            for show_object in entry["content"]:
+#                print(show_object)
 #                # see showmatch in markdown converter
 #                # "line" is object {"key": "value"}
 #            time = entry["time"]
-        elif entry["operation"] == "error":
-            print("error") # see error.md
-
+#        elif entry["operation"] == "error":
+#            print("error") # see error.md
 #
-def format_table(content):
-    formatted = ["<table>"]
-    ary = json.loads(content)
-    style = "border: 1px solid gray; text-align: center"
-    for row in ary:
-        newrow = ""
-        for cell in row:
-            this_style = style
-
-            if isinstance(cell, dict):
-                newcell = cell.get("content") or "?"
-                if cell.get("class") == "td-filled-slot":
-                    this_style = style + "; background-color: lightskyblue"
-
-            else:
-                newcell = cell
-
-            newrow += "<td style=\"{}\">{}</td>".format(this_style, newcell)
-        formatted.append("<tr>{}</tr>".format(newrow))
-
-    formatted.append("</table>")
-    
-    return formatted
+#
+# def format_table(content):
+#    formatted = ["<table>"]
+#    ary = json.loads(content)
+#    style = "border: 1px solid gray; text-align: center"
+#    for row in ary:
+#        newrow = ""
+#        for cell in row:
+#            this_style = style
+#
+#            if isinstance(cell, dict):
+#                newcell = cell.get("content") or "?"
+#                if cell.get("class") == "td-filled-slot":
+#                    this_style = style + "; background-color: lightskyblue"
+#
+#            else:
+#                newcell = cell
+#
+#            newrow += "<td style=\"{}\">{}</td>".format(this_style, newcell)
+#        formatted.append("<tr>{}</tr>".format(newrow))
+#
+#    formatted.append("</table>")
+#    
+#    return formatted

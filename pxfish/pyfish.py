@@ -112,18 +112,18 @@ def get_argument_parser():
 def add_code_arguments(parser, *, action):
     parser.add_argument(
         "-d", "--directory",
-        help="working directory for the command",
+        help="working directory for the command, default is current directory",
         default=os.getcwd()
     )
     parser.add_argument(
         "-n", "--name",
-        help="login configuration name",
+        help="login configuration name, default is 'local'",
         default="local"
     )
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
-        # TODO: Do we want to require a category for testing?
+       # TODO: Do we want to require a category for testing?
         required=(action == 'create' or action == 'test')
     )
     group = parser.add_mutually_exclusive_group()
@@ -138,8 +138,8 @@ def add_code_arguments(parser, *, action):
 
 
 def config_path():
-    # return os.path.normpath('/script/config')
-    return os.path.normpath('test_config')
+    return os.path.normpath('/script/config')
+    # return os.path.normpath('test_config')
 
 
 def do_config_add(args):
@@ -163,7 +163,7 @@ def do_config_show(args):
 def do_create(args):
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
- 
+
     if args.category:
 
         if args.operation_type:
@@ -187,9 +187,8 @@ def do_create(args):
                     category=args.category,
                     name=args.library)
             return
-    else:
-        logging.error("To create an operation type or library, you must enter a category")
-        return
+       
+        logging.error("To create an operation type or library, you must enter a name.")
 
 
 def do_pull(args):
@@ -197,7 +196,6 @@ def do_pull(args):
     path = os.path.normpath(args.directory)
 
     if args.category:
-    # have category, check for a library or operation type
         if args.library:
             library.pull(
                     session=session, path=path,
@@ -206,53 +204,53 @@ def do_pull(args):
 
         if args.operation_type:
             operation_type.pull(
-                    session=session, path=path, 
+                    session=session, path=path,
                     category=args.category, name=args.operation_type)
             return
 
         category.pull(session=session, path=path, name=args.category)
         return
-    
+
     if args.library or args.operation_type:
         logging.error("To pull an operation type or library, you must enter a category")
         return
-    
+   
     instance.pull(session=session, path=path)
     return
 
 
 def do_push(args):
     session = create_session(path=config_path())
-    # if no dir given, dir is cwd eg -- in my test it would be pxfish dir
-    # but in real life it would be some repo
     path = os.path.normpath(args.directory)
 
-    # if no category is given
-    if not args.category:
-        instance.push(session=session, path=path)
-        return
 
-    category_path = create_named_path(path, args.category)
-# Shouldn't need category, because you can get it from the definition file
-# but need to rearrange how it does paths
-    if args.library:
-        library.push(
-            session=session,
-            path=create_named_path(
-                category_path, args.library, subdirectory="libraries")
-        )
-        return
+    # TODO: Shouldn't need category, because you can get it from the definition file
+    if args.category:
+        category_path = create_named_path(path, args.category)
+        if args.library:
+            library.push(
+                session=session,
+                path=create_named_path(
+                    category_path, args.library, subdirectory="libraries")
+            )
+            return
 
-    if args.operation_type:
-        operation_type.push(
-            session=session,
-            path=create_named_path(
-                category_path, args.operation_type,
-                subdirectory="operation_types")
-        )
-        return
+        if args.operation_type:
+            operation_type.push(
+                session=session,
+                path=create_named_path(
+                    category_path, args.operation_type,
+                    subdirectory="operation_types")
+            )
+            return
  
-    category.push(session=session, path=category_path)
+        category.push(session=session, path=category_path)
+
+    if args.library or args.operation_type:
+        logging.error("To test a single operation type or library, you must enter a category")
+        return
+
+    instance.push(session=session, path=path)
 
 
 def do_test(args):
@@ -293,7 +291,7 @@ def do_test(args):
         return
 
     instance.run_tests(session=session, path=path)
-  
+ 
 
 if __name__ == "__main__":
     main()

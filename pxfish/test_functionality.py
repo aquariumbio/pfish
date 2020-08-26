@@ -1,84 +1,106 @@
+"""Functions to create Test Files"""
+
 import subprocess
 import time
-import os 
+import os
 
 # Create log file
-#log_file = open("test_output.txt", 'w')
+# log_file = open("test_output.txt", 'w')
 
 # print("Prints Help Text")
 # test_results = subprocess.run(["python3", "../pxfish/pyfish.py", "-h"], stdout=log_file)
 
+
 def names(*, category, operation_type=None, library=None, timestamp):
-    names = {
-             "directory" : "DirName" + timestamp,
-             "category" : category + timestamp,
-             "operation_type" : operation_type + timestamp, 
-             "library" : library + timestamp,
-             "timestamp" : timestamp,
+    """Creates names for test files. Returns a dict"""
+    file_names = {
+             "directory": "DirName" + timestamp,
+             "category": category + timestamp,
+             "operation_type": operation_type + timestamp,
+             "library": library + timestamp,
+             "timestamp": timestamp,
             }
-    
-    names["path"] = os.path.normpath(names["directory"])
-    return names
-    
+
+    file_names["path"] = os.path.normpath(file_names["directory"])
+    return file_names
+
 
 def paths(*, path, category, subdirectory, item, file_name):
+    """Creates paths for test files."""
     category_path = os.path.join(path, category)
     subdirectory_path = os.path.join(category_path, subdirectory)
     item_path = os.path.join(subdirectory_path, item)
-    file_path = os.path.join(item_path, file_name)
-    return file_path
+    file_name_path = os.path.join(item_path, file_name)
+    print(file_name_path) 
+    return file_name_path
 
 
-# Test for creating, pushing, and pulling single Operation Types and Libraries
-names = names(category="cat_create",
-                operation_type="ot_create", 
-                library="lib_create", 
-                timestamp=time.strftime("%d%H%M%S"))
+print("Check Create Operation type")
 
-# create category and operation type 
-create_ot_results = subprocess.run(["python3", "pyfish.py", "create", 
-                        "-d", names["directory"], 
-                        "-c", names["category"], 
-                        "-o", names["operation_type"]
-                        ])
+# Create names to test creation of op type and library
+names = names(
+            category="cat_cr",
+            operation_type="ot_cr",
+            library="lib_cr",
+            timestamp=time.strftime("%S%d%H%M"))
 
-print("Create Op Type exit codes: %d" % create_ot_results.returncode )
 
-file_path = paths(path=names["path"], 
-                    category=names["category"], 
-                    subdirectory="operation_types", 
-                    item=names["operation_type"],
-                    file_name="protocol.rb"
-                    )
+# create category and operation type with pfish
+create_ot_results = subprocess.run(
+                            ["python3", "pyfish.py", "create",
+                                "-d", names["directory"],
+                                "-c", names["category"],
+                                "-o", names["operation_type"]]
+                            )
 
-# edited op type 
+print("Create Op Type exit codes: %d" % create_ot_results.returncode)
+
+
+file_path = paths(
+                path=names["path"],
+                category=names["category"],
+                subdirectory="operation_types",
+                item=names["operation_type"],
+                file_name="protocol.rb"
+                        )
+
+# Edit operation type file
 with open(file_path, 'w') as file:
-    file.write("checking that edited version is pushed")
+    file.write("Op type {} edited and pushed".format(names["operation_type"]))
+
+
+print("Editing and pushing Op Type {} ".format(names["operation_type"]))
 
 # push edited op_type
 push_ot_results = subprocess.run(
-                        ["python3", "pyfish.py", "push", 
-                        "-d", names["directory"], 
-                        "-c", names["category"], 
-                        "-o", names["operation_type"]
-                        ])
+                    ["python3", "pyfish.py", "push",
+                        "-d", names["directory"],
+                        "-c", names["category"],
+                        "-o", names["operation_type"]]
+                    )
 
-print("Push Op Type exit codes: %d" % push_ot_results.returncode)
+print("Push Edited Op Type exit codes: %d" % push_ot_results.returncode)
 
 
-# create second op type in same category 
+# create a second op type in the same category
 names["operation_type"] = names["operation_type"] + "test2"
-create_ot_results = subprocess.run(["python3", "pyfish.py", "create", 
-                        "-d", names["directory"], 
-                        "-c", names["category"], 
-                        "-o", names["operation_type"]
-                        ])
 
-# pull category
-create_ot_results = subprocess.run(["python3", "pyfish.py", "pull", 
-                        "-d", names["directory"], 
-                        "-c", names["category"], 
-                        ])
+
+create_ot_results = subprocess.run(
+                        ["python3", "pyfish.py", "create",
+                            "-d", names["directory"],
+                            "-c", names["category"],
+                            "-o", names["operation_type"]]
+                        )
+
+# pull the entire category
+print("pull category {}".format(names["category"]))
+
+create_ot_results = subprocess.run(
+                        ["python3", "pyfish.py", "pull",
+                            "-d", names["directory"],
+                            "-c", names["category"]]
+                        )
 
 # pull edited  optype
 #pull_ot_results = subprocess.run(
@@ -90,47 +112,49 @@ create_ot_results = subprocess.run(["python3", "pyfish.py", "pull",
 #
 #print("Pull Op Type exit codes: %d" % pull_ot_results.returncode )
 
-# create library
+# create new library
+print("test create new library")
+
 create_lib_results = subprocess.run(["python3", "pyfish.py", "create",
-                        "-d", names["directory"], 
+                        "-d", names["directory"],
                         "-c", names["category"],
                         "-l", names["library"]
                         ])
 
 print("Create Library exit codes: %d" % create_lib_results.returncode )
 
-file_path = paths(path=names["path"],
-                    category=names["category"],
-                    subdirectory="libraries",
-                    item=names["library"],
-                    file_name="source.rb"
-                    )
+file_path = paths(
+                path=names["path"],
+                category=names["category"],
+                subdirectory="libraries",
+                item=names["library"],
+                file_name="source.rb"
+                )
 
 # edit library file
 with open(file_path, 'a') as file:
-    file.write("checking that edited version of library is pushed")
+    file.write("Edited and pushed library {}".format(names["library"]))
 
 # push edited library file
 push_lib_results = subprocess.run(
                         ["python3", "pyfish.py", "push",
-                        "-d", names["directory"],
-                        "-c", names["category"],
-                        "-o", names["library"]
-                        ])
+                            "-d", names["directory"],
+                            "-c", names["category"],
+                            "-l", names["library"]]
+                        )
 
 print("Push library exit codes: %d" % push_lib_results.returncode)
 
-# pull edited library
+# pull newly edited library
 pull_lib_results = subprocess.run(
                         ["python3", "pyfish.py", "pull",
-                        "-d", names["directory"],
-                        "-c", names["category"],
-                        "-o", names["library"]
-                        ])
+                            "-d", names["directory"],
+                            "-c", names["category"],
+                            "-o", names["library"]]
+                        )
 
 print("Pull library exit codes: %d" % pull_lib_results.returncode )
 
-# check for changes
 
 #test_file = open("/directory_name/category_name/operation_type_name")
 #test_results = subprocess.run(["python3", "pyfish.py", "push", "-d", "DirNameTest2", "-c", "ScriptTest", "-o", "OTScript23"])

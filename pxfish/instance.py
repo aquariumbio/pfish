@@ -21,8 +21,10 @@ def pull(*, session, path):
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
     for op_type in operation_types:
-        operation_type.write_files(session=session, path=path,
-                                operation_type=op_type)
+        operation_type.write_files(
+                    session=session,
+                    path=path,
+                    operation_type=op_type)
 
     # TODO: might need to add session back in if we add library tests
     for lib in libraries:
@@ -42,13 +44,11 @@ def push(*, session, path):
     if not os.path.isdir(path):
         logging.warning("Path {} is not a directory. Cannot push".format(path))
         return
- 
-    # if the path is to a category, call push category
+
     if is_category(path):
         category.push(session, path)
         return
 
-    # if the path is to a folder -- e.g. RNASeq -- then just push that 
     if definition.has_definition(path):
         def_dict = definition.read(path)
         if definition.is_operation_type(def_dict):
@@ -59,8 +59,8 @@ def push(*, session, path):
 
     categories = os.listdir(path)  # get all categories in the directory
     dir_entries = [entry for entry in categories
-                    if os.path.isdir(os.path.join(path, entry))]
-    
+                   if os.path.isdir(os.path.join(path, entry))]
+
     if not dir_entries:
         logging.warning("Nothing to push in path {}".format(path))
         return
@@ -104,7 +104,7 @@ def run_tests(*, session, path):
     if not dir_entries:
         logging.warning("Nothing to test in path {}".format(path))
         return
-#
+
     for entry in dir_entries:
         entry_path = os.path.join(path, entry)
         if is_category(entry_path):

@@ -28,7 +28,7 @@ def create_session(*, path):
         credentials["aquarium_url"]
     )
 
-    session.set_verbose(verbose=False)
+    session.set_verbose(False)
     return session
 
 
