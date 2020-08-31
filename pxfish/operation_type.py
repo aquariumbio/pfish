@@ -97,16 +97,19 @@ def write_files(*, session, path, operation_type):
     for name in code_names:
         code_object = operation_type.code(name)
 
-        if not code_object:
+        if not code_object and name != "test":
             logging.warning(
                 "Missing {} code for operation type {} -- creating file".format(
                     operation_type.name, name)
             )
 
-            create_code_object(session=session,
-                                name=name, operation_type=operation_type)
+            create_code_object(
+                    session=session,
+                    name=name,
+                    operation_type=operation_type
+                    )
 
-# TODO: add something so it pulls the new text once it creates the file
+    # TODO: add something so it pulls the new text once it creates the file
         file_name = "{}.rb".format(name)
 
         try:
