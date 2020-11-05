@@ -36,7 +36,7 @@ def create_code_objects(*, session, component_names):
     for name in component_names:
         default_content = add_default_content(name)
         code_objects[name] = session.Code.new(
-                                    name=name, content=default_content)
+            name=name, content=default_content)
     return code_objects
 
 
@@ -47,7 +47,8 @@ def add_default_content(name):
     Arguments:
         name (String): name of file whose contents to retrieve
     """
-    path = os.path.normpath("protocol_templates")
+    path = os.path.normpath("/script/protocol_templates")
+    # path = os.path.normpath("protocol_templates")
     return read(path=path, name=name)
 
 
