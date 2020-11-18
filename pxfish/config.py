@@ -52,8 +52,8 @@ def get_config(path):
 
 def show_config(*, path):
     """List all named configurations"""
-    configurations = get_config(path)
-
+    file_path = config_file_path(path)
+    configurations = get_config(file_path)
     for name, configuration in configurations["instances"].items():
         print("Name: {}\tLogin: {}\t URL: {}".format(
             name, configuration["login"], configuration["aquarium_url"]))
