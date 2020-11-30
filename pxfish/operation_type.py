@@ -63,8 +63,8 @@ def get_operation_type(*, session, category, name):
 def pull(*, session, path, category, name):
     """Retrieves operation types, and calls function to write the files"""
     retrieved_operation_type = get_operation_type(
-                                            session=session,
-                                            category=category, name=name)
+        session=session,
+        category=category, name=name)
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
@@ -104,10 +104,10 @@ def write_files(*, session, path, operation_type):
             )
 
             create_code_object(
-                    session=session,
-                    name=name,
-                    operation_type=operation_type
-                    )
+                session=session,
+                name=name,
+                operation_type=operation_type
+                )
 
     # TODO: add something so it pulls the new text once it creates the file
         file_name = "{}.rb".format(name)
@@ -143,8 +143,8 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the operation type
     """
-    code_objects = create_code_objects(session=session, 
-                                        component_names=operation_type_code_names())
+    code_objects = create_code_objects(session=session,
+                                       component_names=operation_type_code_names())
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -172,7 +172,7 @@ def push(*, session, path):
         "category": definitions['category'],
         "name": definitions['name']
     }
- 
+
     parent_object = session.OperationType.where(query)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
@@ -185,7 +185,7 @@ def push(*, session, path):
                 parent_type_name,
                 definitions['category'],
                 definitions['name'],
-               # TODO: make the following specific to user instance
+                # TODO: make the following specific to user instance
                 "Aquarium instance"
             )
         )
@@ -224,7 +224,7 @@ def run_test(*, session, path, category, name):
     push(session=session, path=path)
 
     retrieved_operation_type = get_operation_type(
-                                session=session, category=category, name=name)
+        session=session, category=category, name=name)
 
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response)
