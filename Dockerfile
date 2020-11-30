@@ -1,4 +1,4 @@
-FROM python:3.8 as pfish-base
+FROM python:3.9 as pfish-base
 
 # create directories within container
 # /script is where the package lives
