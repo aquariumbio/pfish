@@ -48,9 +48,7 @@ def pull(*, session, path, category, name):
     )
     if not retrieved_library:
         logging.warning(
-            "No Library named {} in Category {}".format(
-                name, category)
-        )
+            'No Library named %s in Category %s', name, category)
         return
 
     write_files(path=path, library=retrieved_library[0])
@@ -69,13 +67,13 @@ def write_files(*, path, library):
       path (string): the path of the file to write
       library (Library): the library whose definition will be written
     """
-    logging.info("writing library {}".format(library.name))
+    logging.info('writing library %s', library.name)
 
     category_path = create_named_path(path, library.category)
     makedirectory(category_path)
 
     library_path = create_named_path(
-            category_path, library.name, subdirectory="libraries")
+        category_path, library.name, subdirectory="libraries")
 
     makedirectory(library_path)
 
@@ -83,26 +81,24 @@ def write_files(*, path, library):
 
     if not code_object:
         logging.warning(
-            "Ignored library {} missing library code".format(
-                library.name)
-        )
+            'Ignored library %s missing library code', library.name)
 
     file_name = 'source.rb'
 
     try:
         code.write(path=library_path, file_name=file_name, code_object=code_object)
     except OSError as error:
-        logging.warning("Error {} writing file {} for library {}".format(
-            error, file_name, library.name))
+        logging.warning('Error %s writing file %s for library %s',
+                        error, file_name, library.name)
     except UnicodeError as error:
         logging.warning(
-            "Encoding error {} writing file {} for library {}".format(
-                error, file_name, library.name))
+            'Encoding error %s writing file %s for library %s',
+            error, file_name, library.name)
 
     write_library_definition_json(
-            os.path.join(
-                library_path, 'definition.json'
-                ), library)
+        os.path.join(
+            library_path, 'definition.json'
+            ), library)
 
 
 def create(*, session, path, category, name):
@@ -117,8 +113,8 @@ def create(*, session, path, category, name):
         name (String): name of the library to be created
     """
     code_objects = code.create_code_objects(
-            session=session, component_names=get_code_file_names()
-            )
+        session=session, component_names=get_code_file_names()
+        )
     new_library = session.Library.new(
         name=name,
         category=category,
@@ -171,7 +167,7 @@ def push(*, session, path):
             content=read_file
         )
 
-        logging.info("writing file {}".format(parent_object[0].name))
+        logging.info('writing file %s', parent_object[0].name)
 
         session.utils.update_code(new_code)
 

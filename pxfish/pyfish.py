@@ -138,8 +138,8 @@ def add_code_arguments(parser, *, action):
 
 
 def config_path():
-    return os.path.normpath('/script/config')
-    # return os.path.normpath('test_config')
+    #return os.path.normpath('/script/config')
+    return os.path.normpath('test_config')
 
 
 def do_config_add(args):
@@ -179,15 +179,15 @@ def do_create(args):
 
         if args.library:
             library.create(
-                    session=session, path=path,
-                    category=args.category,
-                    name=args.library)
+                session=session, path=path,
+                category=args.category,
+                name=args.library)
             library.pull(
-                    session=session, path=path,
-                    category=args.category,
-                    name=args.library)
+                session=session, path=path,
+                category=args.category,
+                name=args.library)
             return
-       
+  
         logging.error("To create an operation type or library, you must enter a name.")
 
 
@@ -198,14 +198,14 @@ def do_pull(args):
     if args.category:
         if args.library:
             library.pull(
-                    session=session, path=path,
-                    category=args.category, name=args.library)
+                session=session, path=path,
+                category=args.category, name=args.library)
             return
 
         if args.operation_type:
             operation_type.pull(
-                    session=session, path=path,
-                    category=args.category, name=args.operation_type)
+                session=session, path=path,
+                category=args.category, name=args.operation_type)
             return
 
         category.pull(session=session, path=path, name=args.category)
@@ -214,7 +214,7 @@ def do_pull(args):
     if args.library or args.operation_type:
         logging.error("To pull an operation type or library, you must enter a category")
         return
-   
+
     instance.pull(session=session, path=path)
     return
 
@@ -243,7 +243,7 @@ def do_push(args):
                     subdirectory="operation_types")
             )
             return
- 
+
         category.push(session=session, path=category_path)
 
     if args.library or args.operation_type:
@@ -264,8 +264,8 @@ def do_test(args):
             library.run_test(
                 session=session,
                 path=create_named_path(
-                        category_path, args.operation_type,
-                        subdirectory="libraries"),
+                    category_path, args.operation_type,
+                    subdirectory="libraries"),
                 category=args.category,
                 name=args.library
             )
@@ -275,15 +275,15 @@ def do_test(args):
             operation_type.run_test(
                 session=session,
                 path=create_named_path(
-                        category_path, args.operation_type,
-                        subdirectory="operation_types"),
+                    category_path, args.operation_type,
+                    subdirectory="operation_types"),
                 category=args.category,
                 name=args.operation_type
             )
             return
 
         category.run_tests(
-                session=session, path=category_path, name=args.category)
+            session=session, path=category_path, name=args.category)
         return
 
     if args.library or args.operation_type:
@@ -291,7 +291,7 @@ def do_test(args):
         return
 
     instance.run_tests(session=session, path=path)
- 
+
 
 if __name__ == "__main__":
     main()

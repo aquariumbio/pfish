@@ -30,7 +30,7 @@ def pull(*, session, path, name):
     libraries = session.Library.where({"category": name})
 
     if not operation_types and not libraries:
-        logging.error("Category {} was not found.".format(name))
+        logging.error('Category %s was not found.', name)
 
     for op_type in operation_types:
         operation_type.write_files(session=session, path=path,
@@ -56,20 +56,17 @@ def push(*, session, path):
                 library.push(
                     session=session,
                     path=create_named_path(
-                            path, name, subdirectory='libraries')
+                        path, name, subdirectory='libraries')
                 )
         elif directory_entry == 'operation_types':
             for name in files:
                 operation_type.push(
                     session=session,
                     path=create_named_path(
-                            path, name, subdirectory='operation_types')
+                        path, name, subdirectory='operation_types')
                 )
         else:
-            logging.warning("Unexpected directory entry {} in {}".format(
-                directory_entry,
-                path
-            ))
+            logging.warning('Unexpected directory entry %s in %s', directory_entry, path)
 
 
 def run_tests(*, session, path, name):
@@ -91,13 +88,10 @@ def run_tests(*, session, path, name):
             path = os.path.join(path, subdirectory_entry)
             files = os.listdir(path)
             for filename in files:
-                logging.info("Testing Operation Type {}".format(filename))
+                logging.info('Testing Operation Type %s', filename)
                 entry_path = os.path.join(path, filename)
                 operation_type.run_test(
-                        session=session, path=entry_path,
-                        category=name, name=filename)
+                    session=session, path=entry_path,
+                    category=name, name=filename)
         else:
-            logging.warning("Unexpected directory entry {} in {}".format(
-                subdirectory_entry,
-                path
-            ))
+            logging.warning('Unexpected directory entry %s in %s', subdirectory_entry, path)

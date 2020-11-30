@@ -21,10 +21,11 @@ def pull(*, session, path):
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
     for op_type in operation_types:
+        print("writing first operation type")
         operation_type.write_files(
-                    session=session,
-                    path=path,
-                    operation_type=op_type)
+            session=session,
+            path=path,
+            operation_type=op_type)
 
     # TODO: might need to add session back in if we add library tests
     for lib in libraries:
@@ -42,7 +43,7 @@ def push(*, session, path):
         path (String): path to directory
     """
     if not os.path.isdir(path):
-        logging.warning("Path {} is not a directory. Cannot push".format(path))
+        logging.warning('Path %s is not a directory. Cannot push', path)
         return
 
     if is_category(path):
@@ -62,7 +63,7 @@ def push(*, session, path):
                    if os.path.isdir(os.path.join(path, entry))]
 
     if not dir_entries:
-        logging.warning("Nothing to push in path {}".format(path))
+        logging.warning('Nothing to push in path %s', path)
         return
 
     for entry in dir_entries:
@@ -81,7 +82,7 @@ def run_tests(*, session, path):
     """
     if not os.path.isdir(path):
         logging.warning(
-            "Path {} is not a directory. Cannot run tests".format(path))
+            'Path %s is not a directory. Cannot run tests', path)
         return
 
 # TODO: change get operation type to work without a category?
@@ -102,7 +103,7 @@ def run_tests(*, session, path):
     dir_entries = [entry for entry in entries if os.path.isdir(os.path.join(path, entry))]
 
     if not dir_entries:
-        logging.warning("Nothing to test in path {}".format(path))
+        logging.warning('Nothing to test in path %s', path)
         return
 
     for entry in dir_entries:

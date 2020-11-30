@@ -10,7 +10,7 @@ def create_session(*, path):
 
     Arguements:
         path (String): the config directory path
- 
+
     Returns:
         Aquarium Session Object
     """

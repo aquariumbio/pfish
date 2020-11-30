@@ -15,6 +15,7 @@ def write(*, path, file_name, code_object):
       code_object (Code): the code object to be written
     """
     file_path = os.path.join(path, file_name)
+    print(f"writing {file_name} to path {file_path}")
     with open(file_path, 'w') as file:
         file.write(code_object.content)
 
@@ -67,8 +68,8 @@ def create_code_object(*, session, name, operation_type):
     data['content'] = add_default_content(name)
     data['name'] = name
 
-    logging.info("sending request for {}".format(operation_type.name))
-    response = session._aqhttp.post("operation_types/code", json_data=data)
+    logging.info('sending request for %s', operation_type.name)
+    # response = session._aqhttp.post("operation_types/code", json_data=data)
 
 
 def read(*, path, name):
@@ -88,6 +89,5 @@ def read(*, path, name):
             return file.read()
     except FileNotFoundError as error:
         logging.warning(
-            "Error {} reading expected code file {}".format(
-                error, file_name))
+            'Error %s reading expected code file %s', error, file_name)
         return None

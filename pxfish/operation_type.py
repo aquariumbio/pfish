@@ -52,9 +52,8 @@ def get_operation_type(*, session, category, name):
     )
     if not retrieved_operation_type:
         logging.warning(
-            "No Operation Type named {} in Category {}".format(
-                name, category)
-        )
+            'No Operation Type named %s in Category %s',
+            name, category)
         return
 
     return retrieved_operation_type[0]
@@ -78,7 +77,7 @@ def write_files(*, session, path, operation_type):
         path (String): the path to where the files will be written
         operation_type (OperationType): the operation type being written
     """
-    logging.info("writing operation type {}".format(operation_type.name))
+    logging.info('writing operation type %s', operation_type.name)
 
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
@@ -96,34 +95,29 @@ def write_files(*, session, path, operation_type):
 
     for name in code_names:
         code_object = operation_type.code(name)
-
         if not code_object and name != "test":
             logging.warning(
-                "Missing {} code for operation type {} -- creating file".format(
-                    operation_type.name, name)
-            )
-
+                'Missing %s code for operation type %s -- creating file', operation_type.name, name)
             create_code_object(
                 session=session,
                 name=name,
                 operation_type=operation_type
                 )
-
     # TODO: add something so it pulls the new text once it creates the file
         file_name = "{}.rb".format(name)
 
         try:
             code.write(path=path, file_name=file_name, code_object=code_object)
+            return
         except OSError as error:
             logging.warning(
-                "Error {} writing file {} for operation type {}".format(
-                    error, file_name, operation_type.name))
+                'Error %s writing file %s for operation type %s',
+                error, file_name, operation_type.name)
             continue
         except UnicodeError as error:
-            message = "Encoding error {} writing file {} for operation type {}"
             logging.warning(
-                message.format(
-                    error, file_name, operation_type.name))
+                'Encoding error %s writing file %s for operation type %s',
+                error, file_name, operation_type.name)
             continue
 
 
@@ -204,7 +198,7 @@ def push(*, session, path):
             content=read_file
         )
 
-        logging.info("writing file {}".format(parent_object[0].name))
+        logging.info('writing file %s', parent_object[0].name)
 
         session.utils.update_code(new_code)
 
@@ -219,7 +213,7 @@ def run_test(*, session, path, category, name):
         category (String): Category operation type is found in
         name (String): name of the Operation Type to be tested
     """
-    logging.info("Sending request for {}".format(name))
+    logging.info('Sending request for %s', name)
 
     push(session=session, path=path)
 
@@ -228,4 +222,4 @@ def run_test(*, session, path, category, name):
 
     response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response)
-    return
+    # return
