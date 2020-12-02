@@ -16,6 +16,21 @@ def is_library(obj: Dict) -> bool:
 def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
+def write_sample_type_list(session, operation_type):
+    print("********************************\n")
+    print(f"in sample type method with {session} and {operation_type}")
+    # print(f"operation type is of type {type(operation_type)} and Methods you can call on it are {dir(operation_type)}")
+    types = operation_type.sample_type()
+    print(types)
+    print("********************************\n")
+
+def write_object_type_list(session, operation_type):
+    print("********************************\n")
+    print(f"in object type method with {session} and {operation_type}")
+    # print(f"operation type is of type {type(operation_type)} and Methods you can call on it are {dir(operation_type)}")
+    types = operation_type.object_type()
+    print(types)
+    print("********************************\n")
 
 def field_type_list(field_types, role):
     """
