@@ -16,21 +16,51 @@ def is_library(obj: Dict) -> bool:
 def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
-def write_sample_type_list(session, operation_type):
-    print("********************************\n")
-    print(f"in sample type method with {session} and {operation_type}")
-    # print(f"operation type is of type {type(operation_type)} and Methods you can call on it are {dir(operation_type)}")
-    types = operation_type.sample_type()
-    print(types)
-    print("********************************\n")
 
-def write_object_type_list(session, operation_type):
-    print("********************************\n")
-    print(f"in object type method with {session} and {operation_type}")
-    # print(f"operation type is of type {type(operation_type)} and Methods you can call on it are {dir(operation_type)}")
+def sample_type_list(operation_type):
+    """
+    Returns sublist of sample types associated with the operation type
+
+    Arguments:
+      operation_type (OperationType): the operation type
+
+    Returns:
+      list: the sublist of sample types
+    """
+    sample_types = []
+    types = operation_type.sample_type()
+
+    for sample_type in types:
+        sample_type_ser = {
+            "name": sample_type.name,
+            "description": sample_type.description
+        }
+        sample_types.append(sample_type_ser)
+    return sample_types
+
+
+def object_type_list(operation_type):
+    """
+    Returns sublist of object types associated with the given operation type
+
+    Arguments:
+      operation_type (OperationType): the operation type
+
+    Returns:
+      list: the sublist of object types
+    """
+
+    object_types = []
     types = operation_type.object_type()
-    print(types)
-    print("********************************\n")
+
+    for object_type in types:
+        object_type_ser = {
+            "name": object_type.name,
+            "description": object_type.description
+        }
+        object_types.append(object_type_ser)
+    return object_types
+
 
 def field_type_list(field_types, role):
     """
@@ -72,6 +102,9 @@ def write_definition_json(file_path, operation_type):
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
     ot_ser["user_id"] = operation_type.protocol.user_id
+
+    ot_ser["sample_types"] = sample_type_list(operation_type)
+    ot_ser["object_types"] = object_type_list(operation_type)
 
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser, indent=2))

@@ -35,7 +35,6 @@ def pull(*, session, path, name):
     for op_type in operation_types:
         operation_type.write_files(session=session, path=path,
                                    operation_type=op_type)
-
     for lib in libraries:
         library.write_files(path=path, library=lib)
 
