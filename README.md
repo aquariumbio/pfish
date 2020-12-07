@@ -37,7 +37,7 @@ Pfish has two parts: the wrapper script, and the pfish Docker image.
 ## Configuring
 
 Initially, pfish is configured to connect to a [local Aquarium instance](https://aquariumbio.github.io/aquarium-local/) using the default user login (`neptune`) and password (`aquarium`) at URL (`http://localhost/`).
-So, if you are using that Aquarium user, you don't need to do anything to start with.
+If that is the instance and login that you are using you don't need to do anything else to start with.
 
 To use a different login with the local instance, run the command
 
@@ -72,10 +72,10 @@ pfish configure set-default -n <config-name>
 with the name of the login configuration that you want to be the default.
 You might want to do this if you do development on a staging instance rather than a local one.
 
-To list all the available configurations, use the command:
+To list all your saved configurations, use the command:
 
 ```bash
-pfish configure show-config
+pfish configure show
 ```
 
 ## Commands

@@ -70,7 +70,7 @@ def get_argument_parser():
     )
     parser_add.add_argument(
         "-u", "--url",
-        help="the URL for the aquarim instance",
+        help="the URL for the aquarium instance",
         default="http://localhost/"
     )
     parser_add.set_defaults(func=do_config_add)
@@ -88,7 +88,7 @@ def get_argument_parser():
     parser_default.set_defaults(func=do_config_default)
 
     parser_show = config_subparsers.add_parser(
-        "show-config",
+        "show",
         help="show all configurations"
     )
 
@@ -187,11 +187,15 @@ def do_create(args):
                 category=args.category,
                 name=args.library)
             return
-  
+
         logging.error("To create an operation type or library, you must enter a name.")
 
 
 def do_pull(args):
+    """
+    Call appropriate pull function based on arguments
+    Default it to pull everything from the instance
+    """
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
 
