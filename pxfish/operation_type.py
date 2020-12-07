@@ -60,7 +60,7 @@ def get_operation_type(*, session, category, name):
 
 
 def pull(*, session, path, category, name):
-    """Retrieves operation types, and calls function to write the files"""
+    """Retrieves operation type, and calls function to write the associated files"""
     retrieved_operation_type = get_operation_type(
         session=session,
         category=category, name=name)
@@ -88,14 +88,9 @@ def write_files(*, session, path, operation_type):
     makedirectory(path)
     code_names = operation_type_code_names()
 
-    write_definition_json(
-        os.path.join(path, 'definition.json'),
-        operation_type
-    )
-
     for name in code_names:
         code_object = operation_type.code(name)
-        if not code_object and name != "test":
+        if not code_object:
             logging.warning(
                 'Missing %s code for operation type %s -- creating file', operation_type.name, name)
             create_code_object(
@@ -103,12 +98,12 @@ def write_files(*, session, path, operation_type):
                 name=name,
                 operation_type=operation_type
                 )
-    # TODO: add something so it pulls the new text once it creates the file
+            code_object = operation_type.code(name)
+
         file_name = "{}.rb".format(name)
 
         try:
             code.write(path=path, file_name=file_name, code_object=code_object)
-            return
         except OSError as error:
             logging.warning(
                 'Error %s writing file %s for operation type %s',
@@ -120,6 +115,10 @@ def write_files(*, session, path, operation_type):
                 error, file_name, operation_type.name)
             continue
 
+    write_definition_json(
+        os.path.join(path, 'definition.json'),
+        operation_type
+    )
 
 def operation_type_code_names():
     """Returns names of code objects associated with operation types."""
