@@ -17,49 +17,46 @@ def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
 
-def sample_type_list(operation_type):
+def write_sample_types_json(path, operation_type):
     """
-    Returns sublist of sample types associated with the operation type
+    Returns sublist of sample types associated with the given operation type
 
     Arguments:
       operation_type (OperationType): the operation type
-
-    Returns:
-      list: the sublist of sample types
     """
-    sample_types = []
+
     types = operation_type.sample_type()
-
     for sample_type in types:
-        sample_type_ser = {
-            "name": sample_type.name,
-            "description": sample_type.description
-        }
-        sample_types.append(sample_type_ser)
-    return sample_types
+        if sample_type:
+            sample_type_ser = {
+                "id": sample_type.id,
+                "name": sample_type.name,
+                "description": sample_type.description
+            }
+            file_path = (os.path.join(path, "{}_definition.json".format(sample_type_ser['name'])))
+            with open(file_path, 'w') as file:
+                file.write(json.dumps(sample_type_ser, indent=2))
 
 
-def object_type_list(operation_type):
+def write_object_types_json(path, operation_type):
     """
     Returns sublist of object types associated with the given operation type
 
     Arguments:
       operation_type (OperationType): the operation type
-
-    Returns:
-      list: the sublist of object types
     """
 
-    object_types = []
     types = operation_type.object_type()
-
     for object_type in types:
-        object_type_ser = {
-            "name": object_type.name,
-            "description": object_type.description
-        }
-        object_types.append(object_type_ser)
-    return object_types
+        if object_type:
+            object_type_ser = {
+                "id": object_type.id,
+                "name": object_type.name,
+                "description": object_type.description
+            }
+            file_path = (os.path.join(path, "{}_definition.json".format(object_type_ser['name'])))
+            with open(file_path, 'w') as file:
+                file.write(json.dumps(object_type_ser, indent=2))
 
 
 def field_type_list(field_types, role):
@@ -102,9 +99,6 @@ def write_definition_json(file_path, operation_type):
     ot_ser["outputs"] = field_type_list(operation_type.field_types, 'output')
     ot_ser["on_the_fly"] = operation_type.on_the_fly
     ot_ser["user_id"] = operation_type.protocol.user_id
-
-    ot_ser["sample_types"] = sample_type_list(operation_type)
-    ot_ser["object_types"] = object_type_list(operation_type)
 
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser, indent=2))

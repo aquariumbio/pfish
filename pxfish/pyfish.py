@@ -194,7 +194,7 @@ def do_create(args):
 def do_pull(args):
     """
     Call appropriate pull function based on arguments
-    Default it to pull everything from the instance
+    Default is to pull everything from the instance
     """
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
