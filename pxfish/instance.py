@@ -6,6 +6,8 @@ import category
 import definition
 import library
 import operation_type
+import object_type
+import sample_type
 
 from category import is_category
 
@@ -16,20 +18,28 @@ def pull(*, session, path):
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): the path to where the files will be written
+        path (String): the path where the files will be written
     """
-    operation_types = session.OperationType.all()
-    libraries = session.Library.all()
-    for op_type in operation_types:
-        print("writing first operation type")
-        operation_type.write_files(
-            session=session,
-            path=path,
-            operation_type=op_type)
-
+#    operation_types = session.OperationType.all()
+#    libraries = session.Library.all()
+#    object_types = session.ObjectType.all()
+    sample_types = session.SampleType.all()
+#    for op_type in operation_types:
+#        operation_type.write_files(
+#            session=session,
+#            path=path,
+#            operation_type=op_type)
+#
     # TODO: might need to add session back in if we add library tests
-    for lib in libraries:
-        library.write_files(path=path, library=lib)
+#    for lib in libraries:
+#        library.write_files(path=path, library=lib)
+
+#    for obj_type in object_types[0:40]:
+#        object_type.write_files(path=path, object_type=obj_type)
+
+    for sam_type in sample_types[0:40]:
+        print(f"calling write files for {sam_type}")
+        sam_type.write_files(path=path, sample_type=sam_type)
 
 
 def push(*, session, path):

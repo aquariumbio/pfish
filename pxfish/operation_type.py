@@ -117,16 +117,6 @@ def write_files(*, session, path, operation_type):
                 error, file_name, operation_type.name)
             continue
 
-    sample_path = create_named_path(
-        category_path, operation_type.name, subdirectory='sample_types')
-    makedirectory(sample_path)
-    write_sample_types_json(sample_path, operation_type)
-
-    object_path = create_named_path(
-        category_path, operation_type.name, subdirectory='object_types')
-    makedirectory(object_path)
-    write_object_types_json(object_path, operation_type)
-
     write_definition_json(
         os.path.join(path, 'definition.json'),
         operation_type
