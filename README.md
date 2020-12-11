@@ -169,7 +169,7 @@ The available test commands are:
 1. Test an Operation Type
 
    ```bash
-   pfish test
+   pfish test -c <category_name> -o <operation_type_name>
    ```
 
 2. Test all Operation Types in a Category 
@@ -181,7 +181,7 @@ The available test commands are:
 3. Test all Operation Types in a Directory
 
    ```bash
-   pfish test -c <category_name> -o <operation_type_name>
+   pfish test 
    ```
 
 4. Test Libraries: Not yet implemented

@@ -26,9 +26,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
+    """call the function determined by the arguments"""
     parser = get_argument_parser()
     args = parser.parse_args()
-    # call the function determined by the arguments
     try:
         args.func(args)
     except AttributeError:

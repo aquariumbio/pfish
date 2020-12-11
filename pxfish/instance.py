@@ -20,26 +20,26 @@ def pull(*, session, path):
         session (Session Object): Aquarium session object
         path (String): the path where the files will be written
     """
-#    operation_types = session.OperationType.all()
-#    libraries = session.Library.all()
-#    object_types = session.ObjectType.all()
+    operation_types = session.OperationType.all()
+    libraries = session.Library.all()
+    object_types = session.ObjectType.all()
     sample_types = session.SampleType.all()
-#    for op_type in operation_types:
-#        operation_type.write_files(
-#            session=session,
-#            path=path,
-#            operation_type=op_type)
-#
+
+    for op_type in operation_types:
+        operation_type.write_files(
+            session=session,
+            path=path,
+            operation_type=op_type)
+
     # TODO: might need to add session back in if we add library tests
-#    for lib in libraries:
-#        library.write_files(path=path, library=lib)
+    for lib in libraries:
+        library.write_files(path=path, library=lib)
 
-#    for obj_type in object_types[0:40]:
-#        object_type.write_files(path=path, object_type=obj_type)
+    for obj_type in object_types:
+        object_type.write_files(path=path, object_type=obj_type)
 
-    for sam_type in sample_types[0:40]:
-        print(f"calling write files for {sam_type}")
-        sam_type.write_files(path=path, sample_type=sam_type)
+    for sam_type in sample_types:
+        sample_type.write_files(path=path, sample_type=sam_type)
 
 
 def push(*, session, path):
