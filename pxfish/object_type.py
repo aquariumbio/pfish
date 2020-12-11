@@ -58,4 +58,3 @@ def write_files(*, path, object_type):
 
     with open(file_path, 'w') as file:
         file.write(json.dumps(object_type_ser, indent=2))
-

@@ -17,48 +17,6 @@ def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
 
-def write_sample_types_json(path, operation_type):
-    """
-    Returns sublist of sample types associated with the given operation type
-
-    Arguments:
-      operation_type (OperationType): the operation type
-    """
-
-    types = operation_type.sample_type()
-    for sample_type in types:
-        if sample_type:
-            sample_type_ser = {
-                "id": sample_type.id,
-                "name": sample_type.name,
-                "description": sample_type.description
-            }
-            file_path = (os.path.join(path, "{}_definition.json".format(sample_type_ser['name'])))
-            with open(file_path, 'w') as file:
-                file.write(json.dumps(sample_type_ser, indent=2))
-
-
-def write_object_types_json(path, operation_type):
-    """
-    Returns sublist of object types associated with the given operation type
-
-    Arguments:
-      operation_type (OperationType): the operation type
-    """
-
-    types = operation_type.object_type()
-    for object_type in types:
-        if object_type:
-            object_type_ser = {
-                "id": object_type.id,
-                "name": object_type.name,
-                "description": object_type.description
-            }
-            file_path = (os.path.join(path, "{}_definition.json".format(object_type_ser['name'])))
-            with open(file_path, 'w') as file:
-                file.write(json.dumps(object_type_ser, indent=2))
-
-
 def field_type_list(field_types, role):
     """
     Returns sublist of field types with the given role.

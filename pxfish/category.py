@@ -5,6 +5,8 @@ import logging
 import os
 import operation_type
 import library
+import object_type
+import sample_type
 from paths import create_named_path
 
 
@@ -33,8 +35,18 @@ def pull(*, session, path, name):
         logging.error('Category %s was not found.', name)
 
     for op_type in operation_types:
+        object_types = op_type.object_type()
+        sample_types = op_type.sample_type()
+ 
+        for obj_type in object_types:
+            object_type.write_files(path=path, object_type=obj_type)
+
+        for samp_type in sample_types:
+            sample_type.write_files(path=path, sample_type=samp_type)
+
         operation_type.write_files(session=session, path=path,
                                    operation_type=op_type)
+
     for lib in libraries:
         library.write_files(path=path, library=lib)
 
