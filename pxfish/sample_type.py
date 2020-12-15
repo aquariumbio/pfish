@@ -7,10 +7,6 @@ import logging
 import os
 import definition
 
-from definition import (
-    write_sample_types_json,
-    write_object_types_json,
-)
 from paths import (
     create_named_path,
     makedirectory,
@@ -32,7 +28,6 @@ def write_files(*, path, sample_type):
     makedirectory(path)
 
     sample_type_ser = {
-        "id": sample_type.id,
         "name": sample_type.name,
         "description": sample_type.description
     }

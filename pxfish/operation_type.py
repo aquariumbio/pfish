@@ -12,8 +12,6 @@ from code import (
     create_code_objects
 )
 from definition import (
-    write_sample_types_json,
-    write_object_types_json,
     write_definition_json
 )
 from paths import (
