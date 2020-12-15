@@ -32,7 +32,6 @@ def write_files(*, path, sample_type):
     makedirectory(path)
 
     sample_type_ser = {
-        "id": sample_type.id,
         "name": sample_type.name,
         "description": sample_type.description
     }
