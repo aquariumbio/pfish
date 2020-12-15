@@ -7,10 +7,6 @@ import logging
 import os
 import definition
 
-from definition import (
-    write_sample_types_json,
-    write_object_types_json,
-)
 from paths import (
     create_named_path,
     makedirectory,
