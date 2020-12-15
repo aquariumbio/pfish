@@ -138,8 +138,8 @@ def add_code_arguments(parser, *, action):
 
 
 def config_path():
-    #return os.path.normpath('/script/config')
-    return os.path.normpath('test_config')
+    return os.path.normpath('/script/config')
+    #return os.path.normpath('test_config')
 
 
 def do_config_add(args):
