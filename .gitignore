@@ -2,8 +2,11 @@
 resources.py 
 
 # test directories and files 
-Test*
+DirName*
 repos* 
+TEST*
+test_config*
+test_script*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -33,6 +36,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+Pipfile*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
