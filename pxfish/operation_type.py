@@ -12,7 +12,8 @@ from code import (
     create_code_objects
 )
 from definition import (
-    write_definition_json
+    write_definition_json,
+    has_definition
 )
 from paths import (
     create_named_path,
@@ -126,7 +127,7 @@ def operation_type_code_names():
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
-def create(*, session, path, category, name):
+def create(*, session, path, category, name, default_text=True):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -137,8 +138,12 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the operation type
     """
+    # set this method so it will only create the objects you need? Or else do that in the create_code_objects part
+    # and call create_code_objects with defaults=True where alternative is passing your own text from files
+    # when this is called, you can say whether to pull from the file or to use defaults for each object
     code_objects = create_code_objects(session=session,
-                                       component_names=operation_type_code_names())
+                                       component_names=operation_type_code_names(),
+                                       default_text=default_text)
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -151,6 +156,14 @@ def create(*, session, path, category, name):
     session.utils.create_operation_type(new_operation_type)
 
 
+def create_definition_file(path):
+    # create defintion file, using last two parts of path with de-simplified names
+    # call push again
+    # if name, call create with this as default text
+    # if not name, call create with default text, create file in folder and push 
+    # name = operation_type_code_names()
+    pass
+
 def push(*, session, path):
     """
     Pushes files to the Aquarium instance
@@ -159,8 +172,11 @@ def push(*, session, path):
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
     """
-    definitions = definition.read(path)
+    # if not definition.has_definition(path):
+     #   create_definition_file(path)
 
+    definitions = definition.read(path)
+ 
     user_id = session.User.where({"login": session.login})
     query = {
         "category": definitions['category'],
@@ -174,15 +190,19 @@ def push(*, session, path):
 # TODO: Change so it only pushes test file when testing
 
     if not parent_object:
-        logging.warning(
-            "No {} {}/{} on {}".format(
-                parent_type_name,
-                definitions['category'],
-                definitions['name'],
-                # TODO: make the following specific to user instance
-                "Aquarium instance"
-            )
-        )
+        create(session=session, path=path, category=definitions['category'],
+               name=definitions['name'], default_text=False)
+        parent_object = session.OperationType.where(query)
+        # can't find object, got through folder check for each file and create ones that don't exist
+        #logging.warning(
+        #    "No {} {}/{} on {}".format(
+        #        parent_type_name,
+        #        definitions['category'],
+        #        definitions['name'],
+        #        # TODO: make the following specific to user instance
+        #        "Aquarium instance"
+        #    )
+        #)
         return
 
     for name in component_names:
