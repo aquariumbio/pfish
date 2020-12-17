@@ -143,15 +143,19 @@ def push(*, session, path):
     component_names = ['source']
 
     if not parent_object:
-        logging.warning(
-            "No {} {}/{} on {}".format(
-                parent_type_name,
-                definitions['category'],
-                definitions['name'],
-                # TODO: make the following specific to user instance
-                "Aquarium instance"
-            )
-        )
+        create(session=session, path=path, category=definitions['category'],
+               name=definitions['name'])
+        parent_object = session.Library.where(query)
+        # can't find object, got through folder check for each file and create ones that don't exist
+#        logging.warning(
+#            "No {} {}/{} on {}".format(
+#                parent_type_name,
+#                definitions['category'],
+#                definitions['name'],
+#                # TODO: make the following specific to user instance
+#                "Aquarium instance"
+#            )
+#        )
         return
 
     for name in component_names:
