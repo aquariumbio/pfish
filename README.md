@@ -25,7 +25,7 @@ Pfish doesn't currently track updates itself.
 
 Pfish has two parts: the wrapper script, and the pfish Docker image.
 
-1. Update the wrapper script by running the install script `make install` mentioned above.
+1. Update the wrapper script by running the install script mentioned above.
 2. Update the pfish image by running
 
    ```bash
