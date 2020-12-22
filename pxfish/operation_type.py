@@ -160,7 +160,7 @@ def create_definition_file(path):
     # create defintion file, using last two parts of path with de-simplified names
     # call push again
     # if name, call create with this as default text
-    # if not name, call create with default text, create file in folder and push 
+    # if not name, call create with default text, create file in folder and push
     # name = operation_type_code_names()
     pass
 
@@ -172,11 +172,12 @@ def push(*, session, path):
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
     """
-    # if not definition.has_definition(path):
-     #   create_definition_file(path)
+    if not definition.has_definition(path):
+        logging.warning("A Definition file is required to push to aquarium")
+        return
 
     definitions = definition.read(path)
- 
+
     user_id = session.User.where({"login": session.login})
     query = {
         "category": definitions['category'],
@@ -193,17 +194,6 @@ def push(*, session, path):
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
-        # can't find object, got through folder check for each file and create ones that don't exist
-        #logging.warning(
-        #    "No {} {}/{} on {}".format(
-        #        parent_type_name,
-        #        definitions['category'],
-        #        definitions['name'],
-        #        # TODO: make the following specific to user instance
-        #        "Aquarium instance"
-        #    )
-        #)
-        return
 
     for name in component_names:
         read_file = code.read(path=path, name=name)

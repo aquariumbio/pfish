@@ -1,6 +1,7 @@
 """Functions to create definition files with library or operation type data"""
 
 import json
+import logging
 import os
 from typing import Dict
 
@@ -88,6 +89,10 @@ def read(path):
         path (String): path to definition file
     """
     file_path = os.path.join(path, 'definition.json')
-    with open(file_path) as file:
-        definition = json.load(file)
-    return definition
+    try:
+        with open(file_path) as file:
+            definition = json.load(file)
+        return definition
+    except FileNotFoundError as error:
+        logging.warning(
+            'Error %s reading expected code file %s', error, 'definition.json')
