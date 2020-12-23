@@ -1,13 +1,6 @@
 # resources file
 resources.py 
 
-# test directories and files 
-DirName*
-repos* 
-TEST*
-test_config*
-test_script*
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
