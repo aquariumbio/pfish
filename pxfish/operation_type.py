@@ -12,7 +12,8 @@ from code import (
     create_code_objects
 )
 from definition import (
-    write_definition_json
+    write_definition_json,
+    has_definition
 )
 from paths import (
     create_named_path,
@@ -97,7 +98,7 @@ def write_files(*, session, path, operation_type):
                 session=session,
                 name=name,
                 operation_type=operation_type
-                )
+            )
             code_object = operation_type.code(name)
 
         file_name = "{}.rb".format(name)
@@ -126,7 +127,7 @@ def operation_type_code_names():
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
-def create(*, session, path, category, name):
+def create(*, session, path, category, name, default_text=True):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -137,8 +138,12 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the operation type
     """
+    # set this method so it will only create the objects you need? Or else do that in the create_code_objects part
+    # and call create_code_objects with defaults=True where alternative is passing your own text from files
+    # when this is called, you can say whether to pull from the file or to use defaults for each object
     code_objects = create_code_objects(session=session,
-                                       component_names=operation_type_code_names())
+                                       component_names=operation_type_code_names(),
+                                       default_text=default_text)
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -159,6 +164,10 @@ def push(*, session, path):
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
     """
+    if not definition.has_definition(path):
+        logging.warning("A Definition file is required to push to aquarium")
+        return
+
     definitions = definition.read(path)
 
     user_id = session.User.where({"login": session.login})
@@ -174,16 +183,9 @@ def push(*, session, path):
 # TODO: Change so it only pushes test file when testing
 
     if not parent_object:
-        logging.warning(
-            "No {} {}/{} on {}".format(
-                parent_type_name,
-                definitions['category'],
-                definitions['name'],
-                # TODO: make the following specific to user instance
-                "Aquarium instance"
-            )
-        )
-        return
+        create(session=session, path=path, category=definitions['category'],
+               name=definitions['name'], default_text=False)
+        parent_object = session.OperationType.where(query)
 
     for name in component_names:
         read_file = code.read(path=path, name=name)
@@ -220,6 +222,7 @@ def run_test(*, session, path, category, name):
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)
 
-    response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
+    response = session._aqhttp.get(
+        "test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response)
     # return

@@ -19,7 +19,7 @@ def write(*, path, file_name, code_object):
         file.write(code_object.content)
 
 
-def create_code_objects(*, session, component_names):
+def create_code_objects(*, session, component_names, default_text=True):
     """
     Creates code objects for each named component.
 

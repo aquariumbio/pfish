@@ -134,7 +134,31 @@ The available pull commands are:
 
 ### Push
 
-_Note_: If a protocol/library does not already exist in Aquarium, you must create it using the `create` command before pushing to Aquarium.
+_Note_: If a protocol/library does not already exist in Aquarium, pushing will create the protocol if your files are in the correct format: 
+```bash
+.
+`-- mycategory
+    `-- operation_types
+        `-- myprotocol
+            |-- cost_model.rb
+            |-- definition.json
+            |-- documentation.rb
+            |-- precondition.rb
+            `-- protocol.rb
+```
+
+or, for a library
+
+```bash
+.
+`-- mycategory
+    `-- libraries
+        `-- mylibrary
+            |-- definition.json
+            `-- source.rb
+```
+
+If you do not have files in the correct configuration, you can create the operation type using the `create` command before pushing to Aquarium.
 
 The available push commands are:
 
@@ -283,7 +307,7 @@ pfish push -c Cloning
 
 ## Developer
 
-This repository is setup with a VS Code devcontainer.
+This repository is set up with a VS Code devcontainer.
 To use it make sure that you have the VS Code Remote extension installed and use it to open the repository in the container.
 
 > If you change the `requirements.txt` file, you will need to rebuild the devcontainer.
