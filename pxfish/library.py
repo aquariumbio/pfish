@@ -146,16 +146,7 @@ def push(*, session, path):
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'])
         parent_object = session.Library.where(query)
-        # can't find object, got through folder check for each file and create ones that don't exist
-#        logging.warning(
-#            "No {} {}/{} on {}".format(
-#                parent_type_name,
-#                definitions['category'],
-#                definitions['name'],
-#                # TODO: make the following specific to user instance
-#                "Aquarium instance"
-#            )
-#        )
+        # TODO: handle case where create failed
         return
 
     for name in component_names:

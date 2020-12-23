@@ -98,7 +98,7 @@ def write_files(*, session, path, operation_type):
                 session=session,
                 name=name,
                 operation_type=operation_type
-                )
+            )
             code_object = operation_type.code(name)
 
         file_name = "{}.rb".format(name)
@@ -155,14 +155,6 @@ def create(*, session, path, category, name, default_text=True):
     new_operation_type.field_types = []
     session.utils.create_operation_type(new_operation_type)
 
-
-def create_definition_file(path):
-    # create defintion file, using last two parts of path with de-simplified names
-    # call push again
-    # if name, call create with this as default text
-    # if not name, call create with default text, create file in folder and push
-    # name = operation_type_code_names()
-    pass
 
 def push(*, session, path):
     """
@@ -230,6 +222,7 @@ def run_test(*, session, path, category, name):
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)
 
-    response = session._aqhttp.get("test/run/{}".format(retrieved_operation_type.id))
+    response = session._aqhttp.get(
+        "test/run/{}".format(retrieved_operation_type.id))
     parse_test_response(response)
     # return
