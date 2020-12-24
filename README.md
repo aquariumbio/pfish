@@ -305,7 +305,9 @@ If you change files in different operation types, you can push the whole categor
 pfish push -c Cloning
 ```
 
-## Developer
+## Developing Pfish
+
+## VS Code Dev Container
 
 This repository is set up with a VS Code devcontainer.
 To use it make sure that you have the VS Code Remote extension installed and use it to open the repository in the container.
@@ -313,10 +315,22 @@ To use it make sure that you have the VS Code Remote extension installed and use
 > If you change the `requirements.txt` file, you will need to rebuild the devcontainer.
 
 This container uses the Dockerfile in the `.devcontainer` directory, which is configured with development tools – unlike the pfish Dockerfile.
-To allow the pyfish.py script to be run, the devcontainer minimally mounts the config directory and installs the packages using the `requirements.txt` file.
+To allow the pyfish.py script to be run, the devcontainer minimally mounts the `config` directory and installs the packages using the `requirements.txt` file.
+
+## Writing/Running tests
+
+The repo is setup to run tests from within the Dev Container.
+Start the container in VS Code, and run `pytest` from the command line.
+The test files are in `test/pxfish`.
+
+When writing tests for functions that write to disk, make sure that you are using the `tmpdir` fixture to manage the working directory.
+
+## GitHub CI
 
 The GitHub repository is configured to run a CI workflow that publishes a Docker image to aquariumbio/pfish. 
 See the files in the `.github` directory for details.
+
+## Local build
 
 A Makefile is provided to replicate the installation process locally, but is not needed for development.
 Use `make build` to create the pfish Docker image locally, and you can then run a shell within the container by typing
@@ -324,3 +338,13 @@ Use `make build` to create the pfish Docker image locally, and you can then run 
 ```bash
 docker run -it --entrypoint /bin/bash aquariumbio/pfish
 ```
+
+## Manual push
+
+If there are cases where you want to ensure that the new image is pushed to Docker Hub, do the following:
+
+1. Make sure the version number is what you want it to be
+2. Run `make build`
+3. Run `docker push aquariumbio/pfish:$VERSION`
+
+
