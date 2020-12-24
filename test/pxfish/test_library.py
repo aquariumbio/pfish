@@ -15,15 +15,18 @@ from pxfish.library import (
 class TestLibrary:
 
     def test_pull(self, tmpdir):
+        pytest.skip('mock is incomplete')
+
         class MockLibraryInterface:
             @staticmethod
             def where(arg_dict):
                 library = pydent.models.Library()
-                library.name=arg_dict['name']
-                library.category=arg_dict['category']
+                library.name = arg_dict['name']
+                library.category = arg_dict['category']
                 library.session = pydent.sessionabc.SessionABC()
                 # TODO: this is wrong
-                library.code = pydent.models.Code(name='source', content='blah blah')
+                library.code = pydent.models.Code(
+                    name='source', content='blah blah')
                 return [library]
 
         class MockSession():
@@ -36,5 +39,5 @@ class TestLibrary:
         dummy_name = 'Dummy Name'
         pull(session=session, path=path, category=dummy_category, name=dummy_name)
 
-        # TODO: check for files in path 
+        # TODO: check for files in path
         # TODO: or refactor to allow reading files
