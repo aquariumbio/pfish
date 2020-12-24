@@ -68,7 +68,7 @@ def create_code_object(*, session, name, operation_type):
     data['name'] = name
 
     logging.info('sending request for %s', operation_type.name)
-    response = session._aqhttp.post("operation_types/code", json_data=data)
+    session._aqhttp.post("operation_types/code", json_data=data)
 
 
 def read(*, path, name):
