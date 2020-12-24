@@ -31,7 +31,8 @@
   "extensions": ["ms-python.python"],
 
   "mounts": [
-    "source=${localWorkspaceFolder}/config,target=/script/config,type=bind"
+    "source=${localWorkspaceFolder}/config,target=/script/config,type=bind",
+    "source=${localWorkspaceFolder}/pxfish/protocol_templates,target=/script/protocol_templates,type=bind"
   ],
 
   "runArgs": ["--net=host"],
