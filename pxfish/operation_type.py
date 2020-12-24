@@ -146,9 +146,6 @@ def create(*, session, path, category, name, default_text=True):
         category (String): the category for the operation type
         name (String): name of the operation type
     """
-    # set this method so it will only create the objects you need? Or else do that in the create_code_objects part
-    # and call create_code_objects with defaults=True where alternative is passing your own text from files
-    # when this is called, you can say whether to pull from the file or to use defaults for each object
     code_objects = create_code_objects(session=session,
                                        component_names=all_component_names(),
                                        default_text=default_text)
