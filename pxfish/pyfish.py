@@ -123,7 +123,7 @@ def add_code_arguments(parser, *, action):
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
-       # TODO: Do we want to require a category for testing?
+        # TODO: Do we want to require a category for testing?
         required=(action == 'create' or action == 'test')
     )
     group = parser.add_mutually_exclusive_group()
@@ -139,7 +139,7 @@ def add_code_arguments(parser, *, action):
 
 def config_path():
     return os.path.normpath('/script/config')
-    #return os.path.normpath('test_config')
+    # return os.path.normpath('test_config')
 
 
 def do_config_add(args):
@@ -188,7 +188,8 @@ def do_create(args):
                 name=args.library)
             return
 
-        logging.error("To create an operation type or library, you must enter a name.")
+        logging.error(
+            "To create an operation type or library, you must enter a name.")
 
 
 def do_pull(args):
@@ -216,7 +217,8 @@ def do_pull(args):
         return
 
     if args.library or args.operation_type:
-        logging.error("To pull an operation type or library, you must enter a category")
+        logging.error(
+            "To pull an operation type or library, you must enter a category")
         return
 
     instance.pull(session=session, path=path)
@@ -226,7 +228,6 @@ def do_pull(args):
 def do_push(args):
     session = create_session(path=config_path())
     path = os.path.normpath(args.directory)
-
 
     # TODO: Shouldn't need category, because you can get it from the definition file
     if args.category:
@@ -251,7 +252,8 @@ def do_push(args):
         category.push(session=session, path=category_path)
 
     if args.library or args.operation_type:
-        logging.error("To test a single operation type or library, you must enter a category")
+        logging.error(
+            "To test a single operation type or library, you must enter a category")
         return
 
     instance.push(session=session, path=path)
@@ -291,7 +293,8 @@ def do_test(args):
         return
 
     if args.library or args.operation_type:
-        logging.error("To test a single operation type or library, you must enter a category")
+        logging.error(
+            "To test a single operation type or library, you must enter a category")
         return
 
     instance.run_tests(session=session, path=path)
