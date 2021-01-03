@@ -1,16 +1,22 @@
 """
 code for running operation type tests
 """
+import json
 import logging
+import os
 
-
-def parse_test_response(response):
+def parse_test_response(*, response, file_path):
     """
     Reports test results
+    Writes errors to screen and creates json file with backtrace
 
     Arguments:
         response (dict): response received after running test
     """
+    file_path = os.path.join(file_path, 'test_results.json')
+
+    with open(file_path, 'w') as file:
+        file.write(json.dumps(response, indent=2))
 
     if response["result"] == "error":
         if response["error_type"] == "error":
@@ -39,9 +45,4 @@ def parse_test_response(response):
     else:
         logging.info(
             "All tests passed")
-
-    return
-
-    # for entry in response.exception_backtrace:
-    #     pass
 

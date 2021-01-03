@@ -216,8 +216,7 @@ def run_test(*, session, path, category, name):
         category (String): Category operation type is found in
         name (String): name of the Operation Type to be tested
     """
-    logging.info('Sending request for %s', name)
-
+    logging.info('Sending request to test %s', name)
     push(session=session, path=path, test=True)
 
     retrieved_operation_type = get_operation_type(
@@ -225,7 +224,5 @@ def run_test(*, session, path, category, name):
 
     response = session._aqhttp.get(
         "test/run/{}".format(retrieved_operation_type.id))
-    #print(f"response is {response}")
 
-    parse_test_response(response)
-    # return
+    parse_test_response(response=response, file_path=path)
