@@ -13,7 +13,6 @@ from code import (
 )
 from definition import (
     write_definition_json,
-    has_definition
 )
 from paths import (
     create_named_path,
@@ -61,7 +60,7 @@ def get_operation_type(*, session, category, name):
 
 
 def pull(*, session, path, category, name):
-    """Retrieves operation type, and calls function to write the associated files"""
+    """Retrieves operation type. Calls function to write the associated files"""
     retrieved_operation_type = get_operation_type(
         session=session,
         category=category, name=name)
@@ -93,7 +92,8 @@ def write_files(*, session, path, operation_type):
         code_object = operation_type.code(name)
         if not code_object:
             logging.warning(
-                'Missing %s code for operation type %s -- creating file', operation_type.name, name)
+                'Missing %s code for operation type %s -- creating file',
+                    operation_type.name, name)
             create_code_object(
                 session=session,
                 name=name,
@@ -124,7 +124,7 @@ def write_files(*, session, path, operation_type):
 
 def operation_type_code_names():
     """Returns names of code objects associated with operation types."""
-    return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
+    return ['protocol', 'test', 'precondition', 'cost_model', 'documentation']
 
 
 def create(*, session, path, category, name, default_text=True):
@@ -156,7 +156,7 @@ def create(*, session, path, category, name, default_text=True):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(*, session, path):
+def push(*, session, path, test=False):
     """
     Pushes files to the Aquarium instance
 
@@ -180,7 +180,8 @@ def push(*, session, path):
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
 
-# TODO: Change so it only pushes test file when testing
+    if test:
+        component_names = component_names[0:1]
 
     if not parent_object:
         create(session=session, path=path, category=definitions['category'],
@@ -217,12 +218,14 @@ def run_test(*, session, path, category, name):
     """
     logging.info('Sending request for %s', name)
 
-    push(session=session, path=path)
+    push(session=session, path=path, test=True)
 
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)
 
     response = session._aqhttp.get(
         "test/run/{}".format(retrieved_operation_type.id))
+    #print(f"response is {response}")
+
     parse_test_response(response)
     # return
