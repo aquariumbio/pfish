@@ -19,7 +19,8 @@ from paths import (
     makedirectory
 )
 from protocol_test import (
-    parse_test_response
+    parse_test_response,
+    log_backtrace
 )
 
 
@@ -225,4 +226,7 @@ def run_test(*, session, path, category, name):
     response = session._aqhttp.get(
         "test/run/{}".format(retrieved_operation_type.id))
 
-    parse_test_response(response=response, file_path=path)
+    log_backtrace(response=response, file_path=path)
+    parse_test_response(response)
+    
+

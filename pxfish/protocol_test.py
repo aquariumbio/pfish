@@ -5,19 +5,23 @@ import json
 import logging
 import os
 
-def parse_test_response(*, response, file_path):
-    """
-    Reports test results
-    Writes errors to screen and creates json file with backtrace
 
-    Arguments:
-        response (dict): response received after running test
-    """
+def log_backtrace(*, response, file_path):
+    """"""
     file_path = os.path.join(file_path, 'test_results.json')
 
     with open(file_path, 'w') as file:
         file.write(json.dumps(response, indent=2))
 
+
+def parse_test_response(response):
+    """
+    Reports test results
+    Writes errors to screen
+
+    Arguments:
+        response (dict): response received after running test
+    """
     if response["result"] == "error":
         if response["error_type"] == "error":
             logging.error(response["message"])
