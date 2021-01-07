@@ -5,6 +5,14 @@ import json
 import logging
 import os
 
+
+def write_test_response(*, response, path):
+    file_path = os.path.join(path, 'test_results.json')
+
+    with open(file_path, 'w') as file:
+        file.write(json.dumps(response, indent=2))
+
+
 def parse_test_response(*, response, file_path):
     """
     Reports test results
@@ -13,10 +21,6 @@ def parse_test_response(*, response, file_path):
     Arguments:
         response (dict): response received after running test
     """
-    file_path = os.path.join(file_path, 'test_results.json')
-
-    with open(file_path, 'w') as file:
-        file.write(json.dumps(response, indent=2))
 
     if response["result"] == "error":
         if response["error_type"] == "error":
@@ -45,4 +49,3 @@ def parse_test_response(*, response, file_path):
     else:
         logging.info(
             "All tests passed")
-

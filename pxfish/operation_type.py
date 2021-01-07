@@ -19,7 +19,8 @@ from paths import (
     makedirectory
 )
 from protocol_test import (
-    parse_test_response
+    parse_test_response,
+    write_test_response
 )
 
 
@@ -86,14 +87,14 @@ def write_files(*, session, path, operation_type):
         category_path, operation_type.name, subdirectory='operation_types')
 
     makedirectory(path)
-    code_names = operation_type_code_names()
+    code_names = all_component_names()
 
     for name in code_names:
         code_object = operation_type.code(name)
         if not code_object:
             logging.warning(
                 'Missing %s code for operation type %s -- creating file',
-                    operation_type.name, name)
+                operation_type.name, name)
             create_code_object(
                 session=session,
                 name=name,
@@ -122,9 +123,16 @@ def write_files(*, session, path, operation_type):
     )
 
 
-def operation_type_code_names():
+def all_component_names():
     """Returns names of code objects associated with operation types."""
     return ['protocol', 'test', 'precondition', 'cost_model', 'documentation']
+
+
+def test_component_names():
+    """
+    Returns names of operation type components needed when running a test.
+    """
+    return ['protocol', 'test']
 
 
 def create(*, session, path, category, name, default_text=True):
@@ -142,7 +150,7 @@ def create(*, session, path, category, name, default_text=True):
     # and call create_code_objects with defaults=True where alternative is passing your own text from files
     # when this is called, you can say whether to pull from the file or to use defaults for each object
     code_objects = create_code_objects(session=session,
-                                       component_names=operation_type_code_names(),
+                                       component_names=all_component_names(),
                                        default_text=default_text)
     new_operation_type = session.OperationType.new(
         name=name,
@@ -156,7 +164,7 @@ def create(*, session, path, category, name, default_text=True):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(*, session, path, test=False):
+def push(*, session, path, component_names=all_component_names()):
     """
     Pushes files to the Aquarium instance
 
@@ -177,11 +185,7 @@ def push(*, session, path, test=False):
     }
 
     parent_object = session.OperationType.where(query)
-    parent_type_name = 'operation type'
-    component_names = operation_type_code_names()
-
-    if test:
-        component_names = component_names[0:1]
+    # parent_type_name = 'operation type'
 
     if not parent_object:
         create(session=session, path=path, category=definitions['category'],
@@ -217,7 +221,7 @@ def run_test(*, session, path, category, name):
         name (String): name of the Operation Type to be tested
     """
     logging.info('Sending request to test %s', name)
-    push(session=session, path=path, test=True)
+    push(session=session, path=path, component_names=test_component_names())
 
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)
@@ -225,4 +229,5 @@ def run_test(*, session, path, category, name):
     response = session._aqhttp.get(
         "test/run/{}".format(retrieved_operation_type.id))
 
+    write_test_response(response=response, path=path)
     parse_test_response(response=response, file_path=path)
