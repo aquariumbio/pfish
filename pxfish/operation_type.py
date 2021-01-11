@@ -6,6 +6,8 @@ import logging
 import os
 import code
 import definition
+import object_type
+import sample_type
 
 from code import (
     create_code_object,
@@ -65,11 +67,21 @@ def pull(*, session, path, category, name):
     retrieved_operation_type = get_operation_type(
         session=session,
         category=category, name=name)
+
+    object_types = retrieved_operation_type.object_type()
+    sample_types = retrieved_operation_type.sample_type()
+
+    for obj_type in object_types:
+        object_type.write_files(path=path, object_type=obj_type)
+
+    for samp_type in sample_types:
+        sample_type.write_files(path=path, sample_type=samp_type)
+# I think we need to pass the object and sample types here, so they can be recorded with the field types in the definition file
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
 
-def write_files(*, session, path, operation_type):
+def write_files(*, session, path, operation_type, sample_types=[], object_types=[]):
     """
     Writes the files associated with the operation_type to the path.
 
