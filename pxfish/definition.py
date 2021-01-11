@@ -36,10 +36,25 @@ def field_type_list(field_types, role):
                 "name": field_type.name,
                 "part": field_type.part,
                 "array": field_type.array,
-                "routing": field_type.routing
+                "routing": field_type.routing,
+                "object_and_sample_types": allowable_field_type_list(field_type.allowable_field_types)
             }
             ft_list.append(ft_ser)
     return ft_list
+
+
+def allowable_field_type_list(allowable_field_types):
+
+    object_and_sample_types = []
+
+    for aft in allowable_field_types:
+        ser = {
+                "sample_type": aft.sample_type.name,
+                "object_type": aft.object_type.name
+                }
+        object_and_sample_types.append(ser)
+
+    return object_and_sample_types
 
 
 def write_definition_json(file_path, operation_type):
