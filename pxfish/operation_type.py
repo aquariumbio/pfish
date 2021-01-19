@@ -139,7 +139,7 @@ def operation_type_code_names():
     return ['protocol', 'precondition', 'cost_model', 'documentation', 'test']
 
 
-def create(*, session, path, category, name, default_text=True):
+def create(*, session, path, category, name, default_text=True, field_types=[]):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -149,6 +149,8 @@ def create(*, session, path, category, name, default_text=True):
         path (String): the directory path where the new files will be written
         category (String): the category for the operation type
         name (String): name of the operation type
+        field_types (List): field types associated with new operation type.
+                            Defaults to empty list
     """
     # set this method so it will only create the objects you need? Or else do that in the create_code_objects part
     # and call create_code_objects with defaults=True where alternative is passing your own text from files
@@ -164,7 +166,8 @@ def create(*, session, path, category, name, default_text=True):
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'],
         test=code_objects['test'])
-    new_operation_type.field_types = []
+ 
+    new_operation_type.field_types = field_types
     session.utils.create_operation_type(new_operation_type)
 
 
@@ -188,17 +191,52 @@ def push(*, session, path):
         "name": definitions['name']
     }
 
+        
     parent_object = session.OperationType.where(query)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
+    # Simplest Example -- I am collaborating with someone and they have added inputs/outputs to an ot that already exists.
+    # So everything is the same, but the definition file contains field types now
 
+    if definitions['inputs']:
+        ft_query = {
+            "name": definitions['inputs'][0]['name']
+        }
+        field_types =  session.FieldType.where(ft_query)
+#        print(f"FIELD TYPES: {definitions['inputs']}\n")
+        print(f"FIELD TYPES: {field_types}\n")
+        
+    
+    if definitions['outputs']:
+        ft_query = {
+            "name": definitions['inputs'][0]['name']
+        }
+        field_types =  session.FieldType.where(ft_query)
+#        print(f"FIELD TYPES: {definitions['inputs']}\n")
+        print(f"FIELD TYPES: {field_types}\n")
 # TODO: Change so it only pushes test file when testing
 
     if not parent_object:
+        # if there are field types in the definition file
+#        if definitions['inputs']:
+#            input_field_type = aq.FieldType.new(name=definitions['inputs']['name']
+            # definitions['inputs']['name']
+            # role = input 
+            # parent object doesnt exist yet though?
+            # create field type
+            #for ot_st_dict in definitions['inputs']['object_and_sample_types']:
+            #    st_query = { 'name': ot_st_dict['sample_type'] }
+            #    ot_query = { 'name': ot_st_dict['object_type'] }
+            # for each pair of st/ot 
+            # get sample_type name 
+            # query = {'name' = sample_type['name']}
+            # get object type name
+            # query = {'name' = object_type['name']}
+            # create field type? 
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
-
+# call function to search for Field types?
     for name in component_names:
         read_file = code.read(path=path, name=name)
         if read_file is None:
