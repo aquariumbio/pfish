@@ -185,35 +185,39 @@ def push(*, session, path):
 
     definitions = definition.read(path)
 
-    user_id = session.User.where({"login": session.login})
+    user_id = session.User.where({'login': session.login})
     query = {
-        "category": definitions['category'],
-        "name": definitions['name']
+        'category': definitions['category'],
+        'name': definitions['name']
     }
 
-        
     parent_object = session.OperationType.where(query)
+    print(parent_object)
+    print(parent_object[0].id)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
-    # Simplest Example -- I am collaborating with someone and they have added inputs/outputs to an ot that already exists.
-    # So everything is the same, but the definition file contains field types now
 
     if definitions['inputs']:
-        ft_query = {
-            "name": definitions['inputs'][0]['name']
-        }
-        field_types =  session.FieldType.where(ft_query)
-#        print(f"FIELD TYPES: {definitions['inputs']}\n")
-        print(f"FIELD TYPES: {field_types}\n")
-        
+        for field_type in definitions['inputs']:
+            print(field_type['name'])
+            print(parent_object[0].id)
+            input_query = {
+                "name": field_type['name'],
+                "parent_id": parent_object[0].id
+            }
+            print(input_query)
+            field_types =  session.FieldType.where(input_query)
+            print(f"FIELD TYPES: {field_types}\n")
     
     if definitions['outputs']:
-        ft_query = {
-            "name": definitions['inputs'][0]['name']
-        }
-        field_types =  session.FieldType.where(ft_query)
-#        print(f"FIELD TYPES: {definitions['inputs']}\n")
-        print(f"FIELD TYPES: {field_types}\n")
+        for field_type in definitions['outputs']:
+            print(field_type)
+            output_query = {
+                "name": field_type['name'],
+                "parent_id": parent_object[0].id
+            }
+            field_types =  session.FieldType.where(output_query)
+            print(f"FIELD TYPES: {field_types}\n")
 # TODO: Change so it only pushes test file when testing
 
     if not parent_object:
