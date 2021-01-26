@@ -199,26 +199,21 @@ def push(*, session, path):
 
     if definitions['inputs']:
         for field_type in definitions['inputs']:
-            print(field_type['name'])
-            print(parent_object[0].id)
             input_query = {
                 "name": field_type['name'],
                 "parent_id": parent_object[0].id
             }
-            print(input_query)
-            field_types =  session.FieldType.where(input_query)
-            print(f"FIELD TYPES: {field_types}\n")
-    
+            field_type =  session.FieldType.where(input_query)
+            if not field_type:
+                pass # call create field type method
+
     if definitions['outputs']:
         for field_type in definitions['outputs']:
-            print(field_type)
             output_query = {
                 "name": field_type['name'],
                 "parent_id": parent_object[0].id
             }
             field_types =  session.FieldType.where(output_query)
-            print(f"FIELD TYPES: {field_types}\n")
-# TODO: Change so it only pushes test file when testing
 
     if not parent_object:
         # if there are field types in the definition file
