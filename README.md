@@ -168,7 +168,7 @@ The available create commands are:
 ### Test
 
 pfish can run ruby tests on Operation Types. 
-Test results will be summarized on screen, with details saved to a file called (TODO) 
+Test results will be summarized on screen, with details saved to a file called test_results.json located within the folder for the Operation Type under test.
 
 The available test commands are: 
 
