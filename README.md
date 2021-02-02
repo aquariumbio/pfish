@@ -8,14 +8,14 @@ Scripts for pulling/pushing operation type and library code to/from Aquarium and
 
 Make sure you have Docker installed.
 
-Download the pfish script with the command
+Download the pfish installation script with the command
 
   ```bash
   wget -vO- https://raw.githubusercontent.com/aquariumbio/pfish/master/pfish-install.sh | sh
   ```
 
 This script will download the pfish wrapper script and install it in `~/bin`.
-So, once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
+Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
 
 If you don't have `wget` installed, you can clone this repository and run `make install`.
 
@@ -47,7 +47,7 @@ pfish configure add -l <user-login> -p <user-password>
 
 with the new login name and password. The name of this configuration will be automatically set to "local".
 
-To add another login configuration, use the command
+To add an additional login configuration, use the command
 
 ```bash
 pfish configure add -n <configuration-name> -l <user-login> -p <user-password> -u <instance-url>
@@ -59,10 +59,10 @@ A configuration name is simply a key to keep track of the login information for 
 *Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
 The most common use of `configure add` is to set up login configurations for different Aquarium instances.
-For instance, a user might have a `production` configuration in addition to the `local` configuration.
-In this case, the `local` configuration is still used by default, but the `production` configuration can be specified when transferring operation types.
+For example, a user might have a `production` configuration in addition to their `local` configuration.
+In this case, the `local` configuration is still used by default, but the `production` configuration can be specified when transferring operation types or libraries to Aquarium.
 
-To change the default configuration, use the command
+To change the which configuration will be used by defauls, use the command
 
 ```bash
 pfish configure set-default -n <config-name>
@@ -87,9 +87,9 @@ These defaults can be overridden with the following options
 
 ### Pull
 
-The available pull commands are:
-
 *Note*: If you do not specify a directory name, files will be pulled into your current working directory.
+
+The available pull commands are:
 
 1. Pull all libraries and operation types in an Aquarium instance. 
 
@@ -113,8 +113,8 @@ The available pull commands are:
 
    ```bash
    pfish pull -c <category_name> -l <library_name>
+   ```
 
-```
 ### Push
 
 The available push commands are:
@@ -143,8 +143,8 @@ The available push commands are:
    pfish push -c <category_name> -o <operation_type_name>
    ```
 
-_Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it if your fi
-les are in the correct format, examples of which are in the TK section:
+_Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it, provided your files are in the correct format. 
+if your files are in the correct format. See [Developing Operation Types and Libraries](#developing-operation-types-and-libraries) for details on correct formatting.
 
 If you want to create an entirely new operation type or library, we suggest you use the `create` command to set up the necessar
 y file structure.
@@ -167,6 +167,9 @@ The available create commands are:
 
 ### Test
 
+pfish can run ruby tests on Operation Types. 
+Test results will be summarized on screen, with details saved to a file called (TODO) 
+
 The available test commands are: 
 
 1. Test an Operation Type
@@ -180,7 +183,7 @@ The available test commands are:
    ```bash
    pfish test -c <category_name>
    ```
-
+TODO: Is this accurate?
 3. Test all Operation Types in a Directory
 
    ```bash
