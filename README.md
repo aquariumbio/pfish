@@ -55,7 +55,6 @@ pfish configure add -n <configuration-name> -l <user-login> -p <user-password> -
 
 where you specify the configuration-name, user-login, password and instance URL.
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
-(Each of these arguments have defaults that correspond to the local configuration.)
 
 *Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
