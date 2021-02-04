@@ -191,16 +191,21 @@ cd myaquarium
 
 You can then either create new operation types and libraries, or pull existing ones from your Aquarium instance.
 
-To create a new operation type, use the `create` command
+To create a new operation type or library, use the `create` command
 
 ```bash
 pfish create -c MyCategory -o MyOperationType
 ```
 
-which will create the operation type both in Aquarium and in the current directory.
+```bash
+pfish create -c MyCategory -l MyLibrary
+```
+
+which will create the operation type or library both in Aquarium and in the current directory.
+
 The local files will be in the directory `mycategory`:
 
-If `mycategory` exists in Aquarium, the new operation type will be saved within it. If it does not exist, it will be created.
+If `mycategory` exists in Aquarium, the new operation type or library will be saved within it. If it does not exist, it will be created.
 ```bash
 .
 `-- mycategory
@@ -232,11 +237,8 @@ git commit -m "Add new definition for MyOperationType"
 
 and then you can edit the files.
 
-> Notice that pfish uses filenames that are the Aquarium names changed to all lowercase, and spaces changed to underscores.
+> Notice that pfish uses filenames that are the Aquarium names changed to all lowercase with spaces changed to underscores.
 > The original names are captured in the `definition.json` file and used when operation types and libraries are pushed.
-
-TODO: I'm not sure what this statement means?
-> You do need to use the Aquarium names for libraries in your protocol or library code.
 
 To edit operation types or libraries that already exist in Aquarium, use the pull command and add the files to the repository.
 For example, consider a `Cloning` category with the following structure
