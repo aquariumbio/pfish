@@ -15,6 +15,7 @@ Download the pfish installation script with the command
   ```
 
 This script will download the pfish wrapper script and install it in `~/bin`.
+
 Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
 
 If you don't have `wget` installed, you can clone this repository and run `make install`.
@@ -59,6 +60,7 @@ A configuration name is simply a key to keep track of the login information for 
 
 *Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
+<<<<<<< HEAD
 You can use `configure add` to set up as many configurations as you want. For example, you can have a `production` configuration in addition to a `local` configuration.
 You can use the `local` configuration while developing protocols and switch to the `production` configuration  when transferring operation types or libraries to Aquarium.
 
@@ -112,7 +114,6 @@ The available pull commands are:
    ```bash
    pfish pull -c <category_name> -l <library_name>
    ```
-
 ### Push
 
 The available push commands are:
@@ -236,7 +237,6 @@ or, for a library
             `-- source.rb
 ```
 
- 
 Once the operation type or library is created, make an initial git commit of the new files with the commands
 
 ```bash
