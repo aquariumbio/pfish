@@ -60,7 +60,6 @@ A configuration name is simply a key to keep track of the login information for 
 
 *Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
-<<<<<<< HEAD
 You can use `configure add` to set up as many configurations as you want. For example, you can have a `production` configuration in addition to a `local` configuration.
 You can use the `local` configuration while developing protocols and switch to the `production` configuration  when transferring operation types or libraries to Aquarium.
 
@@ -143,10 +142,9 @@ The available push commands are:
    ```
 
 _Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it, provided your files are in the correct format. 
-if your files are in the correct format. See [Developing Operation Types and Libraries](#developing-operation-types-and-libraries) for details on correct formatting.
+See [Developing Operation Types and Libraries](#developing-operation-types-and-libraries) for details on correct formatting.
 
-If you want to create an entirely new operation type or library, we suggest you use the `create` command to set up the necessar
-y file structure.
+If you want to create an entirely new operation type or library, we suggest you use the `create` command to set up the necessary file structure.
 
 ### Create
 
@@ -177,19 +175,7 @@ The available test commands are:
    pfish test -c <category_name> -o <operation_type_name>
    ```
 
-2. Test all Operation Types in a Category 
-
-   ```bash
-   pfish test -c <category_name>
-   ```
-TODO: Is this accurate?
-3. Test all Operation Types in a Directory
-
-   ```bash
-   pfish test 
-   ```
-
-4. Test Libraries: Not yet implemented
+2. Test Libraries: Not yet implemented
 
 ## Developing Operation Types and Libraries
 
