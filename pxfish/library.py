@@ -139,7 +139,6 @@ def push(*, session, path):
     }
 
     parent_object = session.Library.where(query)
-    parent_type_name = 'library'
     component_names = ['source']
 
     if not parent_object:

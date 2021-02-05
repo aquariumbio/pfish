@@ -1,6 +1,6 @@
-# Parrotfish (aka Phoenixfish)
+# pFish (aka Parrotfish, aka Phoenixfish)
 
-Scripts for pulling/pushing protocols/libraries to/from Aquarium and for running tests.
+Scripts for pulling/pushing operation type and library code to/from Aquarium and for running tests.
 
 ## Getting started
 
@@ -8,14 +8,15 @@ Scripts for pulling/pushing protocols/libraries to/from Aquarium and for running
 
 Make sure you have Docker installed.
 
-Download the pfish script with the command
+Download the pfish installation script with the command
 
   ```bash
   wget -vO- https://raw.githubusercontent.com/aquariumbio/pfish/master/pfish-install.sh | sh
   ```
 
-This script will download the pfish script and install it in `~/bin`.
-So, once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
+This script will download the pfish wrapper script and install it in `~/bin`.
+
+Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
 
 If you don't have `wget` installed, you can clone this repository and run `make install`.
 
@@ -47,30 +48,28 @@ pfish configure add -l <user-login> -p <user-password>
 
 with the new login name and password. The name of this configuration will be automatically set to "local".
 
-To add another login configuration, use the command
+To add an additional login configuration, use the command
 
 ```bash
 pfish configure add -n <configuration-name> -l <user-login> -p <user-password> -u <instance-url>
 ```
 
-where you specify the configuration-name, user-login, password and instance URL.
+specifying the configuration-name, user-login, password, and instance URL.
+
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
-(Each of these arguments have defaults that correspond to the local configuration.)
 
 *Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
-The most common use of `configure add` is to set up login configurations for different Aquarium instances.
-For instance, a user might have a `production` configuration in addition to the `local` configuration.
-In this case, the `local` configuration is still used by default, but the `production` configuration can be specified when transferring protocols.
+You can use `configure add` to set up as many configurations as you want. For example, you can have a `production` configuration in addition to a `local` configuration.
+You can use the `local` configuration while developing protocols and switch to the `production` configuration  when transferring operation types or libraries to Aquarium.
 
-To change the default configuration, use the command
+To change the which configuration will be used by default, use the command
 
 ```bash
 pfish configure set-default -n <config-name>
 ```
 
 with the name of the login configuration that you want to be the default.
-You might want to do this if you do development on a staging instance rather than a local one.
 
 To list all your saved configurations, use the command:
 
@@ -80,35 +79,18 @@ pfish configure show
 
 ## Commands
 
-All commands other than `configure` by default use the current working directory using the Aquarium instance in the default login configuration.
-These defaults can be overridden with the following options
+All commands other than `configure`  use the current working directory by default.
+This can be overridden with the following options
 
 - `-d <directory-name>` - use the named subdirectory of the current working directory.
-- `-n <config-name>` - use the named login configuration instead of the default.
-
-### Create
-
-The available create commands are:
-
-1. Create an operation type
-
-   ```bash
-   pfish create -c <category-name> -o <operation-type-name>
-   ```
-
-2. Create a library. 
-
-   ```bash
-   pfish create -c <category-name> -l <library-name>
-   ```
 
 ### Pull
 
-The available pull commands are:
-
 *Note*: If you do not specify a directory name, files will be pulled into your current working directory.
 
-1. Pull all libraries and operation types in the default Aquarium instance. 
+The available pull commands are:
+
+1. Pull all libraries and operation types in an Aquarium instance. 
 
    ```bash
    pfish pull -d <directory_name>
@@ -131,22 +113,110 @@ The available pull commands are:
    ```bash
    pfish pull -c <category_name> -l <library_name>
    ```
-
 ### Push
 
-_Note_: If a protocol/library does not already exist in Aquarium, pushing will create the protocol if your files are in the correct format: 
+The available push commands are:
+
+1. Push all operation types and libraries in a directory:
+
+   ```bash
+   pfish push -d <directory_name>
+   ```
+
+2. Push all operation types and libraries in a category:
+
+   ```bash
+   pfish push -c <category_name>
+   ```
+
+3. Push a single library:
+
+   ```bash
+   pfish push -c <category_name> -l <library_name>
+   ```
+
+3. Push a single operation type
+
+   ```bash
+   pfish push -c <category_name> -o <operation_type_name>
+   ```
+
+_Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it, provided your files are in the correct format. 
+See [Developing Operation Types and Libraries](#developing-operation-types-and-libraries) for details on correct formatting.
+
+If you want to create an entirely new operation type or library, we suggest you use the `create` command to set up the necessary file structure.
+
+### Create
+
+The available create commands are:
+
+1. Create an operation type
+
+   ```bash
+   pfish create -c <category-name> -o <operation-type-name>
+   ```
+
+2. Create a library
+
+   ```bash
+   pfish create -c <category-name> -l <library-name>
+   ```
+
+### Test
+
+pfish can run ruby tests on Operation Types. 
+Test results will be summarized on screen, with details saved to a file called test_results.json located within the folder for the Operation Type under test.
+
+The available test commands are: 
+
+1. Test an Operation Type
+
+   ```bash
+   pfish test -c <category_name> -o <operation_type_name>
+   ```
+
+2. Test Libraries: Not yet implemented
+
+## Developing Operation Types and Libraries
+
+The strategy for working with operation types and libraries with pfish and git is to create a git repo and then use pfish from within the directory for the repository.
+
+The first step is to create a git repository.
+So, assuming you first initialize a `myaquarium` repo on GitHub, the commands would be
+
+```bash
+git clone <github-path-for-myaquarium>
+cd myaquarium
+```
+
+You can then either create new operation types and libraries, or pull existing ones from your Aquarium instance.
+
+To create a new operation type or library, use the `create` command
+
+```bash
+pfish create -c MyCategory -o MyOperationType
+```
+
+```bash
+pfish create -c MyCategory -l MyLibrary
+```
+
+which will create the operation type or library both in Aquarium and in the current directory.
+
+The local files will be in the directory `mycategory`:
+
+If `mycategory` exists in Aquarium, the new operation type or library will be saved within it. If it does not exist, it will be created.
 ```bash
 .
 `-- mycategory
     `-- operation_types
-        `-- myprotocol
+        `-- myoperationtype
             |-- cost_model.rb
             |-- definition.json
             |-- documentation.rb
             |-- precondition.rb
             `-- protocol.rb
 ```
-
 or, for a library
 
 ```bash
@@ -158,108 +228,19 @@ or, for a library
             `-- source.rb
 ```
 
-If you do not have files in the correct configuration, you can create the operation type using the `create` command before pushing to Aquarium.
-
-The available push commands are:
-
-1. Push all files in directory:
-
-   ```bash
-   pfish push -d <directory_name>
-   ```
-
-2. Push all files in a category:
-
-   ```bash
-   pfish push -c <category_name>
-   ```
-
-3. Push a library:
-
-   ```bash
-   pfish push -c <category_name> -l <library_name>
-   ```
-
-3. Push an operation type
-
-   ```bash
-   pfish push -c <category_name> -o <operation_type_name>
-   ```
-
-### Test
-
-The available test commands are: 
-
-1. Test an Operation Type
-
-   ```bash
-   pfish test -c <category_name> -o <operation_type_name>
-   ```
-
-2. Test all Operation Types in a Category 
-
-   ```bash
-   pfish test -c <category_name>
-   ```
-
-3. Test all Operation Types in a Directory
-
-   ```bash
-   pfish test 
-   ```
-
-4. Test Libraries: Not yet implemented
-
-## Developing protocols
-
-The strategy for working with protocols with pfish and git is to create the git repo and then use pfish from within the directory for the repository.
-
-The first step is to create a git repository.
-So, assuming you first initialize a `myprotocols` repo on GitHub, the commands would be
+Once the operation type or library is created, make an initial git commit of the new files with the commands
 
 ```bash
-git clone <github-path-for-myprotocols>
-cd myprotocols
-```
-
-You can then either create new protocols or pull existing ones from your Aquarium instance.
-
-To create a new protocol, use the `create` command
-
-```bash
-pfish create -c MyCategory -o MyProtocol
-```
-
-which will create the protocol both in Aquarium and in the current directory.
-The local files will be in the directory `mycategory`:
-
-If the category doesn't already exist in Aquarium, it will be added.
-```bash
-.
-`-- mycategory
-    `-- operation_types
-        `-- myprotocol
-            |-- cost_model.rb
-            |-- definition.json
-            |-- documentation.rb
-            |-- precondition.rb
-            `-- protocol.rb
-```
-
-One the protocol is created, make an initial git commit of the new files with the commands
-
-```bash
-git add mycategory/operation_types/myprotocol
-git commit -m "Add new definition for MyProtocol"
+git add mycategory/operation_types/myoperationtype or git add mycategory/libraries/mylibrary
+git commit -m "Add new definition for MyOperationType"
 ```
 
 and then you can edit the files.
 
-> Notice that pfish uses filenames that are the Aquarium names changed to all lowercase, and spaces changed to underscores.
-> The original names are captured in the `definition.json` file and used when protocols and libraries are pushed.
-> You do need to use the Aquarium names for libraries in your protocol or library code.
+> Notice that pfish uses filenames that are the Aquarium names changed to all lowercase with spaces changed to underscores.
+> The original names are captured in the `definition.json` file and used when operation types and libraries are pushed.
 
-To add protocol code already in Aquarium, use the pull command and add the files to the repository.
+To edit operation types or libraries that already exist in Aquarium, use the pull command and add the files to the repository.
 For example, consider a `Cloning` category with the following structure
 
 - Libraries:
@@ -290,8 +271,8 @@ cloning
 with each subdirectory containing the code for the components of each library or operation type.
 To add this code to the repository add the `cloning` directory and commit using git.
 
-When you change files and you can push the changes to Aquarium with the `push` command.
-For instance, if you changed the `Run Gel` protocol, you would run the command
+When you change files you can push the changes to Aquarium with the `push` command.
+For instance, if you changed the `Run Gel` operation type, you would run the command
 
 ```bash
 pfish push -c Cloning -o "Run Gel"
