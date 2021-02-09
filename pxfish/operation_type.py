@@ -191,7 +191,6 @@ def push(*, session, path):
     }
 
     parent_object = session.OperationType.where(query)
-    print(f"parent object is {parent_object} and id is {parent_object[0].id}")
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
 # Parent OT exists, but FTs are new
@@ -205,16 +204,17 @@ def push(*, session, path):
             
             if not field_type:
                 print("NO FIELD TYPE FOUND")
-                print(f"parent object is {parent_object[0]}")
                 print(f"parent object is {parent_object[0].name} and field types are {parent_object[0].field_types}")
                 ft = session.FieldType.new()
-                ft.parent_id = input_query["parent_id"]
-                ft.parent_class = "OperationType"
-                ft.role = "Input"
+                # ft.parent_id = input_query["parent_id"]
+                # ft.parent_class = "OperationType"
+                ft.role = "input"
                 ft.name = input_query["name"]
+                ft.ftype = "sample"
                 parent_object[0].field_types = [ft]
                 print(f"parent object is {parent_object[0].name} and field types are {parent_object[0].field_types}")
-                print(f"field types are {parent_object[0].field_types[0].name}")
+                print(f"field types type is {type(parent_object[0].field_types[0])}")
+                #print(f"field types are {parent_object[0].field_types[0].name}")
 
                 session.utils.create_field_type(parent_object)
 
