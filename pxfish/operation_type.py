@@ -127,7 +127,6 @@ def write_files(*, session, path, operation_type, sample_types=[], object_types=
                 'Encoding error %s writing file %s for operation type %s',
                 error, file_name, operation_type.name)
             continue
-
     write_definition_json(
         os.path.join(path, 'definition.json'),
         operation_type
@@ -192,20 +191,32 @@ def push(*, session, path):
     }
 
     parent_object = session.OperationType.where(query)
-    print(parent_object)
-    print(parent_object[0].id)
+    print(f"parent object is {parent_object} and id is {parent_object[0].id}")
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
-
+# Parent OT exists, but FTs are new
     if definitions['inputs']:
         for field_type in definitions['inputs']:
             input_query = {
                 "name": field_type['name'],
                 "parent_id": parent_object[0].id
             }
-            field_type =  session.FieldType.where(input_query)
+            field_type = session.FieldType.where(input_query)
+            
             if not field_type:
-                pass # call create field type method
+                print("NO FIELD TYPE FOUND")
+                print(f"parent object is {parent_object[0]}")
+                print(f"parent object is {parent_object[0].name} and field types are {parent_object[0].field_types}")
+                ft = session.FieldType.new()
+                ft.parent_id = input_query["parent_id"]
+                ft.parent_class = "OperationType"
+                ft.role = "Input"
+                ft.name = input_query["name"]
+                parent_object[0].field_types = [ft]
+                print(f"parent object is {parent_object[0].name} and field types are {parent_object[0].field_types}")
+                print(f"field types are {parent_object[0].field_types[0].name}")
+
+                session.utils.create_field_type(parent_object)
 
     if definitions['outputs']:
         for field_type in definitions['outputs']:
@@ -213,7 +224,9 @@ def push(*, session, path):
                 "name": field_type['name'],
                 "parent_id": parent_object[0].id
             }
-            field_types =  session.FieldType.where(output_query)
+            field_type = session.FieldType.where(output_query)
+            if not field_type:
+                print("CREATE STEP HERE")
 
     if not parent_object:
         # if there are field types in the definition file
