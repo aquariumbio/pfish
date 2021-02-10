@@ -90,7 +90,7 @@ def write_files(*, session, path, operation_type, sample_types=[], object_types=
         path (String): the path to where the files will be written
         operation_type (OperationType): the operation type being written
     """
-    logging.info('writing operation type %s', operation_type.name)
+    logging.info('Writing operation type %s', operation_type.name)
 
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
@@ -193,61 +193,18 @@ def push(*, session, path):
     parent_object = session.OperationType.where(query)
     parent_type_name = 'operation type'
     component_names = operation_type_code_names()
-# Parent OT exists, but FTs are new
-    if definitions['inputs']:
-        for field_type in definitions['inputs']:
-            input_query = {
-                "name": field_type['name'],
-                "parent_id": parent_object[0].id
-            }
-            field_type = session.FieldType.where(input_query)
-            
-            if not field_type:
-                print("NO FIELD TYPE FOUND")
-                print(f"parent object is {parent_object[0].name} and field types are {parent_object[0].field_types}")
-                ft = session.FieldType.new()
-                # ft.parent_id = input_query["parent_id"]
-                # ft.parent_class = "OperationType"
-                ft.role = "input"
-                ft.name = input_query["name"]
-                ft.ftype = "sample"
-                parent_object[0].field_types = [ft]
-                print(f"parent object is {parent_object[0].name} and field types are {parent_object[0].field_types}")
-                print(f"field types type is {type(parent_object[0].field_types[0])}")
-                #print(f"field types are {parent_object[0].field_types[0].name}")
 
-                session.utils.create_field_type(parent_object)
+    if definitions['inputs']:
+        process_field_types(definitions=definitions, role="input", operation_type=parent_object[0], session=session)
 
     if definitions['outputs']:
-        for field_type in definitions['outputs']:
-            output_query = {
-                "name": field_type['name'],
-                "parent_id": parent_object[0].id
-            }
-            field_type = session.FieldType.where(output_query)
-            if not field_type:
-                print("CREATE STEP HERE")
+        process_field_types(definitions=definitions, role="output", operation_type=parent_object[0], session=session)
 
     if not parent_object:
-        # if there are field types in the definition file
-#        if definitions['inputs']:
-#            input_field_type = aq.FieldType.new(name=definitions['inputs']['name']
-            # definitions['inputs']['name']
-            # role = input 
-            # parent object doesnt exist yet though?
-            # create field type
-            #for ot_st_dict in definitions['inputs']['object_and_sample_types']:
-            #    st_query = { 'name': ot_st_dict['sample_type'] }
-            #    ot_query = { 'name': ot_st_dict['object_type'] }
-            # for each pair of st/ot 
-            # get sample_type name 
-            # query = {'name' = sample_type['name']}
-            # get object type name
-            # query = {'name' = object_type['name']}
-            # create field type? 
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
+
 # call function to search for Field types?
     for name in component_names:
         read_file = code.read(path=path, name=name)
@@ -265,6 +222,30 @@ def push(*, session, path):
         logging.info('writing file %s', parent_object[0].name)
 
         session.utils.update_code(new_code)
+
+
+def process_field_types(*, operation_type, definitions, role, session):
+    """
+    Finds Field Types from Definition file
+    If the types are not in the database, creates them
+    """
+
+    # for field_type in definitions[role]:
+    for field_type in definitions["inputs"]:
+        query = {
+            "name": field_type['name'],
+            "parent_id": operation_type.id
+        }
+        field_type = session.FieldType.where(query)
+            
+        if not field_type:
+            ft = session.FieldType.new()
+            ft.role = role
+            ft.name = query["name"]
+            ft.ftype = "sample"
+            operation_type.field_types = [ft]
+
+            session.utils.create_field_type(operation_type)
 
 
 def run_test(*, session, path, category, name):
