@@ -166,7 +166,15 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
         cost_model=code_objects['cost_model'],
         test=code_objects['test'])
  
-    new_operation_type.field_types = field_types
+
+    ft = session.FieldType.new()
+    ft.role = "input"
+    ft.name = "Field type Test Name"
+    ft.ftype = "sample"
+    ft.allowable_field_types = []
+    new_operation_type.field_types = [ft]
+    # new_operation_type.field_types = field_types
+    print(f"\nIn pFish and Field Types for New Operation Type are {new_operation_type.field_types}\n")
     session.utils.create_operation_type(new_operation_type)
 
 
@@ -191,7 +199,7 @@ def push(*, session, path):
     }
 
     parent_object = session.OperationType.where(query)
-    parent_type_name = 'operation type'
+    # parent_type_name = 'operation type'
     component_names = operation_type_code_names()
 
     if definitions['inputs']:
@@ -232,13 +240,16 @@ def process_field_types(*, operation_type, definitions, role, session):
 
     # for field_type in definitions[role]:
     for field_type in definitions["inputs"]:
+        print(f"\nProcessing Field Types: {definitions['inputs']}\n")
         query = {
             "name": field_type['name'],
             "parent_id": operation_type.id
         }
+        print(f"\nProcessing Field Type: {field_type['name']}\n")
         field_type = session.FieldType.where(query)
             
         if not field_type:
+            print("\ncreating field type\n")
             ft = session.FieldType.new()
             ft.role = role
             ft.name = query["name"]
