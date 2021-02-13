@@ -151,9 +151,6 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
         field_types (List): field types associated with new operation type.
                             Defaults to empty list
     """
-    # set this method so it will only create the objects you need? Or else do that in the create_code_objects part
-    # and call create_code_objects with defaults=True where alternative is passing your own text from files
-    # when this is called, you can say whether to pull from the file or to use defaults for each object
     code_objects = create_code_objects(session=session,
                                        component_names=operation_type_code_names(),
                                        default_text=default_text)
@@ -165,16 +162,8 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'],
         test=code_objects['test'])
- 
 
-    ft = session.FieldType.new()
-    ft.role = "input"
-    ft.name = "Field type Test Name"
-    ft.ftype = "sample"
-    ft.allowable_field_types = []
-    new_operation_type.field_types = [ft]
-    # new_operation_type.field_types = field_types
-    print(f"\nIn pFish and Field Types for New Operation Type are {new_operation_type.field_types}\n")
+    new_operation_type.field_types = field_types
     session.utils.create_operation_type(new_operation_type)
 
 
@@ -213,7 +202,6 @@ def push(*, session, path):
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
-# call function to search for Field types?
     for name in component_names:
         read_file = code.read(path=path, name=name)
         if read_file is None:
@@ -237,26 +225,27 @@ def process_field_types(*, operation_type, definitions, role, session):
     Finds Field Types from Definition file
     If the types are not in the database, creates them
     """
-
+    field_types = []
+    
     # for field_type in definitions[role]:
     for field_type in definitions["inputs"]:
-        print(f"\nProcessing Field Types: {definitions['inputs']}\n")
         query = {
             "name": field_type['name'],
             "parent_id": operation_type.id
         }
-        print(f"\nProcessing Field Type: {field_type['name']}\n")
+        # TODO: What happens if FT have been added to your instance, but they are not in the list --
+        # maybe it needs to check first
         field_type = session.FieldType.where(query)
-            
-        if not field_type:
-            print("\ncreating field type\n")
+        if field_type:
+            field_types.append(field_type[0])
+        else:
             ft = session.FieldType.new()
             ft.role = role
             ft.name = query["name"]
             ft.ftype = "sample"
-            operation_type.field_types = [ft]
-
-            session.utils.create_field_type(operation_type)
+            field_types.append(ft)
+    operation_type.field_types = field_types
+    session.utils.create_field_type(operation_type)
 
 
 def run_test(*, session, path, category, name):
