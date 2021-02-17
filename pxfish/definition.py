@@ -1,5 +1,4 @@
 """Functions to create definition files with library or operation type data"""
-
 import json
 import logging
 import os
@@ -33,11 +32,12 @@ def field_type_list(field_types, role):
     for field_type in field_types:
         if field_type.role == role:
             ft_ser = {
-                "name": field_type.name,
-                "part": field_type.part,
-                "array": field_type.array,
-                "routing": field_type.routing,
-                "allowable field types": allowable_field_type_list(field_type.allowable_field_types)
+                'name': field_type.name,
+                'part': field_type.part,
+                'array': field_type.array,
+                'routing': field_type.routing,
+                'allowable_field_types':
+                    allowable_field_type_list(field_type.allowable_field_types)
             }
             ft_list.append(ft_ser)
     return ft_list
@@ -47,12 +47,11 @@ def allowable_field_type_list(allowable_field_types):
 
     object_and_sample_types = []
     ser = {}
-# sample type and object type names must be unique
     for aft in allowable_field_types:
         if aft.sample_type:
-            ser["sample_type"] = aft.sample_type.name
+            ser['sample_type'] = aft.sample_type.name
         if aft.object_type:
-            ser["object_type"] = aft.object_type.name
+            ser['object_type'] = aft.object_type.name
         object_and_sample_types.append(ser)
     return object_and_sample_types
 
@@ -65,15 +64,14 @@ def write_definition_json(file_path, operation_type):
       file_path (string): the path of the file to write
       operation_type (OperationType): the operation type being defined
     """
-    print("in write definition")
     ot_ser = {}
-    ot_ser["name"] = operation_type.name
-    ot_ser["parent_class"] = "OperationType"
-    ot_ser["category"] = operation_type.category
-    ot_ser["inputs"] = field_type_list(operation_type.field_types, "input")
-    ot_ser["outputs"] = field_type_list(operation_type.field_types, "output")
-    ot_ser["on_the_fly"] = operation_type.on_the_fly
-    ot_ser["user_id"] = operation_type.protocol.user_id
+    ot_ser['name'] = operation_type.name
+    ot_ser['parent_class'] = 'OperationType'
+    ot_ser['category'] = operation_type.category
+    ot_ser['inputs'] = field_type_list(operation_type.field_types, 'input')
+    ot_ser['outputs'] = field_type_list(operation_type.field_types, 'output')
+    ot_ser['on_the_fly'] = operation_type.on_the_fly
+    ot_ser['user_id'] = operation_type.protocol.user_id
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser, indent=2))
 
@@ -87,10 +85,10 @@ def write_library_definition_json(file_path, library):
       library (Library): the library for which the definition should be written
     """
     library_ser = {}
-    library_ser["name"] = library.name
-    library_ser["parent_class"] = "Library"
-    library_ser["category"] = library.category
-    library_ser["user_id"] = library.source.user_id
+    library_ser['name'] = library.name
+    library_ser['parent_class'] = 'Library'
+    library_ser['category'] = library.category
+    library_ser['user_id'] = library.source.user_id
 
     with open(file_path, 'w') as file:
         file.write(json.dumps(library_ser, indent=2))
