@@ -6,12 +6,16 @@ import logging
 import os
 import code
 import definition
+import field_type
 import object_type
 import sample_type
 
 from code import (
     create_code_object,
     create_code_objects
+)
+from field_type import (
+    create
 )
 from definition import (
     write_definition_json,
@@ -79,12 +83,11 @@ def pull(*, session, path, category, name):
 
     for samp_type in sample_types:
         sample_type.write_files(path=path, sample_type=samp_type)
-# I think we need to pass the object and sample types here,
-# so they can be recorded with the field types in the definition file
+
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
-
+# TODO Fix this so you're not passing an empty list as the default
 def write_files(*, session, path, operation_type, sample_types=[], object_types=[]):
     """
     Writes the files associated with the operation_type to the path.
@@ -201,16 +204,20 @@ def push(*, session, path, component_names=all_component_names()):
 
     parent_object = session.OperationType.where(query)
     # parent_type_name = 'operation type'
-    if not parent_object:
-        create(session=session, path=path, category=definitions['category'],
-               name=definitions['name'], default_text=False)
-        parent_object = session.OperationType.where(query)
-
+#    if not parent_object:
+#        create(session=session, path=path, category=definitions['category'],
+#               name=definitions['name'], default_text=False)
+#        parent_object = session.OperationType.where(query)
+#
     if definitions['inputs']:
-        process_field_types(definitions=definitions, role="input", operation_type=parent_object[0], session=session)
+        field_type.create(
+                definitions=definitions, role='input',
+                operation_type=parent_object[0], session=session)
 
     if definitions['outputs']:
-        process_field_types(definitions=definitions, role="output", operation_type=parent_object[0], session=session)
+        field_type.create(
+                definitions=definitions, role='output',
+                operation_type=parent_object[0], session=session)
 
     for name in component_names:
         read_file = code.read(path=path, name=name)
@@ -230,48 +237,6 @@ def push(*, session, path, component_names=all_component_names()):
         session.utils.update_code(new_code)
 
 
-def process_field_types(*, operation_type, definitions, role, session):
-    """
-    Finds Field Types from Definition file
-    If the types are not in the database, creates them
-    """
-    field_types = []
-
-    # if theres a ft in definition file, search db for ft
-    # for field_type in definitions[role]:
-    for field_type_definition in definitions['inputs']:
-        if field_type_definition['allowable_field_types']:
-            query = {
-                'name': field_type_definition['name'],
-                'parent_id': operation_type.id
-            }
-        # TODO: What happens if FT have been added to your instance, but they are not in the list
-        field_type = session.FieldType.where(query)
-
-        # If the query returns a field type, append it to list
-        if field_type:
-            field_types.append(field_type[0])
-        # If the query doesn't find it, create it
-        else:
-            ft = session.FieldType.new()
-            ft.role = role
-            ft.name = query['name']
-            ft.ftype = 'sample'
-           # if the ft includes AFTs, add them to list
-            if field_type_definition['allowable_field_types']:
-                smpl_type = session.SampleType.new()
-                obj_type = session.ObjectType.new()
-                smpl_type.name = field_type_definition['allowable_field_types'][0]['sample_type']
-                obj_type.name = field_type_definition['allowable_field_types'][0]['object_type']
-                ft.allowable_field_types = [{'sample_type': smpl_type, 'object_type': obj_type}]
-                breakpoint()
-            field_types.append(ft)
-    # append field type date to operation type
-    operation_type.field_types = field_types
-
-    session.utils.create_field_type(operation_type)
-
-
 def run_test(*, session, path, category, name):
     """
     Run tests for specified operation type.
@@ -283,7 +248,10 @@ def run_test(*, session, path, category, name):
         name (String): name of the Operation Type to be tested
     """
     logging.info('Sending request to test %s', name)
-    push(session=session, path=path, component_names=test_component_names())
+    push(
+        session=session, path=path,
+        component_names=test_component_names()
+        )
 
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)
