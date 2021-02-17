@@ -49,8 +49,8 @@ def get_operation_type(*, session, category, name):
     """
     retrieved_operation_type = session.OperationType.where(
         {
-            "category": category,
-            "name": name
+            'category': category,
+            'name': name
         }
     )
     if not retrieved_operation_type:
@@ -63,7 +63,10 @@ def get_operation_type(*, session, category, name):
 
 
 def pull(*, session, path, category, name):
-    """Retrieves operation type, and calls function to write the associated files"""
+    """
+    Retrieves operation type.
+    Calls function to write associated files
+    """
     retrieved_operation_type = get_operation_type(
         session=session,
         category=category, name=name)
@@ -76,7 +79,8 @@ def pull(*, session, path, category, name):
 
     for samp_type in sample_types:
         sample_type.write_files(path=path, sample_type=samp_type)
-# I think we need to pass the object and sample types here, so they can be recorded with the field types in the definition file
+# I think we need to pass the object and sample types here,
+# so they can be recorded with the field types in the definition file
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
@@ -176,7 +180,7 @@ def push(*, session, path):
         path (String): Directory where files are to be found
     """
     if not definition.has_definition(path):
-        logging.warning("A Definition file is required to push to aquarium")
+        logging.warning('A Definition file is required to push to aquarium')
         return
 
     definitions = definition.read(path)
@@ -191,16 +195,16 @@ def push(*, session, path):
     # parent_type_name = 'operation type'
     component_names = operation_type_code_names()
 
+    if not parent_object:
+        create(session=session, path=path, category=definitions['category'],
+               name=definitions['name'], default_text=False)
+        parent_object = session.OperationType.where(query)
+
     if definitions['inputs']:
         process_field_types(definitions=definitions, role="input", operation_type=parent_object[0], session=session)
 
     if definitions['outputs']:
         process_field_types(definitions=definitions, role="output", operation_type=parent_object[0], session=session)
-
-    if not parent_object:
-        create(session=session, path=path, category=definitions['category'],
-               name=definitions['name'], default_text=False)
-        parent_object = session.OperationType.where(query)
 
     for name in component_names:
         read_file = code.read(path=path, name=name)
@@ -226,25 +230,39 @@ def process_field_types(*, operation_type, definitions, role, session):
     If the types are not in the database, creates them
     """
     field_types = []
-    
+
+    # if theres a ft in definition file, search db for ft
     # for field_type in definitions[role]:
-    for field_type in definitions["inputs"]:
-        query = {
-            "name": field_type['name'],
-            "parent_id": operation_type.id
-        }
-        # TODO: What happens if FT have been added to your instance, but they are not in the list --
-        # maybe it needs to check first
+    for field_type_definition in definitions['inputs']:
+        if field_type_definition['allowable_field_types']:
+            query = {
+                'name': field_type_definition['name'],
+                'parent_id': operation_type.id
+            }
+        # TODO: What happens if FT have been added to your instance, but they are not in the list
         field_type = session.FieldType.where(query)
+
+        # If the query returns a field type, append it to list
         if field_type:
             field_types.append(field_type[0])
+        # If the query doesn't find it, create it
         else:
             ft = session.FieldType.new()
             ft.role = role
-            ft.name = query["name"]
-            ft.ftype = "sample"
+            ft.name = query['name']
+            ft.ftype = 'sample'
+           # if the ft includes AFTs, add them to list
+            if field_type_definition['allowable_field_types']:
+                smpl_type = session.SampleType.new()
+                obj_type = session.ObjectType.new()
+                smpl_type.name = field_type_definition['allowable_field_types'][0]['sample_type']
+                obj_type.name = field_type_definition['allowable_field_types'][0]['object_type']
+                ft.allowable_field_types = [{'sample_type': smpl_type, 'object_type': obj_type}]
+                breakpoint()
             field_types.append(ft)
+    # append field type date to operation type
     operation_type.field_types = field_types
+
     session.utils.create_field_type(operation_type)
 
 
