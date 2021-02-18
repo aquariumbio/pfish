@@ -20,14 +20,12 @@ def create(*, operation_type, definitions, role, session):
     """
     field_types = []
 
-    for field_type_definition in definitions['inputs']:
-        if field_type_definition['allowable_field_types']:
-            query = {
-                'name': field_type_definition['name'],
-                'parent_id': operation_type.id
-            }
-        # TODO: What happens if FTs have been added to your instance,
-        # but they are not in the list
+    for field_type_definition in definitions[role + 's']:
+
+        query = {
+            'name': field_type_definition['name'],
+            'parent_id': operation_type.id
+        }
         field_type = session.FieldType.where(query)
 
         if field_type:
@@ -38,8 +36,10 @@ def create(*, operation_type, definitions, role, session):
             ft.name = query['name']
             ft.ftype = 'sample'
             if field_type_definition['allowable_field_types']:
-                ft.allowable_field_types = create_aft(session=session, definition=field_type_definition) 
-                
+                ft.allowable_field_types = create_aft(
+                            session=session, definitions=field_type_definition
+                            )
+
             field_types.append(ft)
 
     operation_type.field_types = field_types
@@ -47,19 +47,21 @@ def create(*, operation_type, definitions, role, session):
     session.utils.create_field_type(operation_type)
 
 
-def create_aft(*, session, definition):
+def create_aft(*, session, definitions):
     """
     Run tests for specified operation type.
 
     Arguments:
         session (Session Object): Aquarium session object
-        definition (String): name of the Operation Type to be tested
+        definitions (Dictionary):  
     """
+    # TODO need to iterate if there is more than one aft attached
+#    afts = []
     sample_type = session.SampleType.new()
     object_type = session.ObjectType.new()
 
-    sample_type.name = definition['allowable_field_types'][0]['sample_type']
-    object_type.name = definition['allowable_field_types'][0]['object_type']
+    sample_type.name = definitions['allowable_field_types'][0]['sample_type']
+    object_type.name = definitions['allowable_field_types'][0]['object_type']
 
-    return [{'sample_type': smpl_type, 'object_type': obj_type}]
+    return [{'sample_type': sample_type, 'object_type': object_type}]
     #logging.info('Sending request to test %s', name)
