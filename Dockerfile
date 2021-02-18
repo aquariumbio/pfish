@@ -2,10 +2,10 @@ FROM python:3.9 as pfish-base
 
 # create directories within container
 # /script is where the package lives
+ENV SCRIPT_DIR=/script
 # /script/config is a mount point for users .pfish directory
-RUN mkdir /script \
-    mkdir -p /script/config
-WORKDIR /script
+RUN mkdir -p ${SCRIPT_DIR}/config
+WORKDIR ${SCRIPT_DIR}
 
 # install dependencies
 COPY requirements.txt .

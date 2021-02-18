@@ -138,7 +138,9 @@ def add_code_arguments(parser, *, action):
 
 
 def config_path():
-    return os.path.normpath('/script/config')
+    return os.path.normpath(
+        os.path.join(os.environ.get('SCRIPT_DIR'), 'config')
+    )
 
 
 def do_config_add(args):
