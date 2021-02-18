@@ -28,7 +28,7 @@
   },
 
   // Add the IDs of extensions you want installed when the container is created.
-  "extensions": ["ms-python.python"],
+  "extensions": ["ms-python.vscode-pylance"],
 
   "mounts": [
     "source=${localWorkspaceFolder}/config,target=/script/config,type=bind",
