@@ -15,7 +15,7 @@ from code import (
     create_code_objects
 )
 from field_type import (
-    create
+    build
 )
 from definition import (
     write_definition_json,
@@ -203,19 +203,19 @@ def push(*, session, path, component_names=all_component_names()):
     }
 
     parent_object = session.OperationType.where(query)
-    # parent_type_name = 'operation type'
-#    if not parent_object:
-#        create(session=session, path=path, category=definitions['category'],
-#               name=definitions['name'], default_text=False)
-#        parent_object = session.OperationType.where(query)
-#
+
+    if not parent_object:
+        create(session=session, path=path, category=definitions['category'],
+               name=definitions['name'], default_text=False)
+        parent_object = session.OperationType.where(query)
+
     if definitions['inputs']:
-        field_type.create(
+        field_type.build(
                 definitions=definitions, role='input',
                 operation_type=parent_object[0], session=session)
 
     if definitions['outputs']:
-        field_type.create(
+        field_type.build(
                 definitions=definitions, role='output',
                 operation_type=parent_object[0], session=session)
 

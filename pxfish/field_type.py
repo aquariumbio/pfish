@@ -1,22 +1,15 @@
 """Functions for Creating Field Types and Allowable Field Types"""
 
-import logging
 
-#field_type.create(
-#                definitions=definitions, role='input',
-#                operation_type=parent_object[0], session=session)
-#
-def create(*, operation_type, definitions, role, session):
+def build(*, operation_type, definitions, role, session):
     """
-    Finds Field Types from Definition file
-    If the types are not in the database, creates them
+    Adds defined field types to Operation Type
 
     Arguments:
-        operation_type (): ot -- parent object
-        definitions (): definition file
-        role (): input or output
+        operation_type (Operation Type): parent object
+        definitions (Dictionary): data about field types
+        role (String): input or output
         session (Session Object): Aquarium session object
-        path (String): Directory where files are to be found
     """
     field_types = []
 
@@ -36,7 +29,7 @@ def create(*, operation_type, definitions, role, session):
             ft.name = query['name']
             ft.ftype = 'sample'
             if field_type_definition['allowable_field_types']:
-                ft.allowable_field_types = create_aft(
+                ft.allowable_field_types = add_aft(
                             session=session, definitions=field_type_definition
                             )
 
@@ -47,21 +40,22 @@ def create(*, operation_type, definitions, role, session):
     session.utils.create_field_type(operation_type)
 
 
-def create_aft(*, session, definitions):
+def add_aft(*, session, definitions):
     """
-    Run tests for specified operation type.
+    Adds Sample and Object type names to Field Type Object
 
     Arguments:
         session (Session Object): Aquarium session object
-        definitions (Dictionary):  
+        definitions (Dictionary): Data about Sample and Object types  
     """
-    # TODO need to iterate if there is more than one aft attached
-#    afts = []
-    sample_type = session.SampleType.new()
-    object_type = session.ObjectType.new()
+    afts = []
+    for aft in definitions['allowable_field_types']:
 
-    sample_type.name = definitions['allowable_field_types'][0]['sample_type']
-    object_type.name = definitions['allowable_field_types'][0]['object_type']
+        sample_type = session.SampleType.new()
+        object_type = session.ObjectType.new()
 
-    return [{'sample_type': sample_type, 'object_type': object_type}]
-    #logging.info('Sending request to test %s', name)
+        sample_type.name = aft['sample_type']
+        object_type.name = aft['object_type']
+        afts.append({'sample_type': sample_type, 'object_type': object_type})
+        breakpoint()
+    return afts
