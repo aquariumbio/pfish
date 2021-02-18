@@ -37,7 +37,7 @@ def build(*, operation_type, definitions, role, session):
 
     operation_type.field_types = field_types
 
-    session.utils.create_field_type(operation_type)
+    session.utils.update_operation_type(operation_type)
 
 
 def add_aft(*, session, definitions):
