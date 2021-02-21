@@ -28,10 +28,11 @@ def build(*, operation_type, definitions, role, session):
             ft.role = role
             ft.name = query['name']
             ft.ftype = 'sample'
-            if field_type_definition['allowable_field_types']:
-                ft.allowable_field_types = add_aft(
-                            session=session, definitions=field_type_definition
-                            )
+#            if field_type_definition['allowable_field_types']:
+#                breakpoint()
+            ft.allowable_field_types = add_aft(
+                        session=session, definitions=field_type_definition
+                        )
 
             field_types.append(ft)
 
@@ -46,7 +47,7 @@ def add_aft(*, session, definitions):
 
     Arguments:
         session (Session Object): Aquarium session object
-        definitions (Dictionary): Data about Sample and Object types  
+        definitions (Dictionary): Data about Sample and Object types
     """
     afts = []
     for aft in definitions['allowable_field_types']:
@@ -56,6 +57,6 @@ def add_aft(*, session, definitions):
 
         sample_type.name = aft['sample_type']
         object_type.name = aft['object_type']
-        afts.append({'sample_type': sample_type, 'object_type': object_type})
         breakpoint()
+        afts.append({'sample_type': sample_type, 'object_type': object_type})
     return afts
