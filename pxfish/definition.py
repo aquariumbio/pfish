@@ -18,6 +18,14 @@ def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
 
+def category(obj: Dict) -> str:
+    return obj['category']
+
+
+def name(obj: Dict) -> str:
+    return obj['name']
+
+
 def field_type_list(field_types, role):
     """
     Returns sublist of field types with the given role.
