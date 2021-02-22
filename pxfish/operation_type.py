@@ -209,14 +209,10 @@ def push(*, session, path, component_names=all_component_names()):
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
-    if definitions['inputs']:
-        field_type.build(
-                definitions=definitions, role='input',
-                operation_type=parent_object[0], session=session)
 
-    if definitions['outputs']:
+    if definitions['field_types']:
         field_type.build(
-                definitions=definitions, role='output',
+                definitions=definitions,
                 operation_type=parent_object[0], session=session)
 
     for name in component_names:

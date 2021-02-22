@@ -1,7 +1,7 @@
 """Functions for Creating Field Types and Allowable Field Types"""
 
 
-def build(*, operation_type, definitions, role, session):
+def build(*, operation_type, definitions, session):
     """
     Adds defined field types to Operation Type
 
@@ -13,7 +13,7 @@ def build(*, operation_type, definitions, role, session):
     """
     field_types = []
 
-    for field_type_definition in definitions[role + 's']:
+    for field_type_definition in definitions['field_types']:
 
         query = {
             'name': field_type_definition['name'],
@@ -25,11 +25,9 @@ def build(*, operation_type, definitions, role, session):
             field_types.append(field_type[0])
         else:
             ft = session.FieldType.new()
-            ft.role = role
+            ft.role = field_type_definition['role']
             ft.name = query['name']
             ft.ftype = 'sample'
-#            if field_type_definition['allowable_field_types']:
-#                breakpoint()
             ft.allowable_field_types = add_aft(
                         session=session, definitions=field_type_definition
                         )
@@ -57,6 +55,5 @@ def add_aft(*, session, definitions):
 
         sample_type.name = aft['sample_type']
         object_type.name = aft['object_type']
-        breakpoint()
         afts.append({'sample_type': sample_type, 'object_type': object_type})
     return afts
