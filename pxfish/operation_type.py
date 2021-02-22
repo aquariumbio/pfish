@@ -209,16 +209,16 @@ def push(*, session, path, component_names=all_component_names()):
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
-    if definitions['inputs']:
+    if definitions['inputs'] or definitions['outputs']:
         field_type.build(
-                definitions=definitions, role='input',
+                definitions=definitions,
                 operation_type=parent_object[0], session=session)
 
-    if definitions['outputs']:
-        field_type.build(
-                definitions=definitions, role='output',
-                operation_type=parent_object[0], session=session)
-
+#    if definitions['outputs']:
+#        field_type.build(
+#                definitions=definitions, role='output',
+#                operation_type=parent_object[0], session=session)
+#
     for name in component_names:
         read_file = code.read(path=path, name=name)
         if read_file is None:
@@ -232,7 +232,7 @@ def push(*, session, path, component_names=all_component_names()):
             content=read_file
         )
 
-        logging.info('writing file %s', parent_object[0].name)
+        logging.info('pushing file %s', parent_object[0].name)
 
         session.utils.update_code(new_code)
 
