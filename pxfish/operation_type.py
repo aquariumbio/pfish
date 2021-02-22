@@ -4,10 +4,10 @@ Functions for pushing, pulling, and creating Operation Types in Aquarium.
 
 import logging
 import os
-import code
+import code_component
 import definition
 
-from code import (
+from code_component import (
     create_code_object,
     create_code_objects
 )
@@ -61,7 +61,9 @@ def get_operation_type(*, session, category, name):
 
 
 def pull(*, session, path, category, name):
-    """Retrieves operation type. Calls function to write the associated files"""
+    """
+    Retrieves operation type. Calls function to write the associated files
+    """
     retrieved_operation_type = get_operation_type(
         session=session,
         category=category, name=name)
@@ -105,7 +107,11 @@ def write_files(*, session, path, operation_type):
         file_name = "{}.rb".format(name)
 
         try:
-            code.write(path=path, file_name=file_name, code_object=code_object)
+            code_component.write(
+                path=path,
+                file_name=file_name,
+                code_object=code_object
+            )
         except OSError as error:
             logging.warning(
                 'Error %s writing file %s for operation type %s',
@@ -190,7 +196,7 @@ def push(*, session, path, component_names=all_component_names()):
         parent_object = session.OperationType.where(query)
 
     for name in component_names:
-        read_file = code.read(path=path, name=name)
+        read_file = code_component.read(path=path, name=name)
         if read_file is None:
             return
 
