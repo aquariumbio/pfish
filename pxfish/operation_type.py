@@ -214,11 +214,6 @@ def push(*, session, path, component_names=all_component_names()):
                 definitions=definitions,
                 operation_type=parent_object[0], session=session)
 
-#    if definitions['outputs']:
-#        field_type.build(
-#                definitions=definitions, role='output',
-#                operation_type=parent_object[0], session=session)
-#
     for name in component_names:
         read_file = code.read(path=path, name=name)
         if read_file is None:

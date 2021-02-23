@@ -68,6 +68,5 @@ def add_aft(*, session, definition):
 
         sample_type.name = aft['sample_type']
         object_type.name = aft['object_type']
-        breakpoint()
         afts.append({'sample_type': sample_type, 'object_type': object_type})
     return afts
