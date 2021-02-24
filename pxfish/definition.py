@@ -46,8 +46,8 @@ def field_type_list(field_types, role):
 def allowable_field_type_list(allowable_field_types):
 
     object_and_sample_types = []
-    ser = {}
     for aft in allowable_field_types:
+        ser = {}
         if aft.sample_type:
             ser['sample_type'] = aft.sample_type.name
         if aft.object_type:
