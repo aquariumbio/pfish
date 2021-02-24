@@ -17,7 +17,7 @@ def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
 
-def field_type_list(field_types):
+def field_type_list(field_types, role):
     """
     Returns sublist of field types with the given role.
 
@@ -30,16 +30,16 @@ def field_type_list(field_types):
     """
     ft_list = []
     for field_type in field_types:
-        ft_ser = {
-            'name': field_type.name,
-            'part': field_type.part,
-            'array': field_type.array,
-            'routing': field_type.routing,
-            'role': field_type.role,
-            'allowable_field_types':
-                allowable_field_type_list(field_type.allowable_field_types)
-            }
-        ft_list.append(ft_ser)
+        if field_type.role == role:
+            ft_ser = {
+                'name': field_type.name,
+                'part': field_type.part,
+                'array': field_type.array,
+                'routing': field_type.routing,
+                'allowable_field_types':
+                    allowable_field_type_list(field_type.allowable_field_types)
+                }
+            ft_list.append(ft_ser)
     return ft_list
 
 
@@ -68,9 +68,8 @@ def write_definition_json(file_path, operation_type):
     ot_ser['name'] = operation_type.name
     ot_ser['parent_class'] = 'OperationType'
     ot_ser['category'] = operation_type.category
-    ot_ser['field_types'] = field_type_list(operation_type.field_types)
-    #ot_ser['inputs'] = field_type_list(operation_type.field_types, 'input')
-    #ot_ser['outputs'] = field_type_list(operation_type.field_types, 'output')
+    ot_ser['inputs'] = field_type_list(operation_type.field_types, 'input')
+    ot_ser['outputs'] = field_type_list(operation_type.field_types, 'output')
     ot_ser['on_the_fly'] = operation_type.on_the_fly
     ot_ser['user_id'] = operation_type.protocol.user_id
     with open(file_path, 'w') as file:
