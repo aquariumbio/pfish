@@ -12,6 +12,9 @@ def add_field_type(*, operation_type, definition, role, session):
     else:
         ft = session.FieldType.new()
         ft.role = role
+        ft.array = definition['array']
+        ft.part = definition['part']
+        ft.routing = definition['routing']
         ft.name = query['name']
         ft.ftype = 'sample'
         ft.allowable_field_types = add_aft(
