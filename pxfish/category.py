@@ -37,7 +37,7 @@ def pull(*, session, path, name):
     for op_type in operation_types:
         object_types = op_type.object_type()
         sample_types = op_type.sample_type()
- 
+
         for obj_type in object_types:
             object_type.write_files(path=path, object_type=obj_type)
 
@@ -77,7 +77,8 @@ def push(*, session, path):
                         path, name, subdirectory='operation_types')
                 )
         else:
-            logging.warning('Unexpected directory entry %s in %s', directory_entry, path)
+            logging.warning('Unexpected directory entry %s in %s',
+                            directory_entry, path)
 
 
 def run_tests(*, session, path, name):
@@ -105,4 +106,8 @@ def run_tests(*, session, path, name):
                     session=session, path=entry_path,
                     category=name, name=filename)
         else:
-            logging.warning('Unexpected directory entry %s in %s', subdirectory_entry, path)
+            logging.warning(
+                'Unexpected directory entry %s in %s',
+                subdirectory_entry,
+                path
+            )

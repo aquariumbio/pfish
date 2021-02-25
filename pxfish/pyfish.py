@@ -229,6 +229,7 @@ def do_push(args):
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
+
     # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
@@ -250,6 +251,7 @@ def do_push(args):
             return
 
         category.push(session=session, path=category_path)
+        return
 
     if args.library or args.operation_type:
         logging.error(
