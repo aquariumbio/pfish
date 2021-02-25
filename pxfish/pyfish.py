@@ -117,8 +117,8 @@ def add_code_arguments(parser, *, action):
     )
     parser.add_argument(
         "-n", "--name",
-        help="login configuration name, default is 'local'",
-        default="local"
+        help="login configuration name",
+        type=str
     )
     parser.add_argument(
         "-c", "--category",
@@ -161,7 +161,7 @@ def do_config_show(args):
 
 
 def do_create(args):
-    session = create_session(path=config_path())
+    session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
     if args.category:
@@ -197,7 +197,7 @@ def do_pull(args):
     Call appropriate pull function based on arguments
     Default is to pull everything from the instance
     """
-    session = create_session(path=config_path())
+    session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
     if args.category:
@@ -226,10 +226,11 @@ def do_pull(args):
 
 
 def do_push(args):
-    session = create_session(path=config_path())
+    session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
-    # TODO: can you get category from the definition file?
+
+    # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
         if args.library:
@@ -261,7 +262,7 @@ def do_push(args):
 
 
 def do_test(args):
-    session = create_session(path=config_path())
+    session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
     # have category, check for a library or operation type

@@ -63,13 +63,20 @@ A configuration name is simply a key to keep track of the login information for 
 You can use `configure add` to set up as many configurations as you want. For example, you can have a `production` configuration in addition to a `local` configuration.
 You can use the `local` configuration while developing protocols and switch to the `production` configuration  when transferring operation types or libraries to Aquarium.
 
-To change the which configuration will be used by default, use the command
+To change which configuration will be used by default, use the command
 
 ```bash
 pfish configure set-default -n <config-name>
 ```
 
 with the name of the login configuration that you want to be the default.
+
+To use a different configuration without changing the default, add the configuration name you want to use along with the -n or --name flag.
+For example, if you have your default set to local but you would like to pull all files from your production configuration:
+
+```bash
+pfish pull -n <production>
+```
 
 To list all your saved configurations, use the command:
 
