@@ -75,7 +75,8 @@ def push(*, session, path):
                         path, name, subdirectory='operation_types')
                 )
         else:
-            logging.warning('Unexpected directory entry %s in %s', directory_entry, path)
+            logging.warning('Unexpected directory entry %s in %s',
+                            directory_entry, path)
 
 
 def run_tests(*, session, path, name):
@@ -103,4 +104,8 @@ def run_tests(*, session, path, name):
                     session=session, path=entry_path,
                     category=name, name=filename)
         else:
-            logging.warning('Unexpected directory entry %s in %s', subdirectory_entry, path)
+            logging.warning(
+                'Unexpected directory entry %s in %s',
+                subdirectory_entry,
+                path
+            )

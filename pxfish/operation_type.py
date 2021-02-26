@@ -4,13 +4,13 @@ Functions for pushing, pulling, and creating Operation Types in Aquarium.
 
 import logging
 import os
-import code
+import code_component
 import definition
 import field_type
 import object_type
 import sample_type
 
-from code import (
+from code_component import (
     create_code_object,
     create_code_objects
 )
@@ -124,7 +124,11 @@ def write_files(*, session, path, operation_type, sample_types=[], object_types=
         file_name = "{}.rb".format(name)
 
         try:
-            code.write(path=path, file_name=file_name, code_object=code_object)
+            code_component.write(
+                path=path,
+                file_name=file_name,
+                code_object=code_object
+            )
         except OSError as error:
             logging.warning(
                 'Error %s writing file %s for operation type %s',
@@ -215,7 +219,7 @@ def push(*, session, path, component_names=all_component_names()):
                 operation_type=parent_object[0], session=session)
 
     for name in component_names:
-        read_file = code.read(path=path, name=name)
+        read_file = code_component.read(path=path, name=name)
         if read_file is None:
             return
 

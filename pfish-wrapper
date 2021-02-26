@@ -8,8 +8,8 @@
 
 PROGNAME="$(basename $0)"
 
- VERSION="1.0.0"
-#VERSION="testing"
+VERSION="1.0.0"
+
 # Helper functions for guards
 error(){
   error_code=$1

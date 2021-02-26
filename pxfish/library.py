@@ -2,10 +2,9 @@
 Functions for pushing, pulling, and creating Library files.
 """
 
-import json
 import logging
 import os
-import code
+import code_component
 import definition
 
 from paths import (
@@ -86,7 +85,11 @@ def write_files(*, path, library):
     file_name = 'source.rb'
 
     try:
-        code.write(path=library_path, file_name=file_name, code_object=code_object)
+        code_component.write(
+            path=library_path,
+            file_name=file_name,
+            code_object=code_object
+        )
     except OSError as error:
         logging.warning('Error %s writing file %s for library %s',
                         error, file_name, library.name)
@@ -98,7 +101,7 @@ def write_files(*, path, library):
     write_library_definition_json(
         os.path.join(
             library_path, 'definition.json'
-            ), library)
+        ), library)
 
 
 def create(*, session, path, category, name):
@@ -112,9 +115,9 @@ def create(*, session, path, category, name):
         category (String): the category for the operation type
         name (String): name of the library to be created
     """
-    code_objects = code.create_code_objects(
+    code_objects = code_component.create_code_objects(
         session=session, component_names=get_code_file_names()
-        )
+    )
     new_library = session.Library.new(
         name=name,
         category=category,
@@ -139,7 +142,6 @@ def push(*, session, path):
     }
 
     parent_object = session.Library.where(query)
-    parent_type_name = 'library'
     component_names = ['source']
 
     if not parent_object:
@@ -150,7 +152,7 @@ def push(*, session, path):
         return
 
     for name in component_names:
-        read_file = code.read(path=path, name=name)
+        read_file = code_component.read(path=path, name=name)
         if read_file is None:
             return
 
@@ -167,5 +169,5 @@ def push(*, session, path):
         session.utils.update_code(new_code)
 
 
-def run_test(*, session, category, name):
+def run_test(*, session, path, category, name):
     logging.error("Library tests are not currently available")

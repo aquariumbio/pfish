@@ -4,7 +4,7 @@ from config import get_config, config_file_path
 from pydent import AqSession
 
 
-def create_session(*, path):
+def create_session(*, path, name: str = None):
     """
     Create an aquarium session connected to the named Aquarium instance.
 
@@ -17,7 +17,9 @@ def create_session(*, path):
     file_path = config_file_path(path)
     config = get_config(file_path)
 
-    name = config["default"]
+    if not name:
+        name = config["default"]
+
     if name not in config["instances"]:
         raise BadInstanceError(name)
 

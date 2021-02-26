@@ -57,7 +57,7 @@ def push(*, session, path):
         return
 
     if is_category(path):
-        category.push(session, path)
+        category.push(session=session, path=path)
         return
 
     if definition.has_definition(path):
@@ -95,22 +95,33 @@ def run_tests(*, session, path):
             'Path %s is not a directory. Cannot run tests', path)
         return
 
-# TODO: change get operation type to work without a category?
+    # TODO: change get operation type to work without a category?
     if definition.has_definition(path):
         def_dict = definition.read(path)
         if definition.is_operation_type(def_dict):
-            operation_type.run_test(session=session, path=path)
+            operation_type.run_test(
+                session=session,
+                path=path,
+                category=definition.category,
+                name=definition.name
+            )
         elif definition.is_library(def_dict):
-            library.run_test(session=session, path=path)
+            library.run_test(
+                session=session,
+                path=path,
+                category=definition.category,
+                name=definition.name
+            )
         return
 
     if is_category(path):
-        name = os.basename(path)
-        category.run_test(session=session, path=path, name=name)
+        name = os.path.basename(path)
+        category.run_tests(session=session, path=path, name=name)
         return
 
     entries = os.listdir(path)
-    dir_entries = [entry for entry in entries if os.path.isdir(os.path.join(path, entry))]
+    dir_entries = [entry for entry in entries if os.path.isdir(
+        os.path.join(path, entry))]
 
     if not dir_entries:
         logging.warning('Nothing to test in path %s', path)
