@@ -14,9 +14,6 @@ from code_component import (
     create_code_object,
     create_code_objects
 )
-from field_type import (
-    build
-)
 from definition import (
     write_definition_json,
 )
@@ -214,6 +211,11 @@ def push(*, session, path, component_names=all_component_names()):
         parent_object = session.OperationType.where(query)
 
     if definitions['inputs'] or definitions['outputs']:
+        if not field_type.types_valid(
+                definitions=definitions,
+                operation_type=parent_object[0], session=session):
+            return
+
         field_type.build(
                 definitions=definitions,
                 operation_type=parent_object[0], session=session)
