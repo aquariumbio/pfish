@@ -1,7 +1,7 @@
 import os
 import pydent
 import pytest
-from pxfish.code import (
+from pxfish.code_component import (
     write,
     create_code_object,
     add_default_content,
