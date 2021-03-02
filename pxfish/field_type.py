@@ -30,8 +30,8 @@ def add_field_type(*, operation_type, definition, role, session):
         ft.name = query['name']
         ft.ftype = 'sample'
         ft.allowable_field_types = add_aft(
-                    session=session, definition=definition
-                    )
+            session=session, definition=definition
+        )
 
     return ft
 
@@ -52,14 +52,14 @@ def build(*, operation_type, definitions, session):
             operation_type=operation_type,
             definition=field_type_definition,
             role='input', session=session)
-            )
+        )
 
     for field_type_definition in definitions['outputs']:
         field_types.append(add_field_type(
             operation_type=operation_type,
             definition=field_type_definition,
             role='output', session=session)
-            )
+        )
 
     operation_type.field_types = field_types
 
@@ -86,6 +86,14 @@ def add_aft(*, session, definition):
     return afts
 
 
+def equivalent(*, field_type, definition):
+    """
+    Compares a field type object with a definition.
+    Returns True if equivalent, False otherwise.
+    """
+    return True
+
+
 def types_valid(*, operation_type, definitions, session):
     """
     Compares an Operation Type's Field Types to Those in the definitions file
@@ -96,22 +104,42 @@ def types_valid(*, operation_type, definitions, session):
         session (Session Object): Aquarium session object
     """
     field_types = session.FieldType.where({'parent_id': operation_type.id})
-    field_type_names = [field_type.name for field_type in field_types]
-    local_names = []
+    type_map = {field_type.name: field_type for field_type in field_types}
 
-    for field_type_definition in definitions['inputs']:
-        local_names.append(field_type_definition['name'])
-
-    for field_type_definition in definitions['outputs']:
-        local_names.append(field_type_definition['name'])
-
-    for ft in field_type_names:
-        if ft not in local_names:
-            logging.error(
-            'There are Field Type definitions in your Aquarium instance that you do not have locally. \
-                    Pushing will erase those Field Types. \
-                    Operation Type %s will not be pushed', operation_type.name
-                    )
-            return False
+    local_diff = dict()
+    match_names = set()
+    conflicts = dict()
+    for definition in definitions['inputs']:
+        name = definition['name']
+        if name in type_map:
+            match_names.add(name)
+            if not equivalent(field_type=type_map[name], definition=definition):
+                conflicts[name] = definition
         else:
-            return True
+            local_diff[name] = definition
+
+    for definition in definitions['outputs']:
+        name = definition['name']
+        if name in type_map:
+            match_names.add(name)
+            if not equivalent(field_type=type_map[name], definition=definition):
+                conflicts[name] = definition
+        else:
+            local_diff[name] = definition
+
+    aquarium_diff_names = type_map.keys().difference(match_names)
+
+    # match_names: names that occur in both
+    # conflicts: dictionary of definitions not equivalent to aq field type with same name
+    # local_diff: dictionary of definitions with no aq field type with same name
+    # aquarium_diff_names: aq field type names that have no matching definition
+
+    if aquarium_diff_names:
+        logging.error(
+            'There are Field Type definitions in your Aquarium instance that you do not have locally. \
+                Pushing will erase those Field Types. \
+                Operation Type %s will not be pushed', operation_type.name
+        )
+        return False
+    else:
+        return True
