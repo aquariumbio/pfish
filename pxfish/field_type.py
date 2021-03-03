@@ -15,7 +15,8 @@ def add_field_type(*, operation_type, definition, role, session):
     """
     query = {
         'name': definition['name'],
-        'parent_id': operation_type.id
+        'parent_id': operation_type.id,
+        'role': role
     }
     field_type = session.FieldType.where(query)
 
@@ -62,7 +63,7 @@ def build(*, operation_type, definitions, session):
         )
 
     operation_type.field_types = field_types
-    print(f"op type field types are now {operation_type.field_types}")
+
     session.utils.update_operation_type(operation_type)
 
 
@@ -93,15 +94,18 @@ def equivalent(*, field_type, definition):
     """
     return True
 
-def check_missing_types(*, operation_type, definitions, role, session):
 
+def check_missing_types(*, operation_type, definitions, role, session):
+    """
+
+    """
     field_types = session.FieldType.where({'parent_id': operation_type.id, 'role': role})
     type_map = {field_type.name: field_type for field_type in field_types}
     local_diff = dict()
     match_names = set()
     conflicts = dict()
 
-    for definition in definitions[role]:
+    for definition in definitions[role + 's']:
         name = definition['name']
         if name in type_map:
             match_names.add(name)
@@ -113,10 +117,7 @@ def check_missing_types(*, operation_type, definitions, role, session):
     aquarium_diff_names = set(type_map.keys()).difference(match_names)
 
     return aquarium_diff_names
-    #print(f"keys as a set {set(type_map.keys())}")
-    #print(f"match_names: {match_names}")
-    #print(f"difference is {aquarium_diff_names}")
-    #print(f"local diff is {local_diff}")
+
 
 def types_valid(*, operation_type, definitions, session):
     """
