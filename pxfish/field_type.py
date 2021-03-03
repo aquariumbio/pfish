@@ -95,17 +95,16 @@ def equivalent(*, field_type, definition):
     return True
 
 
-def check_missing_types(*, operation_type, definitions, role, session):
+def check_for_conflicts(*, field_types, definitions):
     """
 
     """
-    field_types = session.FieldType.where({'parent_id': operation_type.id, 'role': role})
     type_map = {field_type.name: field_type for field_type in field_types}
     local_diff = dict()
     match_names = set()
     conflicts = dict()
 
-    for definition in definitions[role + 's']:
+    for definition in definitions:
         name = definition['name']
         if name in type_map:
             match_names.add(name)
@@ -129,17 +128,17 @@ def types_valid(*, operation_type, definitions, session):
         session (Session Object): Aquarium session object
     """
 
-    invalid_inputs = check_missing_types(
-                operation_type=operation_type,
-                definitions=definitions,
-                role='input',
-                session=session)
+    field_types = session.FieldType.where({'parent_id': operation_type.id})
 
-    invalid_outputs = check_missing_types(
-                operation_type=operation_type,
-                definitions=definitions,
-                role='output',
-                session=session)
+    input_conflicts = check_for_conflicts(
+        field_types=[t for t in field_types if t.role == 'input'],
+        definitions=definitions['inputs']
+    )
+
+    output_conflicts = check_for_conflicts(
+        field_types=[t for t in field_types if t.role == 'output'],
+        definitions=definitions['outputs']
+    )
 
     # get the difference between the aquarium types from the type map and the matched names
     # match_names: names that occur in both
@@ -147,7 +146,7 @@ def types_valid(*, operation_type, definitions, session):
     # local_diff: dictionary of definitions with no aq field type with same name
     # aquarium_diff_names: aq field type names that have no matching definition
 
-    if invalid_inputs or invalid_outputs:
+    if input_conflicts or output_conflicts:
         logging.error(
             'There are Field Type definitions in your Aquarium instance that you do not have locally.\
                 Pushing will erase those Field Types. \
