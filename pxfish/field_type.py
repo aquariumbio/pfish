@@ -100,7 +100,7 @@ def equivalent(*, field_type, definition):
     field_type_data = field_type_list(
             field_types=[field_type], role=field_type.role)
     for k, v in definition.items():
-        if field_type_data[0][k] is not v:
+        if field_type_data[0][k] != v:
             return False
     return True
 
@@ -112,10 +112,11 @@ def check_for_conflicts(*, field_types, definitions):
         field_types (List): Field Types retrieved from Aquarium
         defintions (Dictionary): data about field types stored in defintion file
     returns Dictionary containing:
-        conflicts (Dictionary): Field Types that are in both places, but have differing data
-        local_diff (Dictionary): Field Types in definition file that are not in Aquarium
-        aquarium_diff_names (Dictionary): Field Types in Aquarium with no matching definition
+        conflicts (Dictionary): Field Types in both places with differing data
+        local_diff (Dictionary): Field Types in definition file Only
+        aquarium_diff_names (Dictionary): Field Types in Aquarium Only
     """
+
     type_map = {field_type.name: field_type for field_type in field_types}
     local_diff = dict()
     match_names = set()
@@ -132,13 +133,14 @@ def check_for_conflicts(*, field_types, definitions):
 
     aquarium_diff_names = set(type_map.keys()).difference(match_names)
 
-    return {"aquarium_diff_names": aquarium_diff_names, "local_diff": local_diff, "conflicts": conflicts}
+    return {'aquarium_diff_names': aquarium_diff_names,
+            'local_diff': local_diff, 'conflicts': conflicts}
 
 
 def types_valid(*, operation_type, definitions, session):
     """
     Compares an Operation Type's Field Types to those in the Definitions file
-    If a Field Type only exists in the Instance Type, returns False
+    If a Field Type only exists in Instance Type, stops push for Operation Type
     Arguments:
         operation_type (Operation Type): parent object
         definitions (Dictionary): data about field types
@@ -156,16 +158,21 @@ def types_valid(*, operation_type, definitions, session):
         field_types=[t for t in field_types if t.role == 'output'],
         definitions=definitions['outputs']
     )
-    # get the difference between the aquarium types from the type map and the matched names
-    # match_names: names that occur in both
-    # conflicts: dictionary of definitions not equivalent to aq field type with same name
-    # local_diff: dictionary of definitions with no aq field type with same name
-    # aquarium_diff_names: aq field type names that have no matching definition
-
-    if input_conflicts or output_conflicts:
-        logging.error(
-            "There are Field Type definitions in your Aquarium instance that you do not have locally. Pushing will erase them. Operation Type %s will not be pushed", operation_type.name
-        )
+ 
+    if input_conflicts['aquarium_diff_names'] or output_conflicts['aquarium_diff_names']:
+        logging.warning(
+            "The following Aqarium Field types are not in your local definitions. Inputs: %s, Outputs: \
+                    %s Operation Type %s will not be pushed", input_conflicts['aquarium_diff_names'],
+                    output_conflicts['aquarium_diff_names'], operation_type.name)
         return False
-    else:
-        return True
+    if input_conflicts['local_diffs'] or output_conflicts['local_diffs']:
+        logging.info(
+            "New Field Type Inputs: %s and Outputs %s will be added to Operation type %s",
+                input_conflicts['local_diffs'], output_conflicts['local_diffs'], operation_type.name
+                )
+    if input_conflicts['conflicts'] or output_conflicts['conflicts']:
+        logging.warning(
+                "Local Field Type Inputs: %s and Outputs: %s contain different data than version in Aqarium and will be updateds",
+                input_conflicts['conflicts'], output_conflicts['conflicts']
+                )
+    return True
