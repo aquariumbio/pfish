@@ -158,21 +158,26 @@ def types_valid(*, operation_type, definitions, session):
         field_types=[t for t in field_types if t.role == 'output'],
         definitions=definitions['outputs']
     )
- 
+
     if input_conflicts['aquarium_diff_names'] or output_conflicts['aquarium_diff_names']:
         logging.warning(
-            "The following Aqarium Field types are not in your local definitions. Inputs: %s, Outputs: \
-                    %s Operation Type %s will not be pushed", input_conflicts['aquarium_diff_names'],
-                    output_conflicts['aquarium_diff_names'], operation_type.name)
+            'The following Aquarium Field types are not in your  \
+                    local definitions, Inputs: %s, Outputs: \
+                    %s Operation Type %s will not be pushed',
+                    input_conflicts['aquarium_diff_names'],
+                    output_conflicts['aquarium_diff_names'],
+                    operation_type.name
+                    )
         return False
-    if input_conflicts['local_diffs'] or output_conflicts['local_diffs']:
+    if input_conflicts['local_diff'] or output_conflicts['local_diff']:
         logging.info(
-            "New Field Type Inputs: %s and Outputs %s will be added to Operation type %s",
-                input_conflicts['local_diffs'], output_conflicts['local_diffs'], operation_type.name
+            'New Field Type Inputs: %s and Outputs %s will be added to Operation type %s',
+                input_conflicts['local_diff'], output_conflicts['local_diff'], operation_type.name
                 )
     if input_conflicts['conflicts'] or output_conflicts['conflicts']:
         logging.warning(
-                "Local Field Type Inputs: %s and Outputs: %s contain different data than version in Aqarium and will be updateds",
+                'Local Field Type Inputs: %s and Outputs: %s contain different data \
+                        than is in Aquarium and will be updated',
                 input_conflicts['conflicts'], output_conflicts['conflicts']
                 )
     return True
