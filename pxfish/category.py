@@ -16,7 +16,8 @@ def is_category(path):
         return False
 
     entries = os.listdir(path)
-    return set(entries) <= {'libraries', 'operation_types'}
+
+    return not set(entries).isdisjoint({'libraries', 'operation_types'})
 
 
 def pull(*, session, path, name):
@@ -59,9 +60,19 @@ def push(*, session, path):
         session (Session Object): Aquarium session object
         path (String): the path the category
     """
+    if not is_category(path):
+        logging.warning('%s path is not a valid pfish category.')
+        return
+
     category_entries = os.listdir(path)
+
     for directory_entry in category_entries:
-        files = os.listdir(os.path.join(path, directory_entry))
+        try:
+            files = os.listdir(os.path.join(path, directory_entry))
+        # TODO: Move this so it happens at the OT and Library level
+        except NotADirectoryError:
+            logging.info("Not a directory")
+
         if directory_entry == 'libraries':
             for name in files:
                 library.push(
