@@ -77,9 +77,9 @@ def push(*, session, path):
         return
 
     for entry in dir_entries:
+        # TODO: account for errors coming back from category?
         entry_path = os.path.join(path, entry)
-        if is_category(entry_path):
-            category.push(session=session, path=entry_path)
+        category.push(session=session, path=entry_path)
 
 
 def run_tests(*, session, path):
