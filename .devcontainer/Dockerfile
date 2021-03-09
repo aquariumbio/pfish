@@ -10,7 +10,8 @@ ARG VARIANT="3"
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
 # duplicate environment
-RUN mkdir -p /script/config
+ENV SCRIPT_DIR=/script
+RUN mkdir -p ${SCRIPT_DIR}/config
 
 COPY requirements.txt /tmp/pip-tmp/
 RUN pip3 --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \

@@ -10,13 +10,13 @@ Make sure you have Docker installed.
 
 Download the pfish installation script with the command
 
-  ```bash
-  wget -vO- https://raw.githubusercontent.com/aquariumbio/pfish/master/pfish-install.sh | sh
-  ```
+```bash
+wget -vO- https://raw.githubusercontent.com/aquariumbio/pfish/master/pfish-install.sh | sh
+```
 
 This script will download the pfish wrapper script and install it in `~/bin`.
 
-Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux). 
+Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux).
 
 If you don't have `wget` installed, you can clone this repository and run `make install`.
 
@@ -33,7 +33,7 @@ Pfish has two parts: the wrapper script, and the pfish Docker image.
    pfish update
    ```
 
-*Note*: The image is updated more frequently than the wrapper script.
+_Note_: The image is updated more frequently than the wrapper script.
 
 ## Configuring
 
@@ -58,10 +58,10 @@ specifying the configuration-name, user-login, password, and instance URL.
 
 A configuration name is simply a key to keep track of the login information for a particular Aquarium instance.
 
-*Note*: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
+_Note_: Using the `configure add` command without providing a new name will overwrite the existing local login configuration.
 
 You can use `configure add` to set up as many configurations as you want. For example, you can have a `production` configuration in addition to a `local` configuration.
-You can use the `local` configuration while developing protocols and switch to the `production` configuration  when transferring operation types or libraries to Aquarium.
+You can use the `local` configuration while developing protocols and switch to the `production` configuration when transferring operation types or libraries to Aquarium.
 
 To change which configuration will be used by default, use the command
 
@@ -86,18 +86,18 @@ pfish configure show
 
 ## Commands
 
-All commands other than `configure`  use the current working directory by default.
+All commands other than `configure` use the current working directory by default.
 This can be overridden with the following options
 
 - `-d <directory-name>` - use the named subdirectory of the current working directory.
 
 ### Pull
 
-*Note*: If you do not specify a directory name, files will be pulled into your current working directory.
+_Note_: If you do not specify a directory name, files will be pulled into your current working directory.
 
 The available pull commands are:
 
-1. Pull all libraries and operation types in an Aquarium instance. 
+1. Pull all libraries and operation types in an Aquarium instance.
 
    ```bash
    pfish pull -d <directory_name>
@@ -120,6 +120,7 @@ The available pull commands are:
    ```bash
    pfish pull -c <category_name> -l <library_name>
    ```
+
 ### Push
 
 The available push commands are:
@@ -142,13 +143,13 @@ The available push commands are:
    pfish push -c <category_name> -l <library_name>
    ```
 
-3. Push a single operation type
+4. Push a single operation type
 
    ```bash
    pfish push -c <category_name> -o <operation_type_name>
    ```
 
-_Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it, provided your files are in the correct format. 
+_Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it, provided your files are in the correct format.
 See [Developing Operation Types and Libraries](#developing-operation-types-and-libraries) for details on correct formatting.
 
 If you want to create an entirely new operation type or library, we suggest you use the `create` command to set up the necessary file structure.
@@ -171,10 +172,10 @@ The available create commands are:
 
 ### Test
 
-pfish can run ruby tests on Operation Types. 
+pfish can run ruby tests on Operation Types.
 Test results will be summarized on screen, with details saved to a file called test_results.json located within the folder for the Operation Type under test.
 
-The available test commands are: 
+The available test commands are:
 
 1. Test an Operation Type
 
@@ -213,6 +214,7 @@ which will create the operation type or library both in Aquarium and in the curr
 The local files will be in the directory `mycategory`:
 
 If `mycategory` exists in Aquarium, the new operation type or library will be saved within it. If it does not exist, it will be created.
+
 ```bash
 .
 `-- mycategory
@@ -224,6 +226,7 @@ If `mycategory` exists in Aquarium, the new operation type or library will be sa
             |-- precondition.rb
             `-- protocol.rb
 ```
+
 or, for a library
 
 ```bash
@@ -287,7 +290,7 @@ pfish push -c Cloning -o "Run Gel"
 
 to push only that operation type.
 
-If you change files in different operation types, you can push the whole category at once by running 
+If you change files in different operation types, you can push the whole category at once by running
 
 ```
 pfish push -c Cloning
@@ -315,7 +318,7 @@ When writing tests for functions that write to disk, make sure that you are usin
 
 ## GitHub CI
 
-The GitHub repository is configured to run a CI workflow that publishes a Docker image to aquariumbio/pfish. 
+The GitHub repository is configured to run a CI workflow that publishes a Docker image to aquariumbio/pfish.
 See the files in the `.github` directory for details.
 
 ## Local build
@@ -334,5 +337,3 @@ If there are cases where you want to ensure that the new image is pushed to Dock
 1. Make sure the version number is what you want it to be
 2. Run `make build`
 3. Run `docker push aquariumbio/pfish:$VERSION`
-
-
