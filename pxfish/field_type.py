@@ -154,20 +154,11 @@ def types_valid(*, operation_type, definitions, session):
         field_types=[t for t in field_types if t.role == 'input'],
         definitions=definitions['inputs']
     )
-#    input_conflicts = check_for_conflicts(
-#        field_types=[t for t in field_types if t.role == 'input'],
-#        definitions=definitions['inputs']
-#    )
-#
     missing_outputs, output_conflicts, valid_outputs = check_for_conflicts(
         field_types=[t for t in field_types if t.role == 'output'],
         definitions=definitions['outputs']
     )
-     
-    #output_conflicts = check_for_conflicts(
-    #    field_types=[t for t in field_types if t.role == 'output'],
-    #    definitions=definitions['outputs']
-    #)
+
     messages = []
     if missing_inputs or missing_outputs:
         for conflict in missing_inputs:
@@ -181,16 +172,12 @@ def types_valid(*, operation_type, definitions, session):
         for conflict in missing_inputs:
             messages.append(f'There is a data conflict between the Aquarium Field Type definition of Input {conflict} and your local definition')
 
-    #if input_conflicts['aquarium_diff_names'] or output_conflicts['aquarium_diff_names']:
     if messages:
+        messages = ' '.join(messages)
         logging.warning(
-            'The Following Field Type Conflicts exist, %s. Operation Type %s will not be pushed',
+                'The Following Field Type Conflict(s) exist: %s. Operation Type %s will not be pushed',
                     messages, operation_type.name
                     )
         return False
-    #if input_conflicts['local_diff'] or output_conflicts['local_diff']:
-    #    logging.info(
-    #        'New Field Type Inputs: %s and Outputs %s will be added to Operation type %s',
-    #            input_conflicts['local_diff'], output_conflicts['local_diff'], operation_type.name
-    #            )
+
     return True
