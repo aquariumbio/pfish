@@ -133,8 +133,9 @@ def check_for_conflicts(*, field_types, definitions):
 
     aquarium_diff_names = set(type_map.keys()).difference(match_names)
 
-    return {'aquarium_diff_names': aquarium_diff_names,
-            'local_diff': local_diff, 'conflicts': conflicts}
+    return (aquarium_diff_names, local_diff,  conflicts)
+    #return {'aquarium_diff_names': aquarium_diff_names,
+            #'local_diff': local_diff, 'conflicts': conflicts}
 
 
 def types_valid(*, operation_type, definitions, session):
@@ -149,35 +150,47 @@ def types_valid(*, operation_type, definitions, session):
 
     field_types = session.FieldType.where({'parent_id': operation_type.id})
 
-    input_conflicts = check_for_conflicts(
+    missing_inputs, input_conflicts, valid_inputs = check_for_conflicts(
         field_types=[t for t in field_types if t.role == 'input'],
         definitions=definitions['inputs']
     )
-
-    output_conflicts = check_for_conflicts(
+#    input_conflicts = check_for_conflicts(
+#        field_types=[t for t in field_types if t.role == 'input'],
+#        definitions=definitions['inputs']
+#    )
+#
+    missing_outputs, output_conflicts, valid_outputs = check_for_conflicts(
         field_types=[t for t in field_types if t.role == 'output'],
         definitions=definitions['outputs']
     )
+     
+    #output_conflicts = check_for_conflicts(
+    #    field_types=[t for t in field_types if t.role == 'output'],
+    #    definitions=definitions['outputs']
+    #)
+    messages = []
+    if missing_inputs or missing_outputs:
+        for conflict in missing_inputs:
+            messages.append(f'Aquarium Field Type Input {conflict} is not in your definition file.')
+        for conflict in missing_outputs:
+            messages.append(f'Aquarium Field Type Output {conflict} is not in your definition file.')
 
-    if input_conflicts['aquarium_diff_names'] or output_conflicts['aquarium_diff_names']:
+    if input_conflicts or output_conflicts:
+        for conflict in input_conflicts:
+            messages.append(f'There is a data conflict between the Aquarium Field Type definition of Output {conflict} and your local definition')
+        for conflict in missing_inputs:
+            messages.append(f'There is a data conflict between the Aquarium Field Type definition of Input {conflict} and your local definition')
+
+    #if input_conflicts['aquarium_diff_names'] or output_conflicts['aquarium_diff_names']:
+    if messages:
         logging.warning(
-            'The following Aquarium Field types are not in your  \
-                    local definitions, Inputs: %s, Outputs: \
-                    %s Operation Type %s will not be pushed',
-                    input_conflicts['aquarium_diff_names'],
-                    output_conflicts['aquarium_diff_names'],
-                    operation_type.name
+            'The Following Field Type Conflicts exist, %s. Operation Type %s will not be pushed',
+                    messages, operation_type.name
                     )
         return False
-    if input_conflicts['local_diff'] or output_conflicts['local_diff']:
-        logging.info(
-            'New Field Type Inputs: %s and Outputs %s will be added to Operation type %s',
-                input_conflicts['local_diff'], output_conflicts['local_diff'], operation_type.name
-                )
-    if input_conflicts['conflicts'] or output_conflicts['conflicts']:
-        logging.warning(
-                'Local Field Type Inputs: %s and Outputs: %s contain different data \
-                        than is in Aquarium and will be updated',
-                input_conflicts['conflicts'], output_conflicts['conflicts']
-                )
+    #if input_conflicts['local_diff'] or output_conflicts['local_diff']:
+    #    logging.info(
+    #        'New Field Type Inputs: %s and Outputs %s will be added to Operation type %s',
+    #            input_conflicts['local_diff'], output_conflicts['local_diff'], operation_type.name
+    #            )
     return True

@@ -1,0 +1,20 @@
+{
+  "default": "local",
+  "instances": {
+    "local": {
+      "login": "neptune",
+      "password": "aquarium",
+      "aquarium_url": "http://localhost:3000"
+    },
+    "nursery": {
+      "login": "amycash",
+      "password": "ga@tsB1920Rb",
+      "aquarium_url": "http://52.27.43.242:81"
+    },
+    "nurserytest": {
+      "login": "amycash",
+      "password": "ga@tsB1920Rb",
+      "aquarium_url": "http://52.27.242:81"
+    }
+  }
+}
