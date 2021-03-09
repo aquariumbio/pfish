@@ -69,9 +69,9 @@ def push(*, session, path):
     for directory_entry in category_entries:
         try:
             files = os.listdir(os.path.join(path, directory_entry))
-        # TODO: Move this so it happens at the OT and Library level
         except NotADirectoryError:
-            logging.info("Not a directory")
+            logging.warning('%s is not a directory', directory_entry)
+            continue
 
         if directory_entry == 'libraries':
             for name in files:
@@ -101,6 +101,7 @@ def run_tests(*, session, path, name):
         path (String): path to category
         name (String): name of the category to be tested
     """
+    # TODO: another place to catch NotADirectoryError and other errors
     category_entries = os.listdir(path)
     for subdirectory_entry in category_entries:
 
