@@ -25,12 +25,14 @@ from protocol_test import (
 
 
 def is_operation_type(path):
-    if not os.path.isdir(path):
-        return False
-
+    """Checks whether definition file exists and is for an Operation Type """
     try:
         def_dict = definition.read(path)
+    except NotADirectoryError:
+        logging.warning('%s is not a directory', path)
+        return False
     except FileNotFoundError:
+        logging.warning('No definition file at %s', path)
         return False
 
     return definition.is_operation_type(def_dict)
@@ -175,8 +177,8 @@ def push(*, session, path, component_names=all_component_names()):
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
     """
-    if not definition.has_definition(path):
-        logging.warning("A Definition file is required to push to aquarium")
+    if not is_operation_type(path):
+        logging.warning('No Operation Type at %s', path)
         return
 
     definitions = definition.read(path)
