@@ -12,10 +12,12 @@ from paths import create_named_path
 
 def is_category(path):
     """Checks path to see if it leads to a category directory."""
-    if not os.path.isdir(path):
-        return False
 
-    entries = os.listdir(path)
+    try:
+        entries = os.listdir(path)
+    except NotADirectoryError:
+        logging.warning('%s is not a directory', path)
+        return False
 
     return not set(entries).isdisjoint({'libraries', 'operation_types'})
 
@@ -61,7 +63,7 @@ def push(*, session, path):
         path (String): the path the category
     """
     if not is_category(path):
-        logging.warning('%s path is not a valid pfish category.')
+        logging.warning('No valid pfish category at %s', path)
         return
 
     category_entries = os.listdir(path)
@@ -105,10 +107,10 @@ def run_tests(*, session, path, name):
     category_entries = os.listdir(path)
     for subdirectory_entry in category_entries:
 
-        if subdirectory_entry == "libraries":
-            logging.warning("Tests not available for libraries")
+        if subdirectory_entry == 'libraries':
+            logging.warning('Tests not available for libraries')
 
-        elif subdirectory_entry == "operation_types":
+        elif subdirectory_entry == 'operation_types':
             path = os.path.join(path, subdirectory_entry)
             files = os.listdir(path)
             for filename in files:
