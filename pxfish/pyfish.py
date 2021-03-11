@@ -218,7 +218,7 @@ def do_pull(args):
 
     if args.library or args.operation_type:
         logging.error(
-            "To pull an operation type or library, you must enter a category")
+            'To pull an operation type or library, you must enter a category')
         return
 
     instance.pull(session=session, path=path)
@@ -229,7 +229,6 @@ def do_push(args):
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
-
     # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
@@ -237,7 +236,7 @@ def do_push(args):
             library.push(
                 session=session,
                 path=create_named_path(
-                    category_path, args.library, subdirectory="libraries")
+                    category_path, args.library, subdirectory='libraries')
             )
             return
 
@@ -246,7 +245,7 @@ def do_push(args):
                 session=session,
                 path=create_named_path(
                     category_path, args.operation_type,
-                    subdirectory="operation_types")
+                    subdirectory='operation_types')
             )
             return
 
@@ -255,7 +254,7 @@ def do_push(args):
 
     if args.library or args.operation_type:
         logging.error(
-            "To test a single operation type or library, you must enter a category")
+            'To push a single operation type or library, you must enter a category')
         return
 
     instance.push(session=session, path=path)

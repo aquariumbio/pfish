@@ -17,10 +17,7 @@ from definition import (
 
 
 def is_library(path):
-    """Checks whether definition file is at path, and is for a library"""
-    # if not definition.has_definition(path):
-     #    logging.warning('No definition file at %s', path)
-      #   return False
+    """Checks whether definition file exists and is for a library"""
 
     try:
         def_dict = definition.read(path)
@@ -139,10 +136,11 @@ def push(*, session, path):
         path (String): path to files to be pushed
     """
     if not is_library(path):
-        logging.warning('Definition file at %s is not for a library', path)
+        logging.warning('No Library at %s', path)
         return
 
     definitions = definition.read(path)
+
     user_id = session.User.where({"login": session.login})
     query = {
         "category": definitions['category'],
