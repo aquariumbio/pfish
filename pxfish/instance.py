@@ -68,16 +68,16 @@ def push(*, session, path):
             library.push(session=session, path=path)
         return
 
-    categories = os.listdir(path)  # get all categories in the directory
+    categories = os.listdir(path)
+
     dir_entries = [entry for entry in categories
                    if os.path.isdir(os.path.join(path, entry))]
-
     if not dir_entries:
         logging.warning('Nothing to push in path %s', path)
         return
 
     for entry in dir_entries:
-        # TODO: account for errors coming back from category?
+        # TODO: account for errors coming back from category
         entry_path = os.path.join(path, entry)
         category.push(session=session, path=entry_path)
 
