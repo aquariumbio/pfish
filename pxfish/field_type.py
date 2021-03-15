@@ -169,7 +169,7 @@ def types_valid(*, operation_type, definitions, session):
     if input_conflicts or output_conflicts:
         for conflict in input_conflicts:
             messages.append(f'There is a data conflict between the Aquarium Field Type definition of Output {conflict} and your local definition')
-        for conflict in missing_inputs:
+        for conflict in output_conflicts:
             messages.append(f'There is a data conflict between the Aquarium Field Type definition of Input {conflict} and your local definition')
 
     if messages:
