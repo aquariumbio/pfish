@@ -1,5 +1,4 @@
 """Functions to create definition files with library or operation type data"""
-
 import json
 import logging
 import os
@@ -46,10 +45,25 @@ def field_type_list(field_types, role):
                 'name': field_type.name,
                 'part': field_type.part,
                 'array': field_type.array,
-                'routing': field_type.routing
-            }
+                'routing': field_type.routing,
+                'allowable_field_types':
+                    allowable_field_type_list(field_type.allowable_field_types)
+                }
             ft_list.append(ft_ser)
     return ft_list
+
+
+def allowable_field_type_list(allowable_field_types):
+
+    object_and_sample_types = []
+    for aft in allowable_field_types:
+        ser = {}
+        if aft.sample_type:
+            ser['sample_type'] = aft.sample_type.name
+        if aft.object_type:
+            ser['object_type'] = aft.object_type.name
+        object_and_sample_types.append(ser)
+    return object_and_sample_types
 
 
 def write_definition_json(file_path, operation_type):
@@ -83,7 +97,7 @@ def write_library_definition_json(file_path, library):
     """
     library_ser = {}
     library_ser['name'] = library.name
-    library_ser['parent_class'] = "Library"
+    library_ser['parent_class'] = 'Library'
     library_ser['category'] = library.category
     library_ser['user_id'] = library.source.user_id
 

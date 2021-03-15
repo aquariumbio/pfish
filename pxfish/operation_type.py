@@ -6,6 +6,9 @@ import logging
 import os
 import code_component
 import definition
+import field_type
+import object_type
+import sample_type
 
 from code_component import (
     create_code_object,
@@ -49,8 +52,8 @@ def get_operation_type(*, session, category, name):
     """
     retrieved_operation_type = session.OperationType.where(
         {
-            "category": category,
-            "name": name
+            'category': category,
+            'name': name
         }
     )
     if not retrieved_operation_type:
@@ -64,16 +67,27 @@ def get_operation_type(*, session, category, name):
 
 def pull(*, session, path, category, name):
     """
-    Retrieves operation type. Calls function to write the associated files
+    Retrieves operation type.
+    Calls function to write associated files
     """
     retrieved_operation_type = get_operation_type(
         session=session,
         category=category, name=name)
+
+    object_types = retrieved_operation_type.object_type()
+    sample_types = retrieved_operation_type.sample_type()
+
+    for obj_type in object_types:
+        object_type.write_files(path=path, object_type=obj_type)
+
+    for samp_type in sample_types:
+        sample_type.write_files(path=path, sample_type=samp_type)
+
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
-
-def write_files(*, session, path, operation_type):
+# TODO Fix this so you're not passing an empty list as the default
+def write_files(*, session, path, operation_type, sample_types=[], object_types=[]):
     """
     Writes the files associated with the operation_type to the path.
 
@@ -82,7 +96,7 @@ def write_files(*, session, path, operation_type):
         path (String): the path to where the files will be written
         operation_type (OperationType): the operation type being written
     """
-    logging.info('writing operation type %s', operation_type.name)
+    logging.info('Writing operation type %s', operation_type.name)
 
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
@@ -124,7 +138,6 @@ def write_files(*, session, path, operation_type):
                 'Encoding error %s writing file %s for operation type %s',
                 error, file_name, operation_type.name)
             continue
-
     write_definition_json(
         os.path.join(path, 'definition.json'),
         operation_type
@@ -143,7 +156,7 @@ def test_component_names():
     return ['protocol', 'test']
 
 
-def create(*, session, path, category, name, default_text=True):
+def create(*, session, path, category, name, default_text=True, field_types=[]):
     """
     Creates new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -153,6 +166,8 @@ def create(*, session, path, category, name, default_text=True):
         path (String): the directory path where the new files will be written
         category (String): the category for the operation type
         name (String): name of the operation type
+        field_types (List): field types associated with new operation type.
+                            Defaults to empty list
     """
     code_objects = create_code_objects(session=session,
                                        component_names=all_component_names(),
@@ -165,7 +180,8 @@ def create(*, session, path, category, name, default_text=True):
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'],
         test=code_objects['test'])
-    new_operation_type.field_types = []
+
+    new_operation_type.field_types = field_types
     session.utils.create_operation_type(new_operation_type)
 
 
@@ -183,19 +199,28 @@ def push(*, session, path, component_names=all_component_names()):
 
     definitions = definition.read(path)
 
-    user_id = session.User.where({"login": session.login})
+    user_id = session.User.where({'login': session.login})
     query = {
-        "category": definitions['category'],
-        "name": definitions['name']
+        'category': definitions['category'],
+        'name': definitions['name']
     }
 
     parent_object = session.OperationType.where(query)
-    # parent_type_name = 'operation type'
 
     if not parent_object:
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
+
+    if definitions['inputs'] or definitions['outputs']:
+        if not field_type.types_valid(
+                definitions=definitions,
+                operation_type=parent_object[0], session=session):
+            return
+
+        field_type.build(
+                definitions=definitions,
+                operation_type=parent_object[0], session=session)
 
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
@@ -210,7 +235,7 @@ def push(*, session, path, component_names=all_component_names()):
             content=read_file
         )
 
-        logging.info('writing file %s', parent_object[0].name)
+        logging.info('pushing file %s', parent_object[0].name)
 
         session.utils.update_code(new_code)
 
@@ -226,7 +251,10 @@ def run_test(*, session, path, category, name):
         name (String): name of the Operation Type to be tested
     """
     logging.info('Sending request to test %s', name)
-    push(session=session, path=path, component_names=test_component_names())
+    push(
+        session=session, path=path,
+        component_names=test_component_names()
+        )
 
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)

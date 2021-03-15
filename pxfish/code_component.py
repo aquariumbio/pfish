@@ -47,8 +47,9 @@ def add_default_content(name):
     Arguments:
         name (String): name of file whose contents to retrieve
     """
-    path = os.path.normpath("/script/protocol_templates")
-    # path = os.path.normpath("protocol_templates")
+    path = os.path.normpath(
+        os.path.join(os.environ.get('SCRIPT_DIR') or '', 'protocol_templates')
+    )
     return read(path=path, name=name)
 
 

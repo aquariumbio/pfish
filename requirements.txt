@@ -1,4 +1,4 @@
-pydent==1.0.4
-pytest==6.2.1
-pytest-cov==2.10.1
-pytest-mock==3.4.0
+pydent==1.0.7
+pytest==6.2.2
+pytest-cov==2.11.1
+pytest-mock==3.5.1

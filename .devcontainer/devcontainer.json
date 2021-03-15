@@ -35,6 +35,10 @@
     "source=${localWorkspaceFolder}/pxfish/protocol_templates,target=/script/protocol_templates,type=bind"
   ],
 
+  "remoteEnv": {
+    "SCRIPT_DIR": "/script"
+  },
+
   "runArgs": ["--net=host"],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
