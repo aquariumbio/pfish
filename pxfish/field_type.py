@@ -1,10 +1,13 @@
 """Functions for Creating Field Types and Allowable Field Types"""
 
 import logging
-from definition import field_type_list
+import sample_type
+import object_type
+from definition import (
+        field_type_list
+        )
 
-
-def add_field_type(*, operation_type, definition, role, session):
+def add_field_type(*, operation_type, definition, role, path, session):
     """
     Creates list of Field Types to Add to Operation Type
     If a Field Type doesn't already exist, creates it
@@ -32,12 +35,12 @@ def add_field_type(*, operation_type, definition, role, session):
         ft.name = query['name']
         ft.ftype = 'sample'
         ft.allowable_field_types = add_aft(
-            session=session, definition=definition
+            definition=definition, path=path, session=session
         )
     return ft
 
 
-def build(*, operation_type, definitions, session):
+def build(*, operation_type, definitions, path, session):
     """
     Adds defined field types to Operation Type
 
@@ -52,14 +55,14 @@ def build(*, operation_type, definitions, session):
         field_types.append(add_field_type(
             operation_type=operation_type,
             definition=field_type_definition,
-            role='input', session=session)
+            role='input', path=path, session=session)
         )
 
     for field_type_definition in definitions['outputs']:
         field_types.append(add_field_type(
             operation_type=operation_type,
             definition=field_type_definition,
-            role='output', session=session)
+            role='output', path=path, session=session)
         )
 
     operation_type.field_types = field_types
@@ -67,7 +70,7 @@ def build(*, operation_type, definitions, session):
     session.utils.update_operation_type(operation_type)
 
 
-def add_aft(*, session, definition):
+def add_aft(*, session, definition, path):
     """
     Adds Sample and Object type names to Field Type Object
 
@@ -76,14 +79,27 @@ def add_aft(*, session, definition):
         definition (Dictionary): Data about Sample and Object types
     """
     afts = []
-    for aft in definition['allowable_field_types']:
+    for aft in definition['allowable_field_types']: # an array of dictionaries
+        if sample_type.exists(
+                    session=session,
+                    sample_type=aft['sample_type']
+                    ):
+            st = session.SampleType.new()
+            st.name = aft['sample_type']
+        else:
+            st = sample_type.create(
+                    session=session,
+                    sample_type=aft['sample_type'],
+                    path=path
+                        )
 
-        sample_type = session.SampleType.new()
-        object_type = session.ObjectType.new()
+            #if object_type.exists(session, associated_type['object_type']):
+            #    ot = session.ObjectType.new()
+            #else:
+            #    ot = object_type.create(session, associated_type['object_type'])
 
-        sample_type.name = aft['sample_type']
-        object_type.name = aft['object_type']
-        afts.append({'sample_type': sample_type, 'object_type': object_type})
+        # afts.append({'sample_type': st, 'object_type': ot})
+
     return afts
 
 
@@ -145,6 +161,7 @@ def types_valid(*, operation_type, definitions, session):
 
     field_types = session.FieldType.where({'parent_id': operation_type.id})
 
+    # Should also check for object and sample type conflicts
     missing_inputs, input_conflicts, valid_inputs = check_for_conflicts(
         field_types=[t for t in field_types if t.role == 'input'],
         definitions=definitions['inputs']
