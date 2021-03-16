@@ -133,9 +133,7 @@ def check_for_conflicts(*, field_types, definitions):
 
     aquarium_diff_names = set(type_map.keys()).difference(match_names)
 
-    return (aquarium_diff_names, local_diff,  conflicts)
-    #return {'aquarium_diff_names': aquarium_diff_names,
-            #'local_diff': local_diff, 'conflicts': conflicts}
+    return (aquarium_diff_names, conflicts, local_diff)
 
 
 def types_valid(*, operation_type, definitions, session):
@@ -168,9 +166,9 @@ def types_valid(*, operation_type, definitions, session):
 
     if input_conflicts or output_conflicts:
         for conflict in input_conflicts:
-            messages.append(f'There is a data conflict between the Aquarium Field Type definition of Output {conflict} and your local definition')
-        for conflict in output_conflicts:
             messages.append(f'There is a data conflict between the Aquarium Field Type definition of Input {conflict} and your local definition')
+        for conflict in output_conflicts:
+            messages.append(f'There is a data conflict between the Aquarium Field Type definition of Output {conflict} and your local definition')
 
     if messages:
         messages = ' '.join(messages)
