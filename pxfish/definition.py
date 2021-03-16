@@ -27,29 +27,27 @@ def name(obj: Dict) -> str:
     return obj['name']
 
 
-def field_type_list(field_types, role):
+def field_type_list(field_types):
     """
     Returns sublist of field types with the given role.
 
     Arguments:
       field_types (List): the list of field types
-      role (String): the role of field types to be returned (e.g. "input")
 
     Returns:
       list: the sublist of field_types that have the specified role
     """
     ft_list = []
     for field_type in field_types:
-        if field_type.role == role:
-            ft_ser = {
-                'name': field_type.name,
-                'part': field_type.part,
-                'array': field_type.array,
-                'routing': field_type.routing,
-                'allowable_field_types':
-                    allowable_field_type_list(field_type.allowable_field_types)
-                }
-            ft_list.append(ft_ser)
+        ft_ser = {
+            'name': field_type.name,
+            'part': field_type.part,
+            'array': field_type.array,
+            'routing': field_type.routing,
+            'allowable_field_types':
+                allowable_field_type_list(field_type.allowable_field_types)
+            }
+        ft_list.append(ft_ser)
     return ft_list
 
 
@@ -78,8 +76,12 @@ def write_definition_json(file_path, operation_type):
     ot_ser['name'] = operation_type.name
     ot_ser['parent_class'] = 'OperationType'
     ot_ser['category'] = operation_type.category
-    ot_ser['inputs'] = field_type_list(operation_type.field_types, 'input')
-    ot_ser['outputs'] = field_type_list(operation_type.field_types, 'output')
+    ot_ser['inputs'] = field_type_list(
+            [ft for ft in operation_type.field_types if ft.role == 'input']
+            )
+    ot_ser['outputs'] = field_type_list(
+            [ft for ft in operation_type.field_types if ft.role == 'output']
+            )
     ot_ser['on_the_fly'] = operation_type.on_the_fly
     ot_ser['user_id'] = operation_type.protocol.user_id
 
