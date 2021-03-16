@@ -13,6 +13,29 @@ from paths import (
     simplename
 )
 
+
+def exists(*, session, smpl_type):
+    """
+    Checks whether a Sample Type named in definition exists in Aquarium
+    """
+    # TODO: we are not currently storing the description in the definition file
+    sample_type = session.SampleType.where({'name': smpl_type})
+    
+    if sample_type:
+        return True
+    else:
+        return False
+
+
+def create(*, session, smpl_type):
+    """
+    Creates a new Sample Type in Aquarium
+    """
+    s = session.SampleType(name=smpl_type, description="fake")
+    s.save()
+    return s
+
+
 def write_files(*, path, sample_type):
     """
     Writes the files associated with the sample_type to the path.
@@ -28,8 +51,8 @@ def write_files(*, path, sample_type):
     makedirectory(path)
 
     sample_type_ser = {
-        "name": sample_type.name,
-        "description": sample_type.description
+        'name': sample_type.name,
+        'description': sample_type.description
     }
 
     name = simplename(sample_type_ser['name'])
