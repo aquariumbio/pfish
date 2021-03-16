@@ -17,13 +17,15 @@ from definition import (
 
 
 def is_library(path):
-    """Checks whether definiton file is at path, and is for a library"""
-    if not os.path.isdir(path):
-        return False
+    """Checks whether definition file exists and is for a library"""
 
     try:
         def_dict = definition.read(path)
+    except NotADirectoryError:
+        logging.warning('%s is not a directory', path)
+        return False
     except FileNotFoundError:
+        logging.warning('No definition file at %s', path)
         return False
 
     return definition.is_library(def_dict)
@@ -133,6 +135,10 @@ def push(*, session, path):
         session (Session Object): Aquarium session object
         path (String): path to files to be pushed
     """
+    if not is_library(path):
+        logging.warning('No Library at %s', path)
+        return
+
     definitions = definition.read(path)
 
     user_id = session.User.where({"login": session.login})
@@ -154,6 +160,7 @@ def push(*, session, path):
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
         if read_file is None:
+            logging.warning('Code Component File %s was not found', name)
             return
 
         new_code = session.Code.new(

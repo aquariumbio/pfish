@@ -10,10 +10,12 @@ def has_definition(path) -> bool:
 
 
 def is_library(obj: Dict) -> bool:
+    logging.info('Checking whether Definition File is for a Library.')
     return obj['parent_class'] == 'Library'
 
 
 def is_operation_type(obj: Dict) -> bool:
+    logging.info('Checking whether Definition File is for an Operation Type.')
     return obj['parent_class'] == 'OperationType'
 
 
@@ -80,6 +82,7 @@ def write_definition_json(file_path, operation_type):
     ot_ser['outputs'] = field_type_list(operation_type.field_types, 'output')
     ot_ser['on_the_fly'] = operation_type.on_the_fly
     ot_ser['user_id'] = operation_type.protocol.user_id
+
     with open(file_path, 'w') as file:
         file.write(json.dumps(ot_ser, indent=2))
 
@@ -110,10 +113,8 @@ def read(path):
         path (String): path to definition file
     """
     file_path = os.path.join(path, 'definition.json')
-    try:
-        with open(file_path) as file:
-            definition = json.load(file)
-        return definition
-    except FileNotFoundError as error:
-        logging.warning(
-            'Error %s reading expected code file %s', error, 'definition.json')
+
+    with open(file_path) as file:
+        definition = json.load(file)
+
+    return definition

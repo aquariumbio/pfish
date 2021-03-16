@@ -12,11 +12,14 @@ from paths import create_named_path
 
 def is_category(path):
     """Checks path to see if it leads to a category directory."""
-    if not os.path.isdir(path):
+
+    try:
+        entries = os.listdir(path)
+    except NotADirectoryError:
+        logging.warning('%s is not a directory', path)
         return False
 
-    entries = os.listdir(path)
-    return set(entries) <= {'libraries', 'operation_types'}
+    return not set(entries).isdisjoint({'libraries', 'operation_types'})
 
 
 def pull(*, session, path, name):
@@ -57,9 +60,19 @@ def push(*, session, path):
         session (Session Object): Aquarium session object
         path (String): the path the category
     """
+    if not is_category(path):
+        logging.warning('No valid pfish category at %s', path)
+        return
+
     category_entries = os.listdir(path)
+
     for directory_entry in category_entries:
-        files = os.listdir(os.path.join(path, directory_entry))
+        try:
+            files = os.listdir(os.path.join(path, directory_entry))
+        except NotADirectoryError:
+            logging.warning('%s is not a directory', directory_entry)
+            continue
+
         if directory_entry == 'libraries':
             for name in files:
                 library.push(
@@ -88,13 +101,14 @@ def run_tests(*, session, path, name):
         path (String): path to category
         name (String): name of the category to be tested
     """
+    # TODO: another place to catch NotADirectoryError and other errors
     category_entries = os.listdir(path)
     for subdirectory_entry in category_entries:
 
-        if subdirectory_entry == "libraries":
-            logging.warning("Tests not available for libraries")
+        if subdirectory_entry == 'libraries':
+            logging.warning('Tests not available for libraries')
 
-        elif subdirectory_entry == "operation_types":
+        elif subdirectory_entry == 'operation_types':
             path = os.path.join(path, subdirectory_entry)
             files = os.listdir(path)
             for filename in files:
