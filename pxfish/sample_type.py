@@ -14,27 +14,48 @@ from paths import (
 )
 
 
-def exists(*, session, smpl_type):
+def exists(*, session, sample_type):
     """
     Checks whether a Sample Type named in definition exists in Aquarium
     """
     # TODO: we are not currently storing the description in the definition file
-    sample_type = session.SampleType.where({'name': smpl_type})
-    
-    if sample_type:
-        return True
-    else:
-        return False
+    sample_type = session.SampleType.where({'name': sample_type})
+
+    return bool(sample_type)
 
 
-def create(*, session, smpl_type):
+def create(*, session, sample_type, path):
     """
     Creates a new Sample Type in Aquarium
     """
-    s = session.SampleType(name=smpl_type, description="fake")
+    data_dict = read(path=path, sample_type=sample_type)
+    # use data_dict to create type
+    query = {
+            'name':  data_dict['name'],
+            'description': data_dict['description']
+            }
+
+    s = session.SampleType(query)
     s.save()
     return s
 
+
+def read(*, path, sample_type):
+    # path will be directory/category/operation_types/ot
+    # needs to be directory/sample_types/ot.json
+    # needs to read file in object types folder
+    # needs path and file name (sample type name simplified)
+    # But, Sample Names are Case Sensitive, so our simplify method can create conflicts
+    # path should be Dir/sample_types/file.json
+    file_path = os.path.join(path, 'definition.json')
+    try:
+        with open(file_path) as file:
+            data_dict = json.load(file)
+    except FileNotFoundError as error:
+        logging.warning(
+            'Error %s reading expected code file %s', error, 'definition.json')
+    return data_dict
+    
 
 def write_files(*, path, sample_type):
     """
