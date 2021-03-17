@@ -1,6 +1,4 @@
-"""
-Functions for pulling Sample Types in Aquarium.
-"""
+"""Functions for pulling Sample Types in Aquarium."""
 
 import json
 import logging
@@ -55,7 +53,7 @@ def read(*, path, sample_type):
         logging.warning(
             'Error %s reading expected code file %s', error, 'definition.json')
     return data_dict
-    
+ 
 
 def write_files(*, path, sample_type):
     """
@@ -73,7 +71,8 @@ def write_files(*, path, sample_type):
 
     sample_type_ser = {
         'name': sample_type.name,
-        'description': sample_type.description
+        'description': sample_type.description,
+        'field_types': definition.field_type_list(sample_type.field_types)
     }
 
     name = simplename(sample_type_ser['name'])
