@@ -45,6 +45,9 @@ def field_type_list(field_types):
             'part': field_type.part,
             'array': field_type.array,
             'routing': field_type.routing,
+            'ftype': field_type.ftype,
+            'choices': field_type.choices,
+            'required': field_type.required
             }
         if field_type.parent_class == "OperationType":
             ft_ser['allowable_field_types']: allowable_field_type_list(field_type.allowable_field_types)
