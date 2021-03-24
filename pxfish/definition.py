@@ -37,6 +37,7 @@ def field_type_list(field_types):
     Returns:
       list: the sublist of field_types that have the specified role
     """
+    #TODO: Distinuish Parameters from other inputs/outputs
     ft_list = []
     for field_type in field_types:
         ft_ser = {
@@ -44,9 +45,9 @@ def field_type_list(field_types):
             'part': field_type.part,
             'array': field_type.array,
             'routing': field_type.routing,
-            'allowable_field_types':
-                allowable_field_type_list(field_type.allowable_field_types)
             }
+        if field_type.parent_class == "OperationType":
+            ft_ser['allowable_field_types']: allowable_field_type_list(field_type.allowable_field_types)
         ft_list.append(ft_ser)
     return ft_list
 
