@@ -192,6 +192,7 @@ def push(*, session, path, component_names=all_component_names()):
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
+        component_names (List): Files to include as part of OT
     """
     if not is_operation_type(path):
         logging.warning('No Operation Type at %s', path)
@@ -207,12 +208,14 @@ def push(*, session, path, component_names=all_component_names()):
 
     parent_object = session.OperationType.where(query)
 
+    # TODO: Shouldn't finish create if there are FT conflicts
     if not parent_object:
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
     if definitions['inputs'] or definitions['outputs']:
+        # Check for Valid Field Types
         if not field_type.types_valid(
                 definitions=definitions,
                 operation_type=parent_object[0], session=session):
@@ -220,8 +223,9 @@ def push(*, session, path, component_names=all_component_names()):
 
         field_type.build(
                 definitions=definitions,
-                operation_type=parent_object[0], session=session)
+                operation_type=parent_object[0], path=path, session=session)
 
+    # TODO: Split out code creation to a seperate function
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
         if read_file is None:

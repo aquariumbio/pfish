@@ -37,7 +37,7 @@ def field_type_list(field_types):
     Returns:
       list: the sublist of field_types that have the specified role
     """
-    #TODO: Distinuish Parameters from other inputs/outputs
+    #TODO: Distinguish Parameters from other inputs/outputs
     ft_list = []
     for field_type in field_types:
         ft_ser = {
@@ -50,21 +50,32 @@ def field_type_list(field_types):
             'required': field_type.required
             }
         if field_type.parent_class == "OperationType":
-            ft_ser['allowable_field_types']: allowable_field_type_list(field_type.allowable_field_types)
+            allowable_field_types = allowable_field_type_list(field_type.allowable_field_types)
+            ft_ser['allowable_field_types'] = allowable_field_types
+
         ft_list.append(ft_ser)
     return ft_list
 
 
 def allowable_field_type_list(allowable_field_types):
+    """
+    Arguments:
+      allowable_field_types (List): list of AFTs associated with Field Type
 
+    Returns:
+      object_and_sample_types (List): list of object and sample types associated with AFT
+    """
     object_and_sample_types = []
     for aft in allowable_field_types:
         ser = {}
         if aft.sample_type:
             ser['sample_type'] = aft.sample_type.name
+
         if aft.object_type:
             ser['object_type'] = aft.object_type.name
+
         object_and_sample_types.append(ser)
+
     return object_and_sample_types
 
 

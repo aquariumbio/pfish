@@ -23,7 +23,6 @@ def add_field_type(*, operation_type, definition, role, path, session):
         'role': role
     }
     field_type = session.FieldType.where(query)
-
     if field_type:
         ft = field_type[0]
     else:
@@ -33,7 +32,7 @@ def add_field_type(*, operation_type, definition, role, path, session):
         ft.part = definition['part']
         ft.routing = definition['routing']
         ft.name = query['name']
-        ft.ftype = 'sample'
+        ft.ftype = definition['ftype']
         ft.allowable_field_types = add_aft(
             definition=definition, path=path, session=session
         )
@@ -50,7 +49,6 @@ def build(*, operation_type, definitions, path, session):
         session (Session Object): Aquarium session object
     """
     field_types = []
-
     for field_type_definition in definitions['inputs']:
         field_types.append(add_field_type(
             operation_type=operation_type,
@@ -79,7 +77,7 @@ def add_aft(*, session, definition, path):
         definition (Dictionary): Data about Sample and Object types
     """
     afts = []
-    for aft in definition['allowable_field_types']: # an array of dictionaries
+    for aft in definition['allowable_field_types']:
         if sample_type.exists(
                     session=session,
                     sample_type=aft['sample_type']
@@ -92,11 +90,10 @@ def add_aft(*, session, definition, path):
                     sample_type=aft['sample_type'],
                     path=path
                         )
-
-            #if object_type.exists(session, associated_type['object_type']):
-            #    ot = session.ObjectType.new()
-            #else:
-            #    ot = object_type.create(session, associated_type['object_type'])
+        #if object_type.exists(session, associated_type['object_type']):
+        #    ot = session.ObjectType.new()
+        #else:
+        #    ot = object_type.create(session, associated_type['object_type'])
 
         # afts.append({'sample_type': st, 'object_type': ot})
 
@@ -112,7 +109,7 @@ def equivalent(*, field_type, definition):
     Returns True if equivalent, False otherwise.
     """
     field_type_data = field_type_list(
-            field_types=[field_type], role=field_type.role)
+            field_types=[field_type])
     for k, v in definition.items():
         if field_type_data[0][k] != v:
             return False
@@ -139,6 +136,7 @@ def check_for_conflicts(*, field_types, definitions):
         name = definition['name']
         if name in type_map:
             match_names.add(name)
+            # TODO: Fix equivelance check so it will let you add ST and OT to existing FTs
             if not equivalent(field_type=type_map[name], definition=definition):
                 conflicts[name] = definition
         else:

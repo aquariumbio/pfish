@@ -18,7 +18,6 @@ def exists(*, session, sample_type):
     """
     # TODO: we are not currently storing the description in the definition file
     sample_type = session.SampleType.where({'name': sample_type})
-
     return bool(sample_type)
 
 
@@ -26,26 +25,23 @@ def create(*, session, sample_type, path):
     """
     Creates a new Sample Type in Aquarium
     """
+    # TODO: Make this WAY less messy
+    path = os.path.split( os.path.split(path)[0])[0]
+    path = os.path.split(path)[0]
+    path = create_named_path(path, 'sample_types')
+    
     data_dict = read(path=path, sample_type=sample_type)
-    # use data_dict to create type
-    query = {
-            'name':  data_dict['name'],
-            'description': data_dict['description']
-            }
 
-    s = session.SampleType(query)
+    s = session.SampleType.new(name=data_dict['name'], description=data_dict['description'])
     s.save()
     return s
 
 
 def read(*, path, sample_type):
-    # path will be directory/category/operation_types/ot
-    # needs to be directory/sample_types/ot.json
-    # needs to read file in object types folder
-    # needs path and file name (sample type name simplified)
-    # But, Sample Names are Case Sensitive, so our simplify method can create conflicts
-    # path should be Dir/sample_types/file.json
-    file_path = os.path.join(path, 'definition.json')
+
+    sample_type = simplename(sample_type) + ".json"
+    file_path = os.path.join(path, sample_type)
+    
     try:
         with open(file_path) as file:
             data_dict = json.load(file)
@@ -53,7 +49,7 @@ def read(*, path, sample_type):
         logging.warning(
             'Error %s reading expected code file %s', error, 'definition.json')
     return data_dict
- 
+
 
 def write_files(*, path, sample_type):
     """
