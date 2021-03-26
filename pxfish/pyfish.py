@@ -104,6 +104,12 @@ def get_argument_parser():
 
     parser_test = subparsers.add_parser("test")
     add_code_arguments(parser_test, action="test")
+    parser_test.add_argument(
+        "-t", "--timeout",
+        help="timeout (seconds) for running test",
+        type=int,
+        default=None
+    )
     parser_test.set_defaults(func=do_test)
 
     return parser
@@ -275,7 +281,8 @@ def do_test(args):
                     category_path, args.operation_type,
                     subdirectory="libraries"),
                 category=args.category,
-                name=args.library
+                name=args.library,
+                timeout=args.timeout
             )
             return
 
@@ -286,12 +293,17 @@ def do_test(args):
                     category_path, args.operation_type,
                     subdirectory="operation_types"),
                 category=args.category,
-                name=args.operation_type
+                name=args.operation_type,
+                timeout=args.timeout
             )
             return
 
         category.run_tests(
-            session=session, path=category_path, name=args.category)
+            session=session, 
+            path=category_path, 
+            name=args.category,
+            timeout=args.timeout
+            )
         return
 
     if args.library or args.operation_type:
@@ -299,7 +311,7 @@ def do_test(args):
             "To test a single operation type or library, you must enter a category")
         return
 
-    instance.run_tests(session=session, path=path)
+    instance.run_tests(session=session, path=path, timeout=args.timeout)
 
 
 if __name__ == "__main__":

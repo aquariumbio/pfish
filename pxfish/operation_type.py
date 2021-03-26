@@ -87,6 +87,8 @@ def pull(*, session, path, category, name):
                 operation_type=retrieved_operation_type)
 
 # TODO Fix this so you're not passing an empty list as the default
+
+
 def write_files(*, session, path, operation_type, sample_types=[], object_types=[]):
     """
     Writes the files associated with the operation_type to the path.
@@ -219,8 +221,10 @@ def push(*, session, path, component_names=all_component_names()):
             return
 
         field_type.build(
-                definitions=definitions,
-                operation_type=parent_object[0], session=session)
+            definitions=definitions,
+            operation_type=parent_object[0],
+            session=session
+        )
 
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
@@ -240,7 +244,7 @@ def push(*, session, path, component_names=all_component_names()):
         session.utils.update_code(new_code)
 
 
-def run_test(*, session, path, category, name):
+def run_test(*, session, path, category, name, timeout: int = None):
     """
     Run tests for specified operation type.
 
@@ -249,18 +253,22 @@ def run_test(*, session, path, category, name):
         path (String): Path to file
         category (String): Category operation type is found in
         name (String): name of the Operation Type to be tested
+        timeout (Int): time (seconds) to wait for test result
     """
     logging.info('Sending request to test %s', name)
     push(
-        session=session, path=path,
+        session=session,
+        path=path,
         component_names=test_component_names()
-        )
+    )
 
     retrieved_operation_type = get_operation_type(
         session=session, category=category, name=name)
 
     response = session._aqhttp.get(
-        "test/run/{}".format(retrieved_operation_type.id))
+        "test/run/{}".format(retrieved_operation_type.id),
+        timeout
+    )
 
     write_test_response(response=response, path=path)
     parse_test_response(response=response, file_path=path)

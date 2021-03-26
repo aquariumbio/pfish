@@ -176,5 +176,5 @@ def push(*, session, path):
         session.utils.update_code(new_code)
 
 
-def run_test(*, session, path, category, name):
+def run_test(*, session, path, category, name, timeout: int = None):
     logging.error("Library tests are not currently available")
