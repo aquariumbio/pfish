@@ -172,21 +172,26 @@ def types_valid(*, operation_type, definitions, session):
     messages = []
     if missing_inputs or missing_outputs:
         for conflict in missing_inputs:
-            messages.append(f'Aquarium Field Type Input, {conflict}, is not in your definition file.\n')
+            messages.append(f'Aquarium Field Type Input, {conflict}, \
+            is not in your definition file.\n')
         for conflict in missing_outputs:
-            messages.append(f'Aquarium Field Type Output, {conflict}, is not in your definition file.\n')
+            messages.append(f'Aquarium Field Type Output, {conflict}, \
+            is not in your definition file.\n')
     if input_conflicts or output_conflicts:
         for conflict in input_conflicts:
-            messages.append(f'There is a data conflict between the Aquarium Field Type Definition of Input, {conflict}, and your local definition\n')
+            messages.append(f'There is a data conflict between the Aquarium Field Type \
+            Definition of Input, {conflict}, and your local definition\n')
         for conflict in output_conflicts:
-            messages.append(f'There is a data conflict between the Aquarium Field Type Definition of Output, {conflict}, and your local definition\n')
+            messages.append(f'There is a data conflict between the Aquarium Field Type \
+            Definition of Output, {conflict}, and your local definition\n')
 
     if messages:
         messages = ' '.join(messages)
         logging.warning(
-                'The Following Field Type Conflict(s) exist:\n %s. Operation Type %s will not be pushed\n',
-                    messages, operation_type.name
-                    )
+            'The Following Field Type Conflict(s) exist:\n %s. \
+            Operation Type %s will not be pushed\n',
+            messages, operation_type.name
+            )
         return False
 
     return True
