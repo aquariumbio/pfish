@@ -1,6 +1,7 @@
 """Functions for pulling Sample Types in Aquarium."""
 
 import json
+import pathlib
 import logging
 import os
 import definition
@@ -25,23 +26,23 @@ def create(*, session, sample_type, path):
     """
     Creates a new Sample Type in Aquarium
     """
-    # TODO: Make this WAY less messy
-    path = os.path.split( os.path.split(path)[0])[0]
-    path = os.path.split(path)[0]
+    path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'sample_types')
-    
-    data_dict = read(path=path, sample_type=sample_type)
 
-    s = session.SampleType.new(name=data_dict['name'], description=data_dict['description'])
-    s.save()
-    return s
+    data_dict = read(path=path, sample_type=sample_type)
+    # TODO: try except for File not Found Error
+    smpl_type = session.SampleType.new(name=data_dict['name'], description=data_dict['description'])
+    smpl_type.save()
+    return smpl_type
 
 
 def read(*, path, sample_type):
-
+    """
+    Reads the json file for the indicated sample type
+    """
     sample_type = simplename(sample_type) + ".json"
     file_path = os.path.join(path, sample_type)
-    
+
     try:
         with open(file_path) as file:
             data_dict = json.load(file)
