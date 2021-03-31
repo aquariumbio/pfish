@@ -103,7 +103,8 @@ def get_argument_parser():
     parser_push.add_argument(
         '-f', '--force',
         help='overwrite existing instance field types with data from definition file',
-        default=False
+        default=False,
+        action="store_true"
         )
     parser_push.set_defaults(func=do_push)
 
