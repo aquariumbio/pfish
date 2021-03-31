@@ -185,7 +185,7 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(*, session, path, component_names=all_component_names()):
+def push(*, session, path, force, component_names=all_component_names()):
     """
     Pushes files to the Aquarium instance
 
@@ -218,7 +218,9 @@ def push(*, session, path, component_names=all_component_names()):
         # Check for Valid Field Types
         if not field_type.types_valid(
                 definitions=definitions,
-                operation_type=parent_object[0], session=session):
+                operation_type=parent_object[0],
+                force=force,
+                session=session):
             return
 
         field_type.build(
