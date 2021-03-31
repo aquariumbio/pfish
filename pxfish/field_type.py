@@ -48,6 +48,7 @@ def build(*, operation_type, definitions, path, session):
         definitions (Dictionary): data about field types
         session (Session Object): Aquarium session object
     """
+
     field_types = []
     for field_type_definition in definitions['inputs']:
         field_types.append(add_field_type(
@@ -79,23 +80,29 @@ def add_aft(*, session, definition, path):
     afts = []
     for aft in definition['allowable_field_types']:
         if sample_type.exists(
-                    session=session,
-                    sample_type=aft['sample_type']
-                    ):
-            st = session.SampleType.new()
-            st.name = aft['sample_type']
+                session=session,
+                sample_type=aft['sample_type']
+                ):
+            sampl_type = session.SampleType.new()
+            sampl_type.name = aft['sample_type']
         else:
-            st = sample_type.create(
-                    session=session,
-                    sample_type=aft['sample_type'],
-                    path=path
+            sampl_type = sample_type.create(
+                session=session,
+                sample_type=aft['sample_type'],
+                path=path
                         )
-        #if object_type.exists(session, associated_type['object_type']):
-        #    ot = session.ObjectType.new()
-        #else:
-        #    ot = object_type.create(session, associated_type['object_type'])
-
-        # afts.append({'sample_type': st, 'object_type': ot})
+        if object_type.exists(
+                session=session,
+                object_type=aft['object_type']):
+            obj_type = session.ObjectType.new()
+            obj_type.name = aft['object_type']
+        else:
+            obj_type = object_type.create(
+                session=session,
+                object_type=aft['object_type'],
+                path=path
+                )
+        afts.append({'sample_type': sampl_type, 'object_type': obj_type})
 
     return afts
 
@@ -123,9 +130,9 @@ def check_for_conflicts(*, field_types, definitions):
         field_types (List): Field Types retrieved from Aquarium
         defintions (Dictionary): data about field types stored in defintion file
     returns:
-        conflicts (Dictionary): Field Types in both places with differing data
+        conflicts (Dictionary): Field Types in both places with differing data (Conflict)
         local_diff (Dictionary): Field Types in definition file Only
-        aquarium_diff_names (Dictionary): Field Types in Aquarium Only
+        aquarium_diff_names (Dictionary): Field Types in Aquarium Only (Missing I/O)
     """
     type_map = {field_type.name: field_type for field_type in field_types}
     local_diff = dict()
@@ -156,7 +163,6 @@ def types_valid(*, operation_type, definitions, session):
         definitions (Dictionary): data about field types
         session (Session Object): Aquarium session object
     """
-
     field_types = session.FieldType.where({'parent_id': operation_type.id})
 
     # Should also check for object and sample type conflicts
@@ -170,6 +176,7 @@ def types_valid(*, operation_type, definitions, session):
     )
 
     messages = []
+
     if missing_inputs or missing_outputs:
         for conflict in missing_inputs:
             messages.append(f'Aquarium Field Type Input, {conflict}, \
@@ -177,6 +184,7 @@ def types_valid(*, operation_type, definitions, session):
         for conflict in missing_outputs:
             messages.append(f'Aquarium Field Type Output, {conflict}, \
             is not in your definition file.\n')
+
     if input_conflicts or output_conflicts:
         for conflict in input_conflicts:
             messages.append(f'There is a data conflict between the Aquarium Field Type \

@@ -32,7 +32,25 @@ def create(*, session, object_type, path):
 
     data_dict = read(path=path, object_type=object_type)
     # TODO: try except for File not Found Error
-    obj_type = session.ObjectType.new(name=data_dict['name'], description=data_dict['description'])
+    obj_type = session.ObjectType.new(
+        name=data_dict['name'],
+        description=data_dict['description'],
+        min=data_dict['min'],
+        max=data_dict['max'],
+        handler=data_dict['handler'],
+        safety=data_dict['safety'],
+        clean_up=data_dict['clean up'],
+        data=data_dict['data'],
+        vendor=data_dict['vendor'],
+        unit=data_dict['unit'],
+        cost=data_dict['cost'],
+        release_method=data_dict['release method'],
+        release_description=data_dict['release description'],
+        image=data_dict['image'],
+        prefix=data_dict['prefix'],
+        rows=data_dict['rows'],
+        columns=data_dict['columns']
+        )
     obj_type.save()
     return obj_type
 
