@@ -202,7 +202,7 @@ If data about an existing field type differs from what is in your instance, the 
 ### Test
 
 pfish can run ruby tests on Operation Types.
-Test results will be summarized on screen, with details saved to a file called test_results.json located within the folder for the Operation Type under test.
+Test results will be summarized on screen, with details saved to a file called `test_results.json` located within the folder for the Operation Type under test.
 
 The available test commands are:
 
@@ -211,6 +211,8 @@ The available test commands are:
    ```bash
    pfish test -c <category_name> -o <operation_type_name>
    ```
+
+   Tests will timeout at ten seconds, but a different timeout can be set using the `-t` parameter.
 
 2. Test Libraries: Not yet implemented
 

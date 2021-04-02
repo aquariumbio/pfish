@@ -82,7 +82,7 @@ def push(*, session, path):
         category.push(session=session, path=entry_path)
 
 
-def run_tests(*, session, path):
+def run_tests(*, session, path, timeout: int = None):
     """
     Runs tests on all operation types in directory
 
@@ -103,20 +103,27 @@ def run_tests(*, session, path):
                 session=session,
                 path=path,
                 category=definition.category,
-                name=definition.name
+                name=definition.name,
+                timeout=timeout
             )
         elif definition.is_library(def_dict):
             library.run_test(
                 session=session,
                 path=path,
                 category=definition.category,
-                name=definition.name
+                name=definition.name,
+                timeout=timeout
             )
         return
 
     if is_category(path):
         name = os.path.basename(path)
-        category.run_tests(session=session, path=path, name=name)
+        category.run_tests(
+            session=session,
+            path=path,
+            name=name,
+            timeout=timeout
+        )
         return
 
     entries = os.listdir(path)
@@ -130,4 +137,9 @@ def run_tests(*, session, path):
     for entry in dir_entries:
         entry_path = os.path.join(path, entry)
         if is_category(entry_path):
-            category.run_tests(session=session, path=entry_path, name=entry)
+            category.run_tests(
+                session=session,
+                path=entry_path,
+                name=entry,
+                timeout=timeout
+            )
