@@ -16,6 +16,7 @@ def add_field_type(*, operation_type, definition, role, path, session):
         operation_type (Operation Type): parent object
         definition (Dictionary): data about field types
         role (String): input or output
+        path
         session (Session Object): Aquarium session object
     """
     query = {
@@ -23,21 +24,46 @@ def add_field_type(*, operation_type, definition, role, path, session):
         'parent_id': operation_type.id,
         'role': role
     }
-    field_type = session.FieldType.where(query)
-    if field_type:
-        ft = field_type[0]
+    retrieved_field_type = session.FieldType.where(query)
+    # [<FT Object>]
+    # if ft exists, but not all afts exist, need to add the new ones
+    # This is only ever dealing with One Field Type
+    if retrieved_field_type:
+        # if it has PCR, check for afts in definition
+        for sample_obj_pair in retrieved_field_type['allowable_field_types']:
+            if sample_obj_pair not in definition['allowable_field_types']:
+                retrieved_field_type['allowable_field_types'].append(add_aft())
+
+                # just want to add any that aren't already in there
+                # for aft in definitions
+                # if match with existing, append existing
+                # if no match, append new
+                # change add aft function so the iteration happens before
+                # for aft in definition:
+                # if aft in rtf.afts:
+                    # continue
+                # Else:
+                    # create and append new aft
+            # afts:
+            # [<AFT Object>, <AFT Object>]
+            # for each AFT Object -- .sample_type
+            # gets <sample_type object> that you can then compare
+            breakpoint()
+        field_type = retrieved_field_type[0]
     else:
-        ft = session.FieldType.new()
-        ft.role = role
-        ft.array = definition['array']
-        ft.part = definition['part']
-        ft.routing = definition['routing']
-        ft.name = query['name']
-        ft.ftype = definition['ftype']
-        ft.allowable_field_types = add_aft(
-            definition=definition, path=path, session=session
-        )
-    return ft
+        field_type = session.FieldType.new()
+        field_type.role = role
+        field_type.array = definition['array']
+        field_type.part = definition['part']
+        field_type.routing = definition['routing']
+        field_type.name = query['name']
+        field_type.ftype = definition['ftype']
+        field_type.allowable_field_types = [
+            add_aft(
+                aft_def=aft, session=session, path=path
+                )
+            for aft in definition['allowable_field_types']]
+    return field_type
 
 
 def build(*, operation_type, definitions, path, session):
@@ -47,65 +73,72 @@ def build(*, operation_type, definitions, path, session):
     Arguments:
         operation_type (Operation Type): parent object
         definitions (Dictionary): data about field types
+        path
         session (Session Object): Aquarium session object
     """
 
     field_types = []
+    # go through each FT definition
     for field_type_definition in definitions['inputs']:
-        field_types.append(add_field_type(
-            operation_type=operation_type,
-            definition=field_type_definition,
-            role='input', path=path, session=session)
+        field_types.append( # add each one
+            add_field_type(
+                operation_type=operation_type,
+                definition=field_type_definition,
+                role='input',
+                path=path,
+                session=session
+                )
         )
 
     for field_type_definition in definitions['outputs']:
-        field_types.append(add_field_type(
-            operation_type=operation_type,
-            definition=field_type_definition,
-            role='output', path=path, session=session)
+        field_types.append(
+                add_field_type(
+                operation_type=operation_type,
+                definition=field_type_definition,
+                role='output', 
+                path=path, 
+                session=session)
         )
 
     operation_type.field_types = field_types
 
     session.utils.update_operation_type(operation_type)
 
-
-def add_aft(*, session, definition, path):
+    
+def add_aft(*, aft_def, session, path):
     """
     Adds Sample and Object type names to Field Type Object
 
     Arguments:
         session (Session Object): Aquarium session object
-        definition (Dictionary): Data about Sample and Object types
+        aft_def (Dictionary): Data about Sample and Object types
     """
-    afts = []
-    for aft in definition['allowable_field_types']:
-        if sample_type.exists(
-                session=session,
-                sample_type=aft['sample_type']
-                ):
-            sampl_type = session.SampleType.new()
-            sampl_type.name = aft['sample_type']
-        else:
-            sampl_type = sample_type.create(
-                session=session,
-                sample_type=aft['sample_type'],
-                path=path
-                        )
-        if object_type.exists(
-                session=session,
-                object_type=aft['object_type']):
-            obj_type = session.ObjectType.new()
-            obj_type.name = aft['object_type']
-        else:
-            obj_type = object_type.create(
-                session=session,
-                object_type=aft['object_type'],
-                path=path
-                )
-        afts.append({'sample_type': sampl_type, 'object_type': obj_type})
+    if sample_type.exists(
+            session=session,
+            sample_type=aft['sample_type']
+            ):
+        sampl_type = session.SampleType.new()
+        sampl_type.name = aft['sample_type']
+    else:
+        sampl_type = sample_type.create(
+            session=session,
+            sample_type=aft['sample_type'],
+            path=path
+            )
 
-    return afts
+    if object_type.exists(
+            session=session,
+            object_type=aft['object_type']):
+        obj_type = session.ObjectType.new()
+        obj_type.name = aft['object_type']
+    else:
+        obj_type = object_type.create(
+            session=session,
+            object_type=aft['object_type'],
+            path=path
+            )
+    
+    return {'sample_type': sampl_type, 'object_type': obj_type}
 
 
 def equivalent(*, field_type, definition):
@@ -116,22 +149,24 @@ def equivalent(*, field_type, definition):
         definition (Dictionary): Type Data saved locally
     Returns True if equivalent, False otherwise.
     """
-    current_field_types = field_type_list(
+    extant_field_types = field_type_list(
         field_types=[field_type])[0]
-
-    for key, value in definition.items():
+    
+    # Check for matching info -- e.g. routing info, part etc.
+    for key, ft_value in definition.items():
+        # if the key leads to an AFT, compare those seperately
         if key == 'allowable_field_types':
             # if type exists in Aquarium, but not in def, don't push
-            if len(current_field_types['allowable_field_types']) > len(value):
+            if len(extant_field_types['allowable_field_types']) > len(ft_value):
                 return False
             # if type exists in both places
             # OR type only exists in definition file, push
-            for pair in current_field_types['allowable_field_types']:
-                if pair not in value:
+            for sample_obj_pair in extant_field_types['allowable_field_types']:
+                if sample_obj_pair not in ft_value:
                     return False
             continue
 
-        if current_field_types[key] != value:
+        if extant_field_types[key] != ft_value:
             return False
     return True
 
@@ -148,6 +183,7 @@ def check_for_conflicts(*, field_types, definitions, force):
         local_diff (Dictionary): Field Types in definition file Only (Ones to Push)
         aquarium_diff_names (Dictionary): Field Types in Aquarium Only (Don't push)
     """
+    # Map FT Name: <Ft Object> 
     type_map = {field_type.name: field_type for field_type in field_types}
     local_diff = dict()
     match_names = set()
@@ -156,7 +192,9 @@ def check_for_conflicts(*, field_types, definitions, force):
     for definition in definitions:
         name = definition['name']
         if name in type_map:
+            # if FT NAME is in definition, add it to match list
             match_names.add(name)
+            # Then check for matching information fields
             if not force and not equivalent(
                     field_type=type_map[name],
                     definition=definition
@@ -181,9 +219,10 @@ def types_valid(*, operation_type, definitions, force, session):
         force (Boolean): if set, overrides conflict checks
         session (Session Object): Aquarium session object
     """
+    # get all the existing field types for the OT 
     field_types = session.FieldType.where({'parent_id': operation_type.id})
 
-    # Should also check for object and sample type conflicts
+    # Check for AQ FTs no in def file, as well as conflicting info 
     missing_inputs, input_conflicts, valid_inputs = check_for_conflicts(
         field_types=[t for t in field_types if t.role == 'input'],
         definitions=definitions['inputs'],
