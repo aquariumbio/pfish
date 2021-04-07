@@ -16,7 +16,7 @@ def add_field_type(*, operation_type, definition, role, path, session):
         operation_type (Operation Type): parent object
         definition (Dictionary): data about field types
         role (String): input or output
-        path
+        path (String): path to operation type
         session (Session Object): Aquarium session object
     """
     query = {
@@ -35,7 +35,6 @@ def add_field_type(*, operation_type, definition, role, path, session):
             if sample_obj_pair not in extant_afts:
                 new_aft = add_aft(aft_def=sample_obj_pair, session=session, path=path)
                 current_afts.append(new_aft)
-                #field_type.allowable_field_types.append(new_aft) #this is just adding to the list
         field_type.allowable_field_types = current_afts
     else:
         field_type = session.FieldType.new()
@@ -51,7 +50,7 @@ def add_field_type(*, operation_type, definition, role, path, session):
                 aft_def=aft, session=session, path=path
                 )
             for aft in definition['allowable_field_types']]
-# At this point when starting from scratch, afts have been created
+
     return field_type
 
 
@@ -62,7 +61,7 @@ def build(*, operation_type, definitions, path, session):
     Arguments:
         operation_type (Operation Type): parent object
         definitions (Dictionary): data about field types
-        path
+        path (String): path to Operation Type
         session (Session Object): Aquarium session object
     """
 
@@ -89,7 +88,7 @@ def build(*, operation_type, definitions, path, session):
                 session=session)
         )
     operation_type.field_types = field_types
-    # This is where the magic happens!
+
     session.utils.update_operation_type(operation_type)
 
 
@@ -104,7 +103,7 @@ def add_aft(*, aft_def, session, path):
     if sample_type.exists(
             session=session,
             sample_type=aft_def['sample_type']
-            ):
+        ):
         sampl_type = session.SampleType.new()
         sampl_type.name = aft_def['sample_type']
     else:
@@ -176,9 +175,8 @@ def check_for_conflicts(*, field_types, definitions, force):
             if not force and not equivalent(
                     field_type=type_map[name],
                     definition=definition
-                    ):
-
-                    conflicts[name] = definition
+            ):
+                conflicts[name] = definition
         else:
             local_diff[name] = definition
 
@@ -214,27 +212,35 @@ def types_valid(*, operation_type, definitions, force, session):
 
     if missing_inputs or missing_outputs:
         for conflict in missing_inputs:
-            messages.append(f'Aquarium Field Type Input, {conflict}, \
-            is not in your definition file.\n')
+            messages.append(
+                (f'Aquarium Field Type Input, "{conflict}", '
+                 'is not in your definition file.\n')
+            )
         for conflict in missing_outputs:
-            messages.append(f'Aquarium Field Type Output, {conflict}, \
-            is not in your definition file.\n')
+            messages.append((f'Aquarium Field Type Output, "{conflict}",'
+                             'is not in your definition file.\n'))
 
     if input_conflicts or output_conflicts:
         for conflict in input_conflicts:
-            messages.append(f'There is a data conflict between the Aquarium Field Type \
-        Definition of Input, {conflict}, and your local definition\n')
+            messages.append(
+                ('There is a data conflict between the Aquarium Field Type '
+                 f'Definition of Input, "{conflict}", and your local definition.\n'))
         for conflict in output_conflicts:
-            messages.append(f'There is a data conflict between the Aquarium Field Type \
-        Definition of Output, {conflict}, and your local definition\n')
+            messages.append(
+                ('There is a data conflict between the Aquarium Field Type '
+                 f'Definition of Output, "{conflict}", and your local definition.\n')
+            )
 #TODO This will let you override everything -- is that what I want it to do?
     if messages:
         messages = ' '.join(messages)
         logging.warning(
-            'The Following Field Type Conflict(s) exist: \n %s. \
-        Operation Type %s will not be pushed. To override this and replace instance data with data from your definition file, run push again with the force flag (-f, --force) set.',
-        messages, operation_type.name
-            )
+            'The Following Field Type Conflict(s) exist: \n %s', messages)
+        logging.warning(
+            'Operation Type "%s" will not be pushed.', operation_type.name)
+        logging.info(
+            'To override this and replace instance data with data from your definition file,\n \
+            run push again with the force flag (-f, --force) set.')
+        #logging.warning(
         return False
 
     return True
