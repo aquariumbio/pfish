@@ -16,8 +16,7 @@ wget -vO- https://raw.githubusercontent.com/aquariumbio/pfish/master/pfish-insta
 
 This script will download the pfish wrapper script and install it in `~/bin`.
 
-Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux).
-
+Once the script is done, you'll need to [add `~/bin` to your PATH](https://opensource.com/article/17/6/set-path-linux).  
 If you don't have `wget` installed, you can clone this repository and run `make install`.
 
 ## Updating
@@ -176,9 +175,20 @@ If there are Sample Types or Object Types connected to an Operation Types, data 
 
 Type information for all categories pulled will be in one folder to avoid duplicates.
 
-When pushing an operation type, any Field Types listed in your definition file that do not exist in your instance will be created. 
+When pushing an operation type, any Field Types listed in your definition file that do not exist in your instance will be created.
+
+If the associated Sample Types and Object Types exist in your instance, they will be used. If not, they will be created for you provided you have the information in your pFish directory.
+
+e.g. If you are adding a Sample Type named "my sample type", you need to have a `my_sample_type.json` file in the `sample_types` folder.
 
 If data about an existing field type differs from what is in your instance, the operation type will not be pushed.
+
+If you would like to override this setting and push the operation type anyway, replacing the data in your instance with your local data, you can set the force flag.
+
+
+   ```bash
+   pfish push -f -c <category-name> -o <operation-type-name>
+   ```
 
 ```bash
 .
