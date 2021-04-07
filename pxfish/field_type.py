@@ -28,14 +28,14 @@ def add_field_type(*, operation_type, definition, role, path, session):
 
     if retrieved_field_type:
         field_type = retrieved_field_type[0]
-        current_afts = field_type.allowable_field_types
+        all_afts = field_type.allowable_field_types
         extant_afts = field_type_list(field_types=[field_type])[0]['allowable_field_types']
 
         for sample_obj_pair in definition['allowable_field_types']:
             if sample_obj_pair not in extant_afts:
                 new_aft = add_aft(aft_def=sample_obj_pair, session=session, path=path)
-                current_afts.append(new_aft)
-        field_type.allowable_field_types = current_afts
+                all_afts.append(new_aft)
+        field_type.allowable_field_types = all_afts
     else:
         field_type = session.FieldType.new()
         field_type.role = role
@@ -230,7 +230,6 @@ def types_valid(*, operation_type, definitions, force, session):
                 ('There is a data conflict between the Aquarium Field Type '
                  f'Definition of Output, "{conflict}", and your local definition.\n')
             )
-#TODO This will let you override everything -- is that what I want it to do?
     if messages:
         messages = ' '.join(messages)
         logging.warning(
@@ -240,7 +239,6 @@ def types_valid(*, operation_type, definitions, force, session):
         logging.info(
             'To override this and replace instance data with data from your definition file,\n \
             run push again with the force flag (-f, --force) set.')
-        #logging.warning(
         return False
 
     return True

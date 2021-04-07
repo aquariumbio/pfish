@@ -29,8 +29,10 @@ def create(*, session, sample_type, path):
     path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'sample_types')
 
-    data_dict = read(path=path, sample_type=sample_type)
-    # TODO: try except for File not Found Error
+    try:
+        data_dict = read(path=path, sample_type=sample_type)
+    except FileNotFoundError:
+        return
     smpl_type = session.SampleType.new(name=data_dict['name'], description=data_dict['description'])
     smpl_type.save()
     return smpl_type
@@ -49,6 +51,7 @@ def read(*, path, sample_type):
     except FileNotFoundError as error:
         logging.warning(
             'Error %s reading expected code file %s', error, 'definition.json')
+        raise FileNotFoundError
     return data_dict
 
 

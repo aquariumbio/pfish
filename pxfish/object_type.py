@@ -29,8 +29,11 @@ def create(*, session, object_type, path):
     """
     path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'object_types')
-
-    data_dict = read(path=path, object_type=object_type)
+    breakpoint()
+    try:
+        data_dict = read(path=path, object_type=object_type)
+    except FileNotFoundError:
+        return
     # TODO: try except for File not Found Error
     obj_type = session.ObjectType.new(
         name=data_dict['name'],
@@ -64,10 +67,12 @@ def read(*, path, object_type):
 
     try:
         with open(file_path) as file:
+            breakpoint()
             data_dict = json.load(file)
     except FileNotFoundError as error:
         logging.warning(
             'Error %s reading expected code file %s', error, 'definition.json')
+        raise FileNotFoundError
     return data_dict
 
 def write_files(*, path, object_type):
