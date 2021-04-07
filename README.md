@@ -170,10 +170,39 @@ The available create commands are:
    pfish create -c <category-name> -l <library-name>
    ```
 
+### Field Types, Sample Types, and Object Types
+
+If there are Sample Types or Object Types connected to an Operation Types, data about them will be saved at the category level. 
+
+Type information for all categories pulled will be in one folder to avoid duplicates.
+
+When pushing an operation type, any Field Types listed in your definition file that do not exist in your instance will be created. 
+
+If data about an existing field type differs from what is in your instance, the operation type will not be pushed.
+
+```bash
+.
+`-- mydirectory
+    `-- sample_types
+        |-- sample_type_category_one.json
+        |-- sample_type_category_two.json
+        |-- sample_type_in_both_categories.json
+    `-- object_types
+        |-- object_type_category_one.json
+        |-- object_type_category_two.json
+        |-- object_type_in_both_categories.json
+    `-- category1
+        `-- operation_types
+        `-- libraries 
+    `-- category2
+        `-- operation_types 
+        `-- libraries
+```
+
 ### Test
 
 pfish can run ruby tests on Operation Types.
-Test results will be summarized on screen, with details saved to a file called test_results.json located within the folder for the Operation Type under test.
+Test results will be summarized on screen, with details saved to a file called `test_results.json` located within the folder for the Operation Type under test.
 
 The available test commands are:
 
@@ -182,6 +211,8 @@ The available test commands are:
    ```bash
    pfish test -c <category_name> -o <operation_type_name>
    ```
+
+   Tests will timeout at ten seconds, but a different timeout can be set using the `-t` parameter.
 
 2. Test Libraries: Not yet implemented
 
@@ -224,7 +255,7 @@ If `mycategory` exists in Aquarium, the new operation type or library will be sa
             |-- definition.json
             |-- documentation.rb
             |-- precondition.rb
-            `-- protocol.rb
+            |-- protocol.rb
 ```
 
 or, for a library
@@ -235,7 +266,7 @@ or, for a library
     `-- libraries
         `-- mylibrary
             |-- definition.json
-            `-- source.rb
+            |-- source.rb
 ```
 
 Once the operation type or library is created, make an initial git commit of the new files with the commands
@@ -269,13 +300,13 @@ pfish pull -c Cloning
 which will create the following directory structure
 
 ```bash
-cloning
-|-- libraries
-|   |-- stripwell_methods
-|   `-- gradient_pcr
-`-- operation_types
-    |-- run_gel
-    `-- order_primer
+`--cloning
+    `-- libraries
+       |-- stripwell_methods
+       |-- gradient_pcr
+    `-- operation_types
+       |-- run_gel
+       |-- order_primer
 ```
 
 with each subdirectory containing the code for the components of each library or operation type.

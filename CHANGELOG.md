@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 -- Functions to create Field Types based on Definition Files
 
+### Changed
+-- Update error handling to catch incorrectly formatted/named files
+-- Allow for pushing/pulling to/from an instance without having to change the default
+
 
 ## -- 2021-02-02
 

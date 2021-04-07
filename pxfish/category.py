@@ -93,7 +93,7 @@ def push(*, session, path, force):
                             directory_entry, path)
 
 
-def run_tests(*, session, path, name):
+def run_tests(*, session, path, name, timeout: int = None):
     """
     Runs tests for all library and operation type files in a specific category.
 
@@ -101,6 +101,7 @@ def run_tests(*, session, path, name):
         session (Session Object): Aquarium session object
         path (String): path to category
         name (String): name of the category to be tested
+        timeout (Int): time (seconds) to wait for test result
     """
     # TODO: another place to catch NotADirectoryError and other errors
     category_entries = os.listdir(path)
@@ -116,8 +117,12 @@ def run_tests(*, session, path, name):
                 logging.info('Testing Operation Type %s', filename)
                 entry_path = os.path.join(path, filename)
                 operation_type.run_test(
-                    session=session, path=entry_path,
-                    category=name, name=filename)
+                    session=session,
+                    path=entry_path,
+                    category=name,
+                    name=filename,
+                    timeout=timeout
+                )
         else:
             logging.warning(
                 'Unexpected directory entry %s in %s',
