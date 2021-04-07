@@ -192,6 +192,7 @@ def push(*, session, path, force, component_names=all_component_names()):
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
+        force (Boolean): If set, overrides conflict checks for Field Types
         component_names (List): Files to include as part of OT
     """
     if not is_operation_type(path):
@@ -215,17 +216,16 @@ def push(*, session, path, force, component_names=all_component_names()):
         parent_object = session.OperationType.where(query)
 
     if definitions['inputs'] or definitions['outputs']:
-        # Check for Valid Field Types
         if not field_type.types_valid(
                 definitions=definitions,
                 operation_type=parent_object[0],
                 force=force,
                 session=session):
             return
-
+        
         field_type.build(
-                definitions=definitions,
-                operation_type=parent_object[0], path=path, session=session)
+            definitions=definitions,
+            operation_type=parent_object[0], path=path, session=session)
 
     # TODO: Split out code creation to a seperate function
     for name in component_names:
@@ -258,7 +258,7 @@ def run_test(*, session, path, category, name):
     """
     logging.info('Sending request to test %s', name)
     push(
-        session=session, path=path,
+        session=session, path=path, force=False,
         component_names=test_component_names()
         )
 
