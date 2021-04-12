@@ -39,11 +39,26 @@ def add_field_type(*, operation_type, definition, role, path, session):
     else:
         field_type = session.FieldType.new()
         field_type.role = role
-        field_type.array = definition['array']
-        field_type.part = definition['part']
-        field_type.routing = definition['routing']
         field_type.name = query['name']
-        field_type.ftype = definition['ftype']
+        field_type.part = definition['part']
+        field_type.array = definition['array']
+        field_type.routing = definition['routing']
+        # Work around for change in definition file
+        additional_attributes = {
+            'ftype': 'sample',
+            'choices': None,
+            'required': None
+                }
+        for attribute in additional_attributes:
+            try:
+                additional_attributes[attribute] = definition[attribute]
+            except KeyError:
+                continue
+
+        if additional_attributes:
+            field_type.ftype = additional_attributes['ftype']
+            field_type.choices = additional_attributes['choices']
+            field_type.required = additional_attributes['required']
 
         field_type.allowable_field_types = [
             add_aft(
@@ -202,6 +217,7 @@ def types_valid(*, operation_type, definitions, force, session):
         definitions=definitions['inputs'],
         force=force
     )
+
     missing_outputs, output_conflicts, valid_outputs = check_for_conflicts(
         field_types=[t for t in field_types if t.role == 'output'],
         definitions=definitions['outputs'],
