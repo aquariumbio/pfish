@@ -88,8 +88,8 @@ def get_argument_parser():
     parser_default.set_defaults(func=do_config_default)
 
     parser_show = config_subparsers.add_parser(
-        "show",
-        help="show all configurations"
+        'show',
+        help='show all configurations'
     )
 
     parser_show.set_defaults(func=do_config_show)
@@ -100,6 +100,12 @@ def get_argument_parser():
 
     parser_push = subparsers.add_parser("push")
     add_code_arguments(parser_push, action="push")
+    parser_push.add_argument(
+        '-f', '--force',
+        help='overwrite existing instance field types with data from definition file',
+        default=False,
+        action="store_true"
+        )
     parser_push.set_defaults(func=do_push)
 
     parser_test = subparsers.add_parser("test")
@@ -243,7 +249,8 @@ def do_push(args):
             library.push(
                 session=session,
                 path=create_named_path(
-                    category_path, args.library, subdirectory='libraries')
+                    category_path, args.library, subdirectory='libraries'),
+                force=args.force
             )
             return
 
@@ -252,11 +259,12 @@ def do_push(args):
                 session=session,
                 path=create_named_path(
                     category_path, args.operation_type,
-                    subdirectory='operation_types')
+                    subdirectory='operation_types'),
+                force=args.force
             )
             return
 
-        category.push(session=session, path=category_path)
+        category.push(session=session, path=category_path, force=args.force)
         return
 
     if args.library or args.operation_type:

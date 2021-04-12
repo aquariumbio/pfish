@@ -187,13 +187,15 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(*, session, path, component_names=all_component_names()):
+def push(*, session, path, force, component_names=all_component_names()):
     """
     Pushes files to the Aquarium instance
 
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Directory where files are to be found
+        force (Boolean): If set, overrides conflict checks for Field Types
+        component_names (List): Files to include as part of OT
     """
     if not is_operation_type(path):
         logging.warning('No Operation Type at %s', path)
@@ -209,6 +211,7 @@ def push(*, session, path, component_names=all_component_names()):
 
     parent_object = session.OperationType.where(query)
 
+    # TODO: Shouldn't finish create if there are FT conflicts
     if not parent_object:
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
@@ -217,15 +220,16 @@ def push(*, session, path, component_names=all_component_names()):
     if definitions['inputs'] or definitions['outputs']:
         if not field_type.types_valid(
                 definitions=definitions,
-                operation_type=parent_object[0], session=session):
+                operation_type=parent_object[0],
+                force=force,
+                session=session):
             return
-
+        
         field_type.build(
             definitions=definitions,
-            operation_type=parent_object[0],
-            session=session
-        )
+            operation_type=parent_object[0], path=path, session=session)
 
+    # TODO: Split out code creation to a seperate function
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
         if read_file is None:
@@ -257,8 +261,7 @@ def run_test(*, session, path, category, name, timeout: int = None):
     """
     logging.info('Sending request to test %s', name)
     push(
-        session=session,
-        path=path,
+        session=session, path=path, force=False,
         component_names=test_component_names()
     )
 

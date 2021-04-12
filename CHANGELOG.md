@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## -- 2021-03-24
+## -- 2021-03-30
+
+### Added
+- Functions to create Sample Types when creating a Field Type
+- Functions to create Object Types when creating a Field Type
+- Command Line flag to override conflict checks and overwrite instance data with local data
+
+### Changed
+- Added more detail to definition files for Sample Types and Field Types
+
+
+## -- 2021-02-24 -- [1.1.0] 
 
 ### Added
 -- Functions to create Field Types based on Definition Files

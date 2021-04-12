@@ -27,42 +27,55 @@ def name(obj: Dict) -> str:
     return obj['name']
 
 
-def field_type_list(field_types, role):
+def field_type_list(field_types):
     """
     Returns sublist of field types with the given role.
 
     Arguments:
       field_types (List): the list of field types
-      role (String): the role of field types to be returned (e.g. "input")
 
     Returns:
       list: the sublist of field_types that have the specified role
     """
+    #TODO: Distinguish Parameters from other inputs/outputs
     ft_list = []
     for field_type in field_types:
-        if field_type.role == role:
-            ft_ser = {
-                'name': field_type.name,
-                'part': field_type.part,
-                'array': field_type.array,
-                'routing': field_type.routing,
-                'allowable_field_types':
-                    allowable_field_type_list(field_type.allowable_field_types)
-                }
-            ft_list.append(ft_ser)
+        ft_ser = {
+            'name': field_type.name,
+            'part': field_type.part,
+            'array': field_type.array,
+            'routing': field_type.routing,
+            'ftype': field_type.ftype,
+            'choices': field_type.choices,
+            'required': field_type.required
+            }
+        if field_type.parent_class == "OperationType":
+            allowable_field_types = allowable_field_type_list(field_type.allowable_field_types)
+            ft_ser['allowable_field_types'] = allowable_field_types
+
+        ft_list.append(ft_ser)
     return ft_list
 
 
 def allowable_field_type_list(allowable_field_types):
+    """
+    Arguments:
+      allowable_field_types (List): list of AFTs associated with Field Type
 
+    Returns:
+      object_and_sample_types (List): list of object and sample types associated with AFT
+    """
     object_and_sample_types = []
     for aft in allowable_field_types:
         ser = {}
         if aft.sample_type:
             ser['sample_type'] = aft.sample_type.name
+
         if aft.object_type:
             ser['object_type'] = aft.object_type.name
+
         object_and_sample_types.append(ser)
+
     return object_and_sample_types
 
 
@@ -78,8 +91,12 @@ def write_definition_json(file_path, operation_type):
     ot_ser['name'] = operation_type.name
     ot_ser['parent_class'] = 'OperationType'
     ot_ser['category'] = operation_type.category
-    ot_ser['inputs'] = field_type_list(operation_type.field_types, 'input')
-    ot_ser['outputs'] = field_type_list(operation_type.field_types, 'output')
+    ot_ser['inputs'] = field_type_list(
+            [ft for ft in operation_type.field_types if ft.role == 'input']
+            )
+    ot_ser['outputs'] = field_type_list(
+            [ft for ft in operation_type.field_types if ft.role == 'output']
+            )
     ot_ser['on_the_fly'] = operation_type.on_the_fly
     ot_ser['user_id'] = operation_type.protocol.user_id
 
