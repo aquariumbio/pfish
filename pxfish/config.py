@@ -29,6 +29,8 @@ def add_config(*, path, key, login, password, url):
     with open(file_path, 'w') as file:
         file.write(json.dumps(config, indent=2))
 
+    logging.info("New Configuration Added. Current Configuations:")
+    show_config(path=path)
 
 def get_config(path):
     """
