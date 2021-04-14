@@ -29,7 +29,6 @@ def create(*, session, object_type, path):
     """
     path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'object_types')
-    breakpoint()
     try:
         data_dict = read(path=path, object_type=object_type)
     except FileNotFoundError:
@@ -67,7 +66,6 @@ def read(*, path, object_type):
 
     try:
         with open(file_path) as file:
-            breakpoint()
             data_dict = json.load(file)
     except FileNotFoundError as error:
         logging.warning(
