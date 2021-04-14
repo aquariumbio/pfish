@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## -- 2021-03-30
+## -- 2021-04-12 -- [1.2.0]
 
 ### Added
 - Functions to create Sample Types when creating a Field Type
@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 - Added more detail to definition files for Sample Types and Field Types
-
+- Pulling now adds more complete information to definition.json file
 
 ## -- 2021-02-24 -- [1.1.0] 
 
