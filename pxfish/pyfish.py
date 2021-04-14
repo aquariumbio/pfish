@@ -249,8 +249,7 @@ def do_push(args):
             library.push(
                 session=session,
                 path=create_named_path(
-                    category_path, args.library, subdirectory='libraries'),
-                force=args.force
+                    category_path, args.library, subdirectory='libraries')
             )
             return
 
@@ -264,7 +263,7 @@ def do_push(args):
             )
             return
 
-        category.push(session=session, path=category_path, force=args.force)
+        category.push(session=session, path=category_path)
         return
 
     if args.library or args.operation_type:
