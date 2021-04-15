@@ -242,6 +242,9 @@ def do_push(args):
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
+    if args.force and not args.operation_type:
+        logging.warning('Force Flag only operates with a single Operation Type')
+        return
     # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
