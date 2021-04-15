@@ -10,8 +10,7 @@ from definition import (
 
 def add_field_type(*, operation_type, definition, role, path, session):
     """
-    Creates list of Field Types to Add to Operation Type
-    If a Field Type doesn't already exist, creates it
+    Creates list of Field Types to Add to an Operation Type
     Arguments:
         operation_type (Operation Type): parent object
         definition (Dictionary): data about field types
@@ -22,7 +21,7 @@ def add_field_type(*, operation_type, definition, role, path, session):
     query = {
         'name': definition['name'],
         'parent_id': operation_type.id,
-        'role': role
+        'role': role,
     }
     retrieved_field_type = session.FieldType.where(query)
 
@@ -37,21 +36,29 @@ def add_field_type(*, operation_type, definition, role, path, session):
                 all_afts.append(new_aft)
         field_type.allowable_field_types = all_afts
     else:
-        field_type = session.FieldType.new()
-        field_type.role = role
-        field_type.name = query['name']
-        field_type.part = definition.get('part', None)
-        field_type.array = definition.get('array', None)
-        field_type.routing = definition.get('routing', None)
-        field_type.ftype = definition.get('ftype', 'sample')
-        field_type.choices = definition.get('choices', None)
-        field_type.required = definition.get('required', None)
+        field_type = create(definition=definition, role=role, session=session)
 
         field_type.allowable_field_types = [
             add_aft(
                 aft_def=aft, session=session, path=path
                 )
             for aft in definition['allowable_field_types']]
+
+    return field_type
+
+
+def create(*, definition, role=None, session):
+    """Create New Field Type"""
+    field_type = session.FieldType.new()
+    field_type.role = role
+    field_type.name = definition.get('name')
+    field_type.part = definition.get('part', None)
+    field_type.array = definition.get('array', None)
+    field_type.routing = definition.get('routing', None)
+    field_type.ftype = definition.get('ftype', 'sample')
+    field_type.choices = definition.get('choices', None)
+    field_type.required = definition.get('required', None)
+    field_type.parent_class = definition.get('parent_class', 'sample_type')
 
     return field_type
 
