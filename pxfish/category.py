@@ -52,7 +52,7 @@ def pull(*, session, path, name):
         library.write_files(path=path, library=lib)
 
 
-def push(*, session, path, force):
+def push(*, session, path):
     """
     Finds all library and operation type files in a specific category.
 
@@ -85,8 +85,7 @@ def push(*, session, path, force):
                 operation_type.push(
                     session=session,
                     path=create_named_path(
-                        path, name, subdirectory='operation_types'),
-                    force=force
+                        path, name, subdirectory='operation_types')
                 )
         else:
             logging.warning('Unexpected directory entry %s in %s',

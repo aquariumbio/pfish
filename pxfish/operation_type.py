@@ -187,7 +187,7 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(*, session, path, force, component_names=all_component_names()):
+def push(*, session, path, force=False, component_names=all_component_names()):
     """
     Pushes files to the Aquarium instance
 

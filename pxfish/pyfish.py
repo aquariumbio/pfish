@@ -242,6 +242,9 @@ def do_push(args):
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
+    if args.force and not args.operation_type:
+        logging.warning('Force Flag only operates with a single Operation Type')
+        return
     # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
@@ -249,8 +252,7 @@ def do_push(args):
             library.push(
                 session=session,
                 path=create_named_path(
-                    category_path, args.library, subdirectory='libraries'),
-                force=args.force
+                    category_path, args.library, subdirectory='libraries')
             )
             return
 
@@ -264,7 +266,7 @@ def do_push(args):
             )
             return
 
-        category.push(session=session, path=category_path, force=args.force)
+        category.push(session=session, path=category_path)
         return
 
     if args.library or args.operation_type:
