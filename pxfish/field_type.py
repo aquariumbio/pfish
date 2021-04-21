@@ -8,9 +8,10 @@ from definition import (
         )
 
 
-def add_field_type(*, operation_type, definition, role=None, path, session):
+def build_field_type(*, operation_type, definition, role=None, path, session):
     """
-    Creates list of Field Types to Add to an Operation Type
+    Check for existing field types in Aquarium
+    Either attach retrieved FT or create a new one
     Arguments:
         operation_type (Operation Type): parent object
         definition (Dictionary): data about field types
@@ -25,8 +26,7 @@ def add_field_type(*, operation_type, definition, role=None, path, session):
     }
     retrieved_field_type = session.FieldType.where(query)
 
-    if retrieved_field_type and role:
-        # check for existing AFTs
+    if retrieved_field_type:
         field_type = retrieved_field_type[0]
         all_afts = add_to_existing_afts(
             session=session,
@@ -35,6 +35,7 @@ def add_field_type(*, operation_type, definition, role=None, path, session):
             definition=definition
             )
         field_type.allowable_field_types = all_afts
+
     else:
         field_type = create(definition=definition, role=role, session=session)
         field_type.allowable_field_types = [
@@ -46,9 +47,14 @@ def add_field_type(*, operation_type, definition, role=None, path, session):
 
 
 def add_to_existing_afts(*, session, path, field_type, definition):
-    """Add existing AFTs to FT and create any new ones"""
+    """
+    Check for existing AFTs on Field Type
+    For any that are not found, create them
+    """
     all_afts = field_type.allowable_field_types
+
     extant_afts = field_type_list(field_types=[field_type])[0]['allowable_field_types']
+
     for sample_obj_pair in definition['allowable_field_types']:
         if sample_obj_pair not in extant_afts:
             new_aft = add_aft(aft_def=sample_obj_pair, session=session, path=path)
@@ -57,7 +63,7 @@ def add_to_existing_afts(*, session, path, field_type, definition):
 
 
 def create(*, definition, role=None, session):
-    """Create New Field Type"""
+    """Create New Field Type Proxy Object"""
     field_type = session.FieldType.new()
     field_type.role = role
     field_type.name = definition.get('name')
@@ -72,7 +78,7 @@ def create(*, definition, role=None, session):
     return field_type
 
 
-def build(*, operation_type, definitions, path, session):
+def build_field_type_list(*, operation_type, definitions, path, session):
     """
     Creates a list of Field Type objects to add to Operation Type
 
@@ -87,7 +93,7 @@ def build(*, operation_type, definitions, path, session):
 
     for field_type_definition in definitions['inputs']:
         field_types.append(
-            add_field_type(
+            build_field_type(
                 operation_type=operation_type,
                 definition=field_type_definition,
                 role='input',
@@ -98,7 +104,7 @@ def build(*, operation_type, definitions, path, session):
 
     for field_type_definition in definitions['outputs']:
         field_types.append(
-            add_field_type(
+            build_field_type(
                 operation_type=operation_type,
                 definition=field_type_definition,
                 role='output',
@@ -118,7 +124,6 @@ def add_aft(*, aft_def, session, path):
         session (Session Object): Aquarium session object
         aft_def (Dictionary): Data about Sample and Object types
     """
-    # if sample type already exists, add as is)
     if sample_type.exists(
             session=session,
             sample_type=aft_def['sample_type']
@@ -126,12 +131,12 @@ def add_aft(*, aft_def, session, path):
         sampl_type = session.SampleType.new()
         sampl_type.name = aft_def['sample_type']
     else:
-        # If sample type doesn't exist, create it
         sampl_type = sample_type.create(
             session=session,
             sample_type=aft_def['sample_type'],
             path=path
             )
+
     if object_type.exists(
             session=session,
             object_type=aft_def['object_type']):

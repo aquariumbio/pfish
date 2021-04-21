@@ -5,6 +5,7 @@ import pathlib
 import logging
 import os
 import definition
+import field_type
 
 from paths import (
     create_named_path,
@@ -17,14 +18,13 @@ def exists(*, session, sample_type):
     """
     Checks whether a Sample Type named in definition exists in Aquarium
     """
-    # TODO: we are not currently storing the description in the definition file
     sample_type = session.SampleType.where({'name': sample_type})
     return bool(sample_type)
 
 
 def create(*, session, sample_type, path):
     """
-    Creates a new Sample Type in Aquarium
+    Creates a new Sample Type
     """
     path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'sample_types')
@@ -33,9 +33,25 @@ def create(*, session, sample_type, path):
         data_dict = read(path=path, sample_type=sample_type)
     except FileNotFoundError:
         return
-    smpl_type = session.SampleType.new(name=data_dict['name'], description=data_dict['description'])
-    smpl_type.save()
+
+    smpl_type = session.SampleType.new(
+        name=data_dict['name'],
+        description=data_dict['description'])
+
+    smpl_type.field_types = []
+
+    for ft_dict in data_dict['field_types']:
+        data_ft = create_data_field_type(session=session, definition=ft_dict)
+        smpl_type.field_types.append(data_ft)
+
+    # 'smpl_type': <pydent.models.sample.SampleType object at 0x107abcf80>}
+    session.utils.create_sample_type(smpl_type)
     return smpl_type
+
+
+def create_data_field_type(*, session, definition):
+    """Create Field Type"""
+    return field_type.create(session=session, definition=definition)
 
 
 def read(*, path, sample_type):
