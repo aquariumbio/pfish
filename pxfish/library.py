@@ -124,6 +124,9 @@ def create(*, session, path, category, name):
         name=name,
         category=category,
         source=code_objects['source'])
+
+    logging.info('Creating new library, %s ', name)
+
     session.utils.create_library(new_library)
 
 
@@ -151,18 +154,17 @@ def push(*, session, path):
     component_names = ['source']
 
     if not parent_object:
+        logging.info('Library %s not found on this instance. Creating it now.', query['name'])
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'])
         parent_object = session.Library.where(query)
         # TODO: handle case where create failed
-        return
 
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
         if read_file is None:
             logging.warning('Code Component File %s was not found', name)
             return
-
         new_code = session.Code.new(
             name=name,
             parent_id=parent_object[0].id,
@@ -171,10 +173,10 @@ def push(*, session, path):
             content=read_file
         )
 
-        logging.info('writing file %s', parent_object[0].name)
+        logging.info('writing file %s to instance', parent_object[0].name)
 
         session.utils.update_code(new_code)
-
+        # At this point, the new code is in the instance, but doesn't show up when pulling
 
 def run_test(*, session, path, category, name, timeout: int = None):
     logging.error("Library tests are not currently available")
