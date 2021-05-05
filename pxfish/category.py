@@ -32,19 +32,13 @@ def pull(*, session, path, name):
         name (String): the category name
     """
     operation_types = session.OperationType.where({"category": name})
+
     libraries = session.Library.where({"category": name})
+
     if not operation_types and not libraries:
         logging.error('Category %s was not found.', name)
 
     for op_type in operation_types:
-        object_types = op_type.object_type()
-        sample_types = op_type.sample_type()
-        for obj_type in object_types:
-            object_type.write_files(path=path, object_type=obj_type)
-
-        for samp_type in sample_types:
-            sample_type.write_files(path=path, sample_type=samp_type)
-
         operation_type.write_files(session=session, path=path,
                                    operation_type=op_type)
 
@@ -52,7 +46,7 @@ def pull(*, session, path, name):
         library.write_files(path=path, library=lib)
 
 
-def push(*, session, path, force):
+def push(*, session, path):
     """
     Finds all library and operation type files in a specific category.
 
@@ -85,8 +79,7 @@ def push(*, session, path, force):
                 operation_type.push(
                     session=session,
                     path=create_named_path(
-                        path, name, subdirectory='operation_types'),
-                    force=force
+                        path, name, subdirectory='operation_types')
                 )
         else:
             logging.warning('Unexpected directory entry %s in %s',

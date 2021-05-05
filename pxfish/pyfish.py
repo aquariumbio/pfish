@@ -135,8 +135,7 @@ def add_code_arguments(parser, *, action):
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
-        # TODO: Do we want to require a category for testing?
-        required=(action == 'create' or action == 'test')
+        required=(action == 'create')
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -242,6 +241,9 @@ def do_push(args):
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
+    if args.force and not args.operation_type:
+        logging.warning('Force Flag only operates with a single Operation Type')
+        return
     # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
@@ -249,8 +251,7 @@ def do_push(args):
             library.push(
                 session=session,
                 path=create_named_path(
-                    category_path, args.library, subdirectory='libraries'),
-                force=args.force
+                    category_path, args.library, subdirectory='libraries')
             )
             return
 
@@ -264,7 +265,7 @@ def do_push(args):
             )
             return
 
-        category.push(session=session, path=category_path, force=args.force)
+        category.push(session=session, path=category_path)
         return
 
     if args.library or args.operation_type:

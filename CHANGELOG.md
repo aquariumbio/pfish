@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## -- 2021-05-05 -- [1.2.1]
+
+### Changed
+- Removed requirement for category command line argument for running tests
+- Fixed issue where missing types would cause file output to end early
+
 ## -- 2021-04-12 -- [1.2.0]
 
 ### Added

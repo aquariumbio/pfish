@@ -65,6 +65,24 @@ def get_operation_type(*, session, category, name):
     return retrieved_operation_type[0]
 
 
+def get_associated_types(*, path, operation_type):
+    """
+    Get any object or sample types
+    associated with the given operation type
+    """
+
+    object_types = operation_type.object_type()
+    sample_types = operation_type.sample_type()
+
+    for obj_type in object_types:
+        if obj_type:
+            object_type.write_files(path=path, object_type=obj_type)
+
+    for samp_type in sample_types:
+        if samp_type:
+            sample_type.write_files(path=path, sample_type=samp_type)
+
+
 def pull(*, session, path, category, name):
     """
     Retrieves operation type.
@@ -74,22 +92,13 @@ def pull(*, session, path, category, name):
         session=session,
         category=category, name=name)
 
-    object_types = retrieved_operation_type.object_type()
-    sample_types = retrieved_operation_type.sample_type()
-
-    for obj_type in object_types:
-        object_type.write_files(path=path, object_type=obj_type)
-
-    for samp_type in sample_types:
-        sample_type.write_files(path=path, sample_type=samp_type)
+    get_associated_types(path=path, operation_type=retrieved_operation_type)
 
     write_files(session=session, path=path,
                 operation_type=retrieved_operation_type)
 
-# TODO Fix this so you're not passing an empty list as the default
 
-
-def write_files(*, session, path, operation_type, sample_types=[], object_types=[]):
+def write_files(*, session, path, operation_type):
     """
     Writes the files associated with the operation_type to the path.
 
@@ -100,6 +109,8 @@ def write_files(*, session, path, operation_type, sample_types=[], object_types=
     """
     logging.info('Writing operation type %s', operation_type.name)
 
+    get_associated_types(path=path, operation_type=operation_type)
+ 
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
 
@@ -187,7 +198,7 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
     session.utils.create_operation_type(new_operation_type)
 
 
-def push(*, session, path, force, component_names=all_component_names()):
+def push(*, session, path, force=False, component_names=all_component_names()):
     """
     Pushes files to the Aquarium instance
 

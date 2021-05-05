@@ -264,7 +264,7 @@ def types_valid(*, operation_type, definitions, force, session):
             'Operation Type "%s" will not be pushed.', operation_type.name)
         logging.info(
             'To override this and replace instance data with data from your definition file,\n \
-            run push again with the force flag (-f, --force) set.')
+            push the operation type with the force flag (-f, --force) set.')
         return False
 
     return True
