@@ -136,7 +136,7 @@ def add_code_arguments(parser, *, action):
         "-c", "--category",
         help="category of the operation type or library",
         # TODO: Do we want to require a category for testing?
-        required=(action == 'create' or action == 'test')
+        required=(action == 'create')
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
