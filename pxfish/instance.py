@@ -94,16 +94,16 @@ def run_tests(*, session, path, timeout: int = None):
             operation_type.run_test(
                 session=session,
                 path=path,
-                category=definition.category,
-                name=definition.name,
+                category=def_dict['category'],
+                name=def_dict['name'],
                 timeout=timeout
             )
         elif definition.is_library(def_dict):
             library.run_test(
                 session=session,
                 path=path,
-                category=definition.category,
-                name=definition.name,
+                category=def_dict['category'],
+                name=def_dict['name'],
                 timeout=timeout
             )
         return
