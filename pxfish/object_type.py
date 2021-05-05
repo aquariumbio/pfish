@@ -18,7 +18,6 @@ def exists(*, session, object_type):
     """
     Checks whether an Object Type named in definition exists in Aquarium
     """
-    # TODO: we are not currently storing the description in the definition file
     object_type = session.ObjectType.where({'name': object_type})
     return bool(object_type)
 
@@ -33,6 +32,7 @@ def create(*, session, object_type, path):
         data_dict = read(path=path, object_type=object_type)
     except FileNotFoundError:
         return
+
     # TODO: try except for File not Found Error
     obj_type = session.ObjectType.new(
         name=data_dict['name'],
@@ -54,6 +54,7 @@ def create(*, session, object_type, path):
         columns=data_dict['columns']
         )
     obj_type.save()
+
     return obj_type
 
 
@@ -72,6 +73,7 @@ def read(*, path, object_type):
             'Error %s reading expected code file %s', error, 'definition.json')
         raise FileNotFoundError
     return data_dict
+
 
 def write_files(*, path, object_type):
     """
