@@ -22,8 +22,6 @@ def pull(*, session, path):
     """
     operation_types = session.OperationType.all()
     libraries = session.Library.all()
-    object_types = session.ObjectType.all()
-    sample_types = session.SampleType.all()
 
     for op_type in operation_types:
         operation_type.write_files(
@@ -34,12 +32,6 @@ def pull(*, session, path):
     # TODO: might need to add session back in if we add library tests
     for lib in libraries:
         library.write_files(path=path, library=lib)
-
-    for obj_type in object_types:
-        object_type.write_files(path=path, object_type=obj_type)
-
-    for sam_type in sample_types:
-        sample_type.write_files(path=path, sample_type=sam_type)
 
 
 def push(*, session, path):
