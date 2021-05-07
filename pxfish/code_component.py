@@ -15,7 +15,7 @@ def write(*, path, file_name, code_object):
       code_object (Code): the code object to be written
     """
     file_path = os.path.join(path, file_name)
-    with open(file_path, 'w') as file:
+    with open(file_path, 'wb') as file:
         file.write(code_object.content)
 
 
