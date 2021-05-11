@@ -41,34 +41,9 @@ def is_operation_type(path):
     return definition.is_operation_type(def_dict)
 
 
-def get_operation_type(*, session, category, name):
-    """
-    Retrieves a single Operation Type Object.
-
-    Arguments:
-        session (Session Object): Aquarium session object
-        category (String): The category the OperationType is in
-        name (String): The name of the OperationType to be retrieved
-    """
-    retrieved_operation_type = session.OperationType.where(
-        {
-            'category': category,
-            'name': name
-        }
-    )
-    if not retrieved_operation_type:
-        logging.warning(
-            'No Operation Type named %s in Category %s',
-            name, category)
-        return
-
-    return retrieved_operation_type[0]
-
-
 def get_associated_types(*, path, operation_type):
     """
-    Get any object or sample types
-    associated with the given operation type
+    Retrieves object or sample types associated with the given operation type
     """
 
     object_types = operation_type.object_type()
@@ -85,17 +60,24 @@ def get_associated_types(*, path, operation_type):
 
 def pull(*, session, path, category, name):
     """
-    Retrieves operation type.
-    Calls function to write associated files
+    Retrieves operation type
+    Passes operation type to write_files
     """
-    retrieved_operation_type = get_operation_type(
-        session=session,
-        category=category, name=name)
+    retrieved_operation_type = session.OperationType.where(
+        {
+            'category': category,
+            'name': name
+        }
+    )
 
-    get_associated_types(path=path, operation_type=retrieved_operation_type)
+    if not retrieved_operation_type:
+        logging.warning(
+            'No Operation Type named %s in Category %s',
+            name, category)
+        return
 
     write_files(session=session, path=path,
-                operation_type=retrieved_operation_type)
+                operation_type=retrieved_operation_type[0])
 
 
 def write_files(*, session, path, operation_type):
@@ -108,9 +90,8 @@ def write_files(*, session, path, operation_type):
         operation_type (OperationType): the operation type being written
     """
     logging.info('Writing operation type %s', operation_type.name)
-
     get_associated_types(path=path, operation_type=operation_type)
- 
+
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
 
@@ -171,15 +152,15 @@ def test_component_names():
 
 def create(*, session, path, category, name, default_text=True, field_types=[]):
     """
-    Creates new operation type on the Aquarium instance.
+    Creates a new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): the directory path where the new files will be written
-        category (String): the category for the operation type
-        name (String): name of the operation type
-        field_types (List): field types associated with new operation type.
+        path (String): The directory path where the new files will be written
+        category (String): The category for the operation type
+        name (String): The name of the operation type
+        field_types (List): Field types associated with the new operation type.
                             Defaults to empty list
     """
     code_objects = create_code_objects(session=session,
@@ -235,8 +216,8 @@ def push(*, session, path, force=False, component_names=all_component_names()):
                 force=force,
                 session=session):
             return
-        
-        field_type.build(
+
+        field_type.build_field_type_list(
             definitions=definitions,
             operation_type=parent_object[0], path=path, session=session)
 
@@ -255,20 +236,19 @@ def push(*, session, path, force=False, component_names=all_component_names()):
         )
 
         logging.info('pushing file %s', parent_object[0].name)
-
         session.utils.update_code(new_code)
 
 
 def run_test(*, session, path, category, name, timeout: int = None):
     """
-    Run tests for specified operation type.
+    Runs tests for specified operation type.
 
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Path to file
         category (String): Category operation type is found in
-        name (String): name of the Operation Type to be tested
-        timeout (Int): time (seconds) to wait for test result
+        name (String): Name of the Operation Type to be tested
+        timeout (Int): Time (seconds) to wait for test result
     """
     logging.info('Sending request to test %s', name)
     push(
@@ -276,7 +256,7 @@ def run_test(*, session, path, category, name, timeout: int = None):
         component_names=test_component_names()
     )
 
-    retrieved_operation_type = get_operation_type(
+    retrieved_operation_type = retrieve(
         session=session, category=category, name=name)
 
     response = session._aqhttp.get(
