@@ -10,10 +10,6 @@ import field_type
 import object_type
 import sample_type
 
-from code_component import (
-    create_code_object,
-    create_code_objects
-)
 from definition import (
     write_definition_json,
 )
@@ -107,7 +103,7 @@ def write_files(*, session, path, operation_type):
             logging.warning(
                 'Missing %s code for operation type %s -- creating file',
                 operation_type.name, name)
-            create_code_object(
+            code_component.create_code_object(
                 session=session,
                 name=name,
                 operation_type=operation_type
@@ -163,7 +159,8 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
         field_types (List): Field types associated with the new operation type.
                             Defaults to empty list
     """
-    code_objects = create_code_objects(session=session,
+    code_objects = code_component.create_code_objects(
+                                       session=session,
                                        component_names=all_component_names(),
                                        default_text=default_text)
     new_operation_type = session.OperationType.new(
@@ -173,7 +170,8 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
         precondition=code_objects['precondition'],
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'],
-        test=code_objects['test'])
+        test=code_objects['test']
+        )
 
     new_operation_type.field_types = field_types
     session.utils.create_operation_type(new_operation_type)
@@ -209,7 +207,6 @@ def push(*, session, path, force=False, component_names=all_component_names()):
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
-
     if has_field_types(definitions):
         attach_field_types(
             definitions=definitions,
@@ -219,22 +216,15 @@ def push(*, session, path, force=False, component_names=all_component_names()):
             path=path
             )
 
-    # TODO: Split out code creation to a seperate function
-    for name in component_names:
-        read_file = code_component.read(path=path, name=name)
-        if read_file is None:
-            return
-
-        new_code = session.Code.new(
-            name=name,
-            parent_id=parent_object[0].id,
-            parent_class=definitions['parent_class'],
-            user_id=user_id,
-            content=read_file
+    create_code_objects(
+        component_names=component_names,
+        parent_object=parent_object[0], user_id=user_id,
+        session=session, path=path
         )
 
-        logging.info('pushing file %s for operation type %s', name, parent_object[0].name)
-        session.utils.update_code(new_code)
+
+def has_field_types(definitions):
+    return definitions['inputs'] or definitions['outputs']
 
 
 def attach_field_types(*, definitions, operation_type, force, session, path):
@@ -253,8 +243,23 @@ def attach_field_types(*, definitions, operation_type, force, session, path):
         session=session)
 
 
-def has_field_types(definitions):
-    return definitions['inputs'] or definitions['outputs']
+def create_code_objects(component_names, parent_object, user_id, session, path):
+    """Create updated code objects"""
+    for name in component_names:
+        read_file = code_component.read(path=path, name=name)
+        if read_file is None:
+            return
+
+        new_code = session.Code.new(
+            name=name,
+            parent_id=parent_object.id,
+            parent_class="OperationType",
+            user_id=user_id,
+            content=read_file
+        )
+
+        logging.info('pushing file %s for operation type %s', name, parent_object.name)
+        session.utils.update_code(new_code)
 
 
 def run_test(*, session, path, category, name, timeout: int = None):
