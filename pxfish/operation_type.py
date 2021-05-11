@@ -209,17 +209,15 @@ def push(*, session, path, force=False, component_names=all_component_names()):
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
-    if definitions['inputs'] or definitions['outputs']:
-        if not field_type.types_valid(
-                definitions=definitions,
-                operation_type=parent_object[0],
-                force=force,
-                session=session):
-            return
 
-        field_type.build_field_type_list(
+    if has_field_types(definitions):
+        attach_field_types(
             definitions=definitions,
-            operation_type=parent_object[0], path=path, session=session)
+            operation_type=parent_object[0],
+            force=force,
+            session=session,
+            path=path
+            )
 
     # TODO: Split out code creation to a seperate function
     for name in component_names:
@@ -235,8 +233,28 @@ def push(*, session, path, force=False, component_names=all_component_names()):
             content=read_file
         )
 
-        logging.info('pushing file %s', parent_object[0].name)
+        logging.info('pushing file %s for operation type %s', name, parent_object[0].name)
         session.utils.update_code(new_code)
+
+
+def attach_field_types(*, definitions, operation_type, force, session, path):
+    """Attach field types to operation type"""
+    if not field_type.types_valid(
+            definitions=definitions,
+            operation_type=operation_type,
+            force=force,
+            session=session):
+        return
+
+    field_type.build_field_type_list(
+        definitions=definitions,
+        operation_type=operation_type,
+        path=path,
+        session=session)
+
+
+def has_field_types(definitions):
+    return definitions['inputs'] or definitions['outputs']
 
 
 def run_test(*, session, path, category, name, timeout: int = None):
