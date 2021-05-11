@@ -55,7 +55,7 @@ def pull(*, session, path, category, name):
     write_files(path=path, library=retrieved_library[0])
 
 
-def get_code_file_names():
+def get_component_names():
     """Gets code file names associated with library"""
     return ['source']
 
@@ -118,7 +118,7 @@ def create(*, session, path, category, name):
         name (String): name of the library to be created
     """
     code_objects = code_component.create_code_objects(
-        session=session, component_names=get_code_file_names()
+        session=session, component_names=get_component_names()
     )
     new_library = session.Library.new(
         name=name,
