@@ -10,7 +10,7 @@ from definition import (
 
 def build_field_type(*, operation_type, definition, role=None, path, session):
     """
-    Check for existing field types in Aquarium
+    Checks for existing field types in Aquarium
     Either attach retrieved FT or create a new one
     Arguments:
         operation_type (Operation Type): parent object
@@ -48,7 +48,7 @@ def build_field_type(*, operation_type, definition, role=None, path, session):
 
 def add_to_existing_afts(*, session, path, field_type, definition):
     """
-    Check for existing AFTs on Field Type
+    Checks for existing AFTs on Field Type
     For any that are not found, create them
     """
     all_afts = field_type.allowable_field_types
@@ -63,7 +63,7 @@ def add_to_existing_afts(*, session, path, field_type, definition):
 
 
 def create(*, definition, role=None, session):
-    """Create New Field Type Proxy Object"""
+    """Creates New Field Type Proxy Object"""
     field_type = session.FieldType.new()
     field_type.role = role
     field_type.name = definition.get('name')
@@ -73,8 +73,7 @@ def create(*, definition, role=None, session):
     field_type.ftype = definition.get('ftype', 'sample')
     field_type.choices = definition.get('choices', None)
     field_type.required = definition.get('required', None)
-    field_type.parent_class = definition.get('parent_class', '')
-
+#    field_type.parent_class = definition.get('parent_class', '')
     return field_type
 
 
@@ -112,8 +111,21 @@ def build_field_type_list(*, operation_type, definitions, path, session):
                 session=session)
         )
     operation_type.field_types = field_types
-
     session.utils.update_operation_type(operation_type)
+
+
+def create_aft(session, path, definitions):
+    """create any needed sample or object types"""
+    field_types = definitions['inputs'] + definitions['outputs']
+    allowable_field_types = [field_types['allowable_field_types'] for ft in field_types]
+    smple_types = [value['sample_type'] for sublist in allowable_field_types for value in sublist]
+    for smple_type in set(smple_types):
+        if not sample_type.exists(session=session, sample_type=smple_type):
+            sampl_type = sample_type.create(
+                session=session,
+                sample_type=sampl_type,
+                path=path
+            )
 
 
 def add_aft(*, aft_def, session, path):
@@ -136,7 +148,7 @@ def add_aft(*, aft_def, session, path):
             sample_type=aft_def['sample_type'],
             path=path
             )
-
+    # TODO: After creating a new sample type, it should retrieve it
     if object_type.exists(
             session=session,
             object_type=aft_def['object_type']):
@@ -209,7 +221,7 @@ def check_for_conflicts(*, field_types, definitions, force):
 
     return (aquarium_diff_names, conflicts, local_diff)
 
-
+# TODO, change to "type valid" and check one at a time 
 def types_valid(*, operation_type, definitions, force, session):
     """
     Compares an Operation Type's Field Types to those in the Definitions file
