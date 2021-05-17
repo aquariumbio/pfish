@@ -54,7 +54,7 @@ def get_config(path):
 
 
 def show_config(*, path):
-    """List all named configurations"""
+    """Prints all named configurations"""
     file_path = config_file_path(path)
     configurations = get_config(file_path)
     print(f"Current (Default) Configuration: {configurations['default']}")
