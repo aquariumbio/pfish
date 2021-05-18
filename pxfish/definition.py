@@ -9,6 +9,10 @@ def has_definition(path) -> bool:
     return 'definition.json' in os.listdir(path)
 
 
+def has_field_types(definitions):
+    return definitions['inputs'] or definitions['outputs']
+
+
 def is_library(obj: Dict) -> bool:
     logging.info('Checking whether Definition File is for a Library.')
     return obj['parent_class'] == 'Library'
@@ -17,6 +21,14 @@ def is_library(obj: Dict) -> bool:
 def is_operation_type(obj: Dict) -> bool:
     logging.info('Checking whether Definition File is for an Operation Type.')
     return obj['parent_class'] == 'OperationType'
+
+
+def allowable_field_types(field_types: Dict) -> list:
+    allowable_field_types = []
+    for field_type in field_types:
+        if field_type['allowable_field_types']:
+            allowable_field_types.extend(field_type['allowable_field_types'])
+    return allowable_field_types
 
 
 def category(obj: Dict) -> str:

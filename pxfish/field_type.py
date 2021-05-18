@@ -114,19 +114,27 @@ def build_field_type_list(*, operation_type, definitions, path, session):
     session.utils.update_operation_type(operation_type)
 
 
-def create_aft(session, path, definitions):
-    """create any needed sample or object types"""
-    field_types = definitions['inputs'] + definitions['outputs']
-    allowable_field_types = [field_types['allowable_field_types'] for ft in field_types]
-    smple_types = [value['sample_type'] for sublist in allowable_field_types for value in sublist]
-    for smple_type in set(smple_types):
-        if not sample_type.exists(session=session, sample_type=smple_type):
+def create_afts(*, session, path, allowable_field_types):
+    """Creates any needed sample or object types"""
+
+    smpl_types = {aft['sample_type'] for aft in allowable_field_types}
+    obj_types = {aft['object_type'] for aft in allowable_field_types}
+
+    for smpl_type in smpl_types:
+        if not sample_type.exists(session=session, sample_type=smpl_type):
             sampl_type = sample_type.create(
                 session=session,
                 sample_type=sampl_type,
                 path=path
             )
 
+    for obj_type in obj_types:
+        if not object_type.exists(session=session, object_type=obj_type):
+            obj_type = object_type.create(
+                session=session,
+                object_type=obj_type,
+                path=path
+            )
 
 def add_aft(*, aft_def, session, path):
     """
@@ -176,7 +184,7 @@ def equivalent(*, aquarium_field_type, definition):
         field_types=[aquarium_field_type])[0]
 
     all_keys = aquarium_field_type.keys() | definition.keys()
-
+# TODO Check processing for AFTs
     diff = {}
     for key in all_keys:
         aft_values = aquarium_field_type.get(key, None)
@@ -247,7 +255,7 @@ def types_valid(*, operation_type, definitions, force, session):
         definitions=definitions['outputs'],
         force=force
     )
-
+ # TODO: Update Messages
     messages = []
 
     if missing_inputs or missing_outputs:

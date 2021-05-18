@@ -160,9 +160,10 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
                             Defaults to empty list
     """
     code_objects = code_component.create_code_objects(
-                                       session=session,
-                                       component_names=all_component_names(),
-                                       default_text=default_text)
+        session=session,
+        component_names=all_component_names(),
+        default_text=default_text)
+
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -207,14 +208,22 @@ def push(*, session, path, force=False, component_names=all_component_names()):
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
 
-    if has_field_types(definitions):
-        attach_field_types(
-            definitions=definitions,
-            operation_type=parent_object[0],
-            force=force,
-            session=session,
-            path=path
-            )
+
+    if definition.has_field_types(definitions):
+        if not field_type.types_valid(
+                definitions=definitions,
+                operation_type=parent_object[0],
+                force=force,
+                session=session):
+            return
+
+        else:
+            build_associated_types(definitions=definitions,
+                                   operation_type=parent_object[0],
+                                   force=force,
+                                   session=session,
+                                   path=path
+                                   )
 
     create_code_objects(
         component_names=component_names,
@@ -223,18 +232,20 @@ def push(*, session, path, force=False, component_names=all_component_names()):
         )
 
 
-def has_field_types(definitions):
-    return definitions['inputs'] or definitions['outputs']
-
-
-def attach_field_types(*, definitions, operation_type, force, session, path):
-    """Attach field types to operation type"""
-    if not field_type.types_valid(
-            definitions=definitions,
-            operation_type=operation_type,
-            force=force,
-            session=session):
-        return
+def build_associated_types(*, definitions, operation_type, force, session, path):
+    """
+    Creates any needed Sample or Object Types
+    Builds Field Types
+    Definitions
+    OT
+    path
+    session
+    """
+    field_types = definitions['inputs'] + definitions['outputs']
+    allowable_field_types = definition.allowable_field_types(field_types)
+ 
+    if allowable_field_types:
+        field_type.create_afts(session=session, path=path, allowable_field_types=allowable_field_types)
 
     field_type.build_field_type_list(
         definitions=definitions,
@@ -244,7 +255,7 @@ def attach_field_types(*, definitions, operation_type, force, session, path):
 
 
 def create_code_objects(component_names, parent_object, user_id, session, path):
-    """Create updated code objects"""
+    """Creates updated code objects for Operation Type"""
     for name in component_names:
         read_file = code_component.read(path=path, name=name)
         if read_file is None:
@@ -279,8 +290,17 @@ def run_test(*, session, path, category, name, timeout: int = None):
         component_names=test_component_names()
     )
 
-    retrieved_operation_type = retrieve(
-        session=session, category=category, name=name)
+    retrieved_operation_type = session.OperationType.where(
+        {
+            'category': category,
+            'name': name
+        }
+    )
+
+    if not retrieved_operation_type:
+        logging.warning(
+            'No Operation Type named %s in Category %s',
+            name, category)
 
     response = session._aqhttp.get(
         "test/run/{}".format(retrieved_operation_type.id),
