@@ -22,6 +22,14 @@ def exists(*, session, object_type):
     return bool(object_type)
 
 
+def get_sample_type_id(session, unit):
+    """Gets Sample Type ID to be associated with Object Type"""
+    sample_type = session.SampleType.where({'name': unit})
+    if sample_type:
+        return sample_type[0].id
+    return None
+
+
 def create(*, session, object_type, path):
     """
     Creates a new Object Type Type in Aquarium
@@ -53,6 +61,11 @@ def create(*, session, object_type, path):
         rows=data_dict['rows'],
         columns=data_dict['columns']
         )
+
+    st_id = get_sample_type_id(session, obj_type.unit)
+    if st_id:
+        obj_type.sample_type_id = st_id
+
     obj_type.save()
 
     return obj_type
