@@ -39,15 +39,16 @@ def name(obj: Dict) -> str:
     return obj['name']
 
 
-def field_type_list(field_types):
+def serialize_field_types(field_types):
+
     """
     Returns sublist of field types with the given role.
 
     Arguments:
-      field_types (List): the list of field types
+      field_types (List): the list of pydent field type objects
 
     Returns:
-      list: the sublist of field_types that have the specified role
+      list: list of serialized data for each field_type
     """
     #TODO: Distinguish Parameters from other inputs/outputs
     ft_list = []
@@ -62,14 +63,14 @@ def field_type_list(field_types):
             'required': field_type.required
             }
         if field_type.parent_class == "OperationType":
-            allowable_field_types = allowable_field_type_list(field_type.allowable_field_types)
+            allowable_field_types = serialize_allowable_field_types(field_type.allowable_field_types)
             ft_ser['allowable_field_types'] = allowable_field_types
 
         ft_list.append(ft_ser)
     return ft_list
 
 
-def allowable_field_type_list(allowable_field_types):
+def serialize_allowable_field_types(allowable_field_types):
     """
     Arguments:
       allowable_field_types (List): list of AFTs associated with Field Type
@@ -103,10 +104,10 @@ def write_definition_json(file_path, operation_type):
     ot_ser['name'] = operation_type.name
     ot_ser['parent_class'] = 'OperationType'
     ot_ser['category'] = operation_type.category
-    ot_ser['inputs'] = field_type_list(
+    ot_ser['inputs'] = serialize_field_types(
             [ft for ft in operation_type.field_types if ft.role == 'input']
             )
-    ot_ser['outputs'] = field_type_list(
+    ot_ser['outputs'] = serialize_field_types(
             [ft for ft in operation_type.field_types if ft.role == 'output']
             )
     ot_ser['on_the_fly'] = operation_type.on_the_fly
