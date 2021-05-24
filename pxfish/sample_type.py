@@ -24,7 +24,7 @@ def exists(*, session, sample_type):
 
 def create(*, session, sample_type, path):
     """
-    Creates a new Sample Type
+    Creates a new Aquarium Sample Type
     """
     path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'sample_types')
@@ -44,13 +44,13 @@ def create(*, session, sample_type, path):
         data_ft = create_data_field_type(session=session, definition=ft_dict)
         smpl_type.field_types.append(data_ft)
 
-    # 'smpl_type': <pydent.models.sample.SampleType object at 0x107abcf80>}
     session.utils.create_sample_type(smpl_type)
-    return smpl_type
+
+    logging.info('Created Sample Type %s ", smpl_type')
 
 
 def create_data_field_type(*, session, definition):
-    """Create Field Type"""
+    """Creates Field Type with Sample Type Parameters"""
     return field_type.create(session=session, definition=definition)
 
 
@@ -88,7 +88,7 @@ def write_files(*, path, sample_type):
     sample_type_ser = {
         'name': sample_type.name,
         'description': sample_type.description,
-        'field_types': definition.field_type_list(sample_type.field_types)
+        'field_types': definition.serialize_field_types(sample_type.field_types)
     }
 
     name = simplename(sample_type_ser['name'])
