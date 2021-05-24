@@ -24,7 +24,7 @@ from protocol_test import (
 
 
 def is_operation_type(path):
-    """Checks whether definition file exists and is for an Operation Type """
+    """Checks whether definition file exists and is for an Operation Type"""
     try:
         def_dict = definition.read(path)
     except NotADirectoryError:
@@ -204,6 +204,7 @@ def push(*, session, path, force=False, component_names=all_component_names()):
 
     # TODO: Shouldn't finish create if there are FT conflicts
     if not parent_object:
+        logging.info('Operation Type %s not found in instance, creating it now.', definitions['name'])
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'], default_text=False)
         parent_object = session.OperationType.where(query)
@@ -217,13 +218,13 @@ def push(*, session, path, force=False, component_names=all_component_names()):
                 session=session):
             return
 
-        else:
-            build_associated_types(definitions=definitions,
-                                   operation_type=parent_object[0],
-                                   force=force,
-                                   session=session,
-                                   path=path
-                                   )
+        build_associated_types(
+            definitions=definitions,
+            operation_type=parent_object[0],
+            force=force,
+            session=session,
+            path=path
+            )
 
     create_code_objects(
         component_names=component_names,
@@ -234,18 +235,17 @@ def push(*, session, path, force=False, component_names=all_component_names()):
 
 def build_associated_types(*, definitions, operation_type, force, session, path):
     """
-    Creates any needed Sample or Object Types
-    Builds Field Types
-    Definitions
-    OT
-    path
-    session
+    Creates any needed Field Types, AFTs and/or Sample or Object Types
     """
     field_types = definitions['inputs'] + definitions['outputs']
     allowable_field_types = definition.allowable_field_types(field_types)
- 
+
     if allowable_field_types:
-        field_type.create_afts(session=session, path=path, allowable_field_types=allowable_field_types)
+        field_type.create_sample_and_object_types(
+            session=session,
+            path=path,
+            sample_object_pairs=allowable_field_types
+            )
 
     field_type.build_field_type_list(
         definitions=definitions,
