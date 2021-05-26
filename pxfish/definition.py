@@ -9,8 +9,8 @@ def has_definition(path) -> bool:
     return 'definition.json' in os.listdir(path)
 
 
-def has_field_types(definitions):
-    return definitions['inputs'] or definitions['outputs']
+def has_field_types(definitions) -> bool:
+    return bool(definitions['inputs'] or definitions['outputs'])
 
 
 def is_library(obj: Dict) -> bool:
@@ -23,7 +23,10 @@ def is_operation_type(obj: Dict) -> bool:
     return obj['parent_class'] == 'OperationType'
 
 
-def allowable_field_types(field_types: Dict) -> list:
+def allowable_field_types(field_types: list) -> list:
+    """
+    Creates a list of allowable field types from definition file
+    """
     allowable_field_types = []
     for field_type in field_types:
         if field_type['allowable_field_types']:
@@ -40,9 +43,8 @@ def name(obj: Dict) -> str:
 
 
 def serialize_field_types(field_types):
-
     """
-    Returns sublist of field types with the given role.
+    Returns data about each field type in dictionary format
 
     Arguments:
       field_types (List): the list of pydent field type objects

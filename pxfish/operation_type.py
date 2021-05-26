@@ -211,20 +211,20 @@ def push(*, session, path, force=False, component_names=all_component_names()):
 
 
     if definition.has_field_types(definitions):
-        if not field_type.types_valid(
+        if not force and not field_type.types_valid(
                 definitions=definitions,
                 operation_type=parent_object[0],
-                force=force,
                 session=session):
             return
-
-        build_associated_types(
+        field_types = build_associated_types(
             definitions=definitions,
             operation_type=parent_object[0],
-            force=force,
             session=session,
             path=path
             )
+
+        parent_object[0].field_types = field_types
+        session.utils.update_operation_type(parent_object[0])
 
     create_code_objects(
         component_names=component_names,
@@ -233,7 +233,7 @@ def push(*, session, path, force=False, component_names=all_component_names()):
         )
 
 
-def build_associated_types(*, definitions, operation_type, force, session, path):
+def build_associated_types(*, definitions, operation_type, session, path):
     """
     Creates any needed Field Types, AFTs and/or Sample or Object Types
     """
@@ -241,17 +241,19 @@ def build_associated_types(*, definitions, operation_type, force, session, path)
     allowable_field_types = definition.allowable_field_types(field_types)
 
     if allowable_field_types:
-        field_type.create_sample_and_object_types(
+        field_type.check_sample_and_object_types(
             session=session,
             path=path,
             sample_object_pairs=allowable_field_types
             )
 
-    field_type.build_field_type_list(
+    field_type_list = field_type.build_field_type_list(
         definitions=definitions,
         operation_type=operation_type,
         path=path,
         session=session)
+
+    return field_type_list
 
 
 def create_code_objects(component_names, parent_object, user_id, session, path):
