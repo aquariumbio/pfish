@@ -56,8 +56,7 @@ def get_associated_types(*, path, operation_type):
 
 def pull(*, session, path, category, name):
     """
-    Retrieves operation type
-    Passes operation type to write_files
+    Pulls operation type from Aquarium
     """
     retrieved_operation_type = session.OperationType.where(
         {
@@ -219,6 +218,7 @@ def push(*, session, path, force=False, component_names=all_component_names()):
         field_types = build_associated_types(
             definitions=definitions,
             operation_type=parent_object[0],
+            force=force,
             session=session,
             path=path
             )
@@ -233,9 +233,9 @@ def push(*, session, path, force=False, component_names=all_component_names()):
         )
 
 
-def build_associated_types(*, definitions, operation_type, session, path):
+def build_associated_types(*, definitions, operation_type, force=False, session, path):
     """
-    Creates any needed Field Types, AFTs and/or Sample or Object Types
+    Creates list of Field Types, AFTs, and/or Sample or Object Types
     """
     field_types = definitions['inputs'] + definitions['outputs']
     allowable_field_types = definition.allowable_field_types(field_types)
@@ -250,7 +250,7 @@ def build_associated_types(*, definitions, operation_type, session, path):
     field_type_list = field_type.build_field_type_list(
         definitions=definitions,
         operation_type=operation_type,
-        path=path,
+        force=force,
         session=session)
 
     return field_type_list

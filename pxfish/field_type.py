@@ -8,15 +8,17 @@ from definition import (
         )
 
 
-def build_field_type_list(*, operation_type, definitions, path, session):
+def build_field_type_list(*, operation_type, definitions, force=False, session):
     """
     Creates a list of Field Type objects to add to Operation Type
 
     Arguments:
         operation_type (Operation Type): parent object
         definitions (Dictionary): data about field types
-        path (String): path to Operation Type
         session (Session Object): Aquarium session object
+
+    Returns:
+        List of Field Types
     """
 
     field_types = []
@@ -27,6 +29,7 @@ def build_field_type_list(*, operation_type, definitions, path, session):
                 operation_type=operation_type,
                 definition=field_type_definition,
                 role='input',
+                force=force,
                 session=session
                 )
         )
@@ -37,21 +40,24 @@ def build_field_type_list(*, operation_type, definitions, path, session):
                 operation_type=operation_type,
                 definition=field_type_definition,
                 role='output',
+                force=force,
                 session=session)
         )
-    operation_type.field_types = field_types
-    session.utils.update_operation_type(operation_type)
+
+    return field_types
 
 
-def build_field_type(*, operation_type, definition, role=None, session):
+def build_field_type(*, operation_type, definition, role=None, force=False, session):
     """
     Retrieves or Creates Field Type Objects
+
     Arguments:
         operation_type (Operation Type): parent object
         definition (Dictionary): data about field types
         role (String): input or output
         path (String): path to operation type
         session (Session Object): Aquarium session object
+
     Returns:
         Field Type object
     """
@@ -60,11 +66,18 @@ def build_field_type(*, operation_type, definition, role=None, session):
         'parent_id': operation_type.id,
         'role': role,
     }
+
     aquarium_field_type = session.FieldType.where(query)
 
     if aquarium_field_type:
         field_type = aquarium_field_type[0]
 
+        if force:
+            aquarium_field_type = update(
+                definition=definition,
+                role=role,
+                field_type=field_type
+                )
         all_afts = build_aft_list(
             session=session,
             field_type=field_type,
@@ -86,14 +99,15 @@ def build_field_type(*, operation_type, definition, role=None, session):
 
 def build_aft_list(*, session, field_type, definition):
     """
-    Checks for existing AFTs on Field Type
-    If an AFT is not found, creates it
+    Creates a list of existing and new AFTs
+
     Arguments:
         field_type (Field Type Object): the field type
         definition (Dictionary): data about field types
         session (Session Object): Aquarium session object
-    returns:
-        List of all afts for Field Type
+
+    Returns:
+        List of all AFTs for Field Type
     """
     all_afts = field_type.allowable_field_types # afts connected to pydent object
 
@@ -107,9 +121,36 @@ def build_aft_list(*, session, field_type, definition):
     return all_afts
 
 
+def build_aft(*, aft_def, session):
+    """
+    Adds Sample and Object Type objects to list of AFTs
+
+    Arguments:
+        session (Session Object): Aquarium session object
+        aft_def (Dictionary): Data about Sample and Object types
+    """
+    sampl_type = session.SampleType.new()
+    sampl_type.name = aft_def['sample_type']
+
+    obj_type = session.ObjectType.new()
+    obj_type.name = aft_def['object_type']
+
+    return {'sample_type': sampl_type, 'object_type': obj_type}
+
+
 def create(*, definition, role=None, session):
     """Creates New Field Type Proxy Object"""
     field_type = session.FieldType.new()
+    field_type = update(definition=definition, role=role, field_type=field_type)
+    return field_type
+
+
+def update(*, definition, role=None, field_type):
+    """
+    Updates Field Type Data based on Defintion File
+    Only runs for newly created field types or
+    if Force Flag is set
+    """
     field_type.role = role
     field_type.name = definition.get('name')
     field_type.part = definition.get('part', None)
@@ -121,10 +162,10 @@ def create(*, definition, role=None, session):
     return field_type
 
 
-def create_sample_and_object_types(*, session, path, sample_object_pairs):
+def check_sample_and_object_types(*, session, path, sample_object_pairs):
     """
     Checks if all sample and object types in definition file exist in Aquarium
-    Calls to create any that do not
+ 
     Arguments:
         sample_object_pairs (List): List of sample/object pairs
         session (Session Object): Aquarium session object
@@ -151,29 +192,14 @@ def create_sample_and_object_types(*, session, path, sample_object_pairs):
             )
 
 
-def build_aft(*, aft_def, session):
-    """
-    Adds Sample and Object type names to Field Type Object
-
-    Arguments:
-        session (Session Object): Aquarium session object
-        aft_def (Dictionary): Data about Sample and Object types
-    """
-    sampl_type = session.SampleType.new()
-    sampl_type.name = aft_def['sample_type']
-
-    obj_type = session.ObjectType.new()
-    obj_type.name = aft_def['object_type']
-
-    return {'sample_type': sampl_type, 'object_type': obj_type}
-
-
 def equivalent(*, aquarium_field_type, definition):
     """
-    Compares a field type object with a definition.
+    Compares an Aquarium field type object with its local definition
+
     Arguments:
         field_type (Field Type Object): Type currently saved in Aquarium
         definition (Dictionary): Type Data saved locally
+
     Returns:
         diff(Dictionary): Details on what data differs, if any
     """
@@ -182,25 +208,25 @@ def equivalent(*, aquarium_field_type, definition):
 
     all_keys = aquarium_field_type.keys() | definition.keys()
 
-# TODO Check processing for AFTs
     diff = {}
     for key in all_keys:
-        aft_values = aquarium_field_type.get(key, None)
+        aquarium_values = aquarium_field_type.get(key, None)
         local_values = definition.get(key, None)
-        if aft_values != local_values:
-            diff[key] = [aft_values, local_values]
+        if aquarium_values != local_values:
+            diff[key] = [aquarium_values, local_values]
 
     return diff
 
 
-def check_for_conflicts(*, aquarium_field_types, definitions, force):
+def check_for_conflicts(*, aquarium_field_types, definitions):
     """
     Compares data in definition file to data stored in an Aquarium Instance
+
     Arguments:
         aquarium_field_types (List): Field Types retrieved from Aquarium
         definitions (List): data about field types stored in definition file
-        force (Boolean): if set, override conflict checks
-    returns:
+
+    Returns:
         conflicts (Dictionary): Field Types in both places with differing data (Conflict)
         types_missing_locally (Dictionary): Field Types in Aquarium Only (Don't push)
         new_types (Dictionary): Local Field Types to create in Aquarium
@@ -230,30 +256,31 @@ def check_for_conflicts(*, aquarium_field_types, definitions, force):
     return (types_missing_locally, conflicts, new_types)
 
 
-def types_valid(*, operation_type, definitions, force, session):
+def types_valid(*, operation_type, definitions, session):
     """
     Compares an Operation Type's Field Types to those in the Definitions file
-    If a Field Type only exists in Instance Type, stops push for Operation Type
+    Reports conflicts to user
+
     Arguments:
         operation_type (Operation Type): parent object
         definitions (Dictionary): data about field types
-        force (Boolean): if set, overrides conflict checks
         session (Session Object): Aquarium session object
+
+    Returns:
+        bool (type validity)
     """
     aquarium_field_types = session.FieldType.where({'parent_id': operation_type.id})
 
     missing_inputs, input_conflicts, valid_inputs = check_for_conflicts(
         aquarium_field_types=[t for t in aquarium_field_types if t.role == 'input'],
         definitions=definitions['inputs'],
-        force=force
     )
 
     missing_outputs, output_conflicts, valid_outputs = check_for_conflicts(
         aquarium_field_types=[t for t in aquarium_field_types if t.role == 'output'],
         definitions=definitions['outputs'],
-        force=force
     )
- # TODO: Update Messages
+ # TODO: Update & Simplify Messages
     messages = []
 
     if missing_inputs or missing_outputs:
@@ -275,7 +302,7 @@ def types_valid(*, operation_type, definitions, force, session):
 
             for detail, difference in details.items():
                 messages.append(
-                        f'For "{detail}": aquarium value: "{difference[0]}", local value:  "{difference[1]}"\n')
+                        f'Field "{detail}": aquarium value: "{difference[0]}", \nlocal value:  "{difference[1]}"\n')
 
         for conflict, details in output_conflicts.items():
             messages.append(
@@ -285,12 +312,12 @@ def types_valid(*, operation_type, definitions, force, session):
 
             for detail, difference in details.items():
                 messages.append(
-                        f'For "{detail}": aquarium value: "{difference[0]}", local value:  "{difference[1]}"\n')
+                        f'Field "{detail}": aquarium value: "{difference[0]}", local value:  "{difference[1]}"\n')
 
     if messages:
         messages = ' '.join(messages)
         logging.warning(
-            'The Following Field Type Conflict(s) exist: \n %s', messages)
+            '\nThe Following Field Type Conflict(s) exist: \n %s', messages)
         logging.warning(
             'Operation Type "%s" will not be pushed.', operation_type.name)
         logging.info(
