@@ -90,6 +90,7 @@ def read(*, path, object_type):
     return data_dict
 
 
+# TODO: update so this doesn't rewrite the same file repeatedly
 def write_files(*, path, object_type):
     """
     Writes the files associated with the object_type to the path.

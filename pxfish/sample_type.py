@@ -46,7 +46,7 @@ def create(*, session, sample_type, path):
 
     session.utils.create_sample_type(smpl_type)
 
-    logging.info('Created Sample Type %s ", smpl_type')
+    logging.info('Created Sample Type %s ', smpl_type.name)
 
 
 def create_data_field_type(*, session, definition):
@@ -71,6 +71,7 @@ def read(*, path, sample_type):
     return data_dict
 
 
+# TODO: update so this doesn't rewrite the same file repeatedly
 def write_files(*, path, sample_type):
     """
     Writes the files associated with the sample_type to the path.
