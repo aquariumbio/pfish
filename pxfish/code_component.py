@@ -18,7 +18,7 @@ def write(*, path, file_name, code_object):
     with open(file_path, 'w') as file:
         file.write(code_object.content)
 
-
+# creates a dict of objects for a NEW OT
 def create_code_objects(*, session, component_names, default_text=True):
     """
     Creates code objects for each named component.
@@ -29,7 +29,7 @@ def create_code_objects(*, session, component_names, default_text=True):
 
     Returns:
         code_objects (Dictionary): Dictionary with component names as keys
-        and retrieved Code objects as values.
+        and Code objects as values.
     """
     code_objects = {}
 
@@ -45,12 +45,33 @@ def add_default_content(name):
     Retrieves default content for code files.
 
     Arguments:
-        name (String): name of file whose contents to retrieve
+        name (String): name of code file whose contents to retrieve
     """
     path = os.path.normpath(
         os.path.join(os.environ.get('SCRIPT_DIR') or '', 'protocol_templates')
     )
     return read(path=path, name=name)
+
+
+def update_code_objects(component_names, parent_object, parent_class, user_id, session, path):
+    """Replaces text of existing code objects with newest versions"""
+    for name in component_names:
+        read_file = read(path=path, name=name)
+        if read_file is None:
+            logging.warning('Code Component File %s was not found', name)
+            return
+
+        new_code = session.Code.new(
+            name=name,
+            parent_id=parent_object.id,
+            parent_class=parent_class,
+            user_id=user_id,
+            content=read_file
+        )
+
+        logging.info('writing file %s to instance', parent_object.name)
+
+        session.utils.update_code(new_code)
 
 
 def create_code_object(*, session, name, operation_type):
@@ -62,7 +83,7 @@ def create_code_object(*, session, name, operation_type):
         name (String): name of the code object to be created
         operation_type (Operation Type): operation type code object links to
     """
-
+# TODO: is this function needed?
     data = {}
     data['id'] = operation_type.id
     data['content'] = add_default_content(name)
