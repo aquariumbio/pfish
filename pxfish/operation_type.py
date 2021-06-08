@@ -145,7 +145,7 @@ def test_component_names():
     return ['protocol', 'test']
 
 
-def create(*, session, path, category, name, default_text=True, field_types=[]):
+def create(*, session, path, category, name, field_types=[]):
     """
     Creates a new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
@@ -160,8 +160,8 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
     """
     code_objects = code_component.create_code_objects(
         session=session,
-        component_names=all_component_names(),
-        default_text=default_text)
+        component_names=all_component_names()
+        )
 
     new_operation_type = session.OperationType.new(
         name=name,
@@ -205,9 +205,8 @@ def push(*, session, path, force=False, component_names=all_component_names()):
     if not parent_object:
         logging.info('Operation Type %s not found in instance, creating it now.', definitions['name'])
         create(session=session, path=path, category=definitions['category'],
-               name=definitions['name'], default_text=False)
+               name=definitions['name'])
         parent_object = session.OperationType.where(query)
-
 
     if definition.has_field_types(definitions):
         if not force and not field_type.types_valid(
@@ -226,10 +225,13 @@ def push(*, session, path, force=False, component_names=all_component_names()):
         parent_object[0].field_types = field_types
         session.utils.update_operation_type(parent_object[0])
 
-    create_code_objects(
+    code_component.update_code_objects(
         component_names=component_names,
-        parent_object=parent_object[0], user_id=user_id,
-        session=session, path=path
+        parent_object=parent_object[0],
+        parent_class="OperationType",
+        user_id=user_id,
+        session=session,
+        path=path
         )
 
 
@@ -255,26 +257,7 @@ def build_associated_types(*, definitions, operation_type, force=False, session,
 
     return field_type_list
 
-
-def create_code_objects(component_names, parent_object, user_id, session, path):
-    """Creates updated code objects for Operation Type"""
-    for name in component_names:
-        read_file = code_component.read(path=path, name=name)
-        if read_file is None:
-            return
-
-        new_code = session.Code.new(
-            name=name,
-            parent_id=parent_object.id,
-            parent_class="OperationType",
-            user_id=user_id,
-            content=read_file
-        )
-
-        logging.info('pushing file %s for operation type %s', name, parent_object.name)
-        session.utils.update_code(new_code)
-
-
+#TODO: Check that this wasn't effected by the latest change
 def run_test(*, session, path, category, name, timeout: int = None):
     """
     Runs tests for specified operation type.

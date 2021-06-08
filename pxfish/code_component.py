@@ -18,8 +18,8 @@ def write(*, path, file_name, code_object):
     with open(file_path, 'w') as file:
         file.write(code_object.content)
 
-# creates a dict of objects for a NEW OT
-def create_code_objects(*, session, component_names, default_text=True):
+
+def create_code_objects(*, session, component_names):
     """
     Creates code objects for each named component.
 
