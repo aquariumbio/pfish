@@ -123,8 +123,13 @@ def get_argument_parser():
 
 def add_code_arguments(parser, *, action):
     parser.add_argument(
+        "-a", "--all",
+        help="use with push or pull command to push or pull all files in a directory",
+    )
+    parser.add_argument(
         "-d", "--directory",
-        help="working directory for the command, default is current directory",
+        help="working directory for the command, default is current directory for pull. directory is required to push",
+        required=(action == 'push'),
         default=os.getcwd()
     )
     parser.add_argument(
@@ -233,9 +238,13 @@ def do_pull(args):
             'To pull an operation type or library, you must enter a category')
         return
 
-    instance.pull(session=session, path=path)
-    return
+    if args.all:
+        instance.pull(session=session, path=path)
+        return
 
+    logging.error(
+        'You must choose either a category, library, or operation type to push. Or use -a or --all to push an entire directory'
+        )
 
 def do_push(args):
     session = create_session(path=config_path(), name=args.name)
@@ -273,7 +282,14 @@ def do_push(args):
             'To push a single operation type or library, you must enter a category')
         return
 
-    instance.push(session=session, path=path)
+    if args.all:
+        instance.push(session=session, path=path)
+        return
+
+    logging.error(
+        'You must choose either a category, library, or operation type to push. Or use -a or --all to push an entire directory'
+        )
+    return
 
 
 def do_test(args):
@@ -308,8 +324,8 @@ def do_test(args):
             return
 
         category.run_tests(
-            session=session, 
-            path=category_path, 
+            session=session,
+            path=category_path,
             name=args.category,
             timeout=args.timeout
             )
@@ -320,7 +336,13 @@ def do_test(args):
             "To test a single operation type or library, you must enter a category")
         return
 
-    instance.run_tests(session=session, path=path, timeout=args.timeout)
+    if args.all:
+        instance.run_tests(session=session, path=path, timeout=args.timeout)
+        return
+
+    logging.error(
+        'You must choose either a category, library, or operation type to test. Or use -a or --all to test an entire directory'
+        )
 
 
 if __name__ == "__main__":
