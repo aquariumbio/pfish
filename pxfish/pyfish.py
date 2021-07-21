@@ -212,7 +212,6 @@ def do_create(args):
 def do_pull(args):
     """
     Call appropriate pull function based on arguments
-    Default is to pull everything from the instance
     """
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
@@ -243,7 +242,7 @@ def do_pull(args):
         return
 
     logging.error(
-        'You must choose either a category, library, or operation type to push. Or use -a or --all to push an entire directory'
+        'You must choose either a category, library, or operation type to pull. Or use -a or --all to push an entire directory'
         )
 
 def do_push(args):
