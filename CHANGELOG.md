@@ -4,11 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## -- 2021-07-27 -- [2.0.0]
+
+### Added
+- Sample and Object types are now linked upon push (where applicable)
+- Sample Types now include all their associated Field Types
+- Provides more extensive information about conflicts when pushing field types
+- 'all' flag for indicating that you'd like to push or pull an entire instance
+
+### Changed
+- Pushing and Pulling no longer defaults to pulling an entire instance (use -a or --all)
+- Adds more detail to definition files for Sample Types and Field Types
+- Pushing operation types now requires that you indicate a directory name
+- New version of pydent (1.0.11)
+
+
 ## -- 2021-05-05 -- [1.2.1]
 
 ### Changed
 - Removed requirement for category command line argument for running tests
 - Fixed issue where missing types would cause file output to end early
+
 
 ## -- 2021-04-12 -- [1.2.0]
 
@@ -20,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 - Added more detail to definition files for Sample Types and Field Types
 - Pulling now adds more complete information to definition.json file
+
 
 ## -- 2021-02-24 -- [1.1.0] 
 

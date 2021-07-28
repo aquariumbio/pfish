@@ -197,7 +197,7 @@ def do_config_default(args):
     set_default_instance(config_path(), name=args.name)
 
 
-def do_config_show():
+def do_config_show(args):
     show_config(path=config_path())
 
 
