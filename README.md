@@ -20,6 +20,7 @@ Once the script is done, you'll need to [add `~/bin` to your PATH](https://opens
 If you don't have `wget` installed, you can clone this repository and run `make install`.
 
 ## Updating
+
 Pfish doesn't currently track updates itself.
 
 Pfish has two parts: the wrapper script, and the pfish Docker image.
