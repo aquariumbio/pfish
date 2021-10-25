@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
-    """call the function determined by the arguments"""
+    """Calls the function determined by the arguments"""
     parser = get_argument_parser()
     args = parser.parse_args()
     try:
@@ -36,55 +36,40 @@ def main():
 
 
 def get_argument_parser():
+    """
+    Creates parser and subparsers for subcommands
+    Subparsers: create, push, pull, test, config
+    """
     parser = argparse.ArgumentParser(
         description="Create, push, pull, and test Aquarium protocols")
 
-    # Create parsers for subcommands
     subparsers = parser.add_subparsers(title="subcommands")
 
-    parser_create = subparsers.add_parser("create")
-    add_code_arguments(parser_create, action="create")
-    parser_create.set_defaults(func=do_create)
-
     parser_config = subparsers.add_parser("configure")
+
     config_subparsers = parser_config.add_subparsers()
 
     parser_add = config_subparsers.add_parser(
         "add",
         help="Add/update login configuration"
     )
-    parser_add.add_argument(
-        '-n', "--name",
-        help="the name to use for the aquarium instance",
-        default="local"
-    )
-    parser_add.add_argument(
-        "-l", "--login",
-        help="the login name for the aquarium instance",
-        default="neptune"
-    )
-    parser_add.add_argument(
-        "-p", "--password",
-        help="the password for the login",
-        default="aquarium"
-    )
-    parser_add.add_argument(
-        "-u", "--url",
-        help="the URL for the aquarium instance",
-        default="http://localhost/"
-    )
+
+    add_config_arguments(parser_add)
+
     parser_add.set_defaults(func=do_config_add)
 
     parser_default = config_subparsers.add_parser(
         "set-default",
         help="set default login configuration"
     )
+
     parser_default.add_argument(
         '-n',
         '--name',
         help="the name of the default login configuration",
         default="local"
     )
+
     parser_default.set_defaults(func=do_config_default)
 
     parser_show = config_subparsers.add_parser(
@@ -100,43 +85,70 @@ def get_argument_parser():
 
     parser_push = subparsers.add_parser("push")
     add_code_arguments(parser_push, action="push")
-    parser_push.add_argument(
-        '-f', '--force',
-        help='overwrite existing instance field types with data from definition file',
-        default=False,
-        action="store_true"
-        )
     parser_push.set_defaults(func=do_push)
+
+    parser_create = subparsers.add_parser("create")
+    add_code_arguments(parser_create, action="create")
+    parser_create.set_defaults(func=do_create)
 
     parser_test = subparsers.add_parser("test")
     add_code_arguments(parser_test, action="test")
-    parser_test.add_argument(
-        "-t", "--timeout",
-        help="timeout (seconds) for running test",
-        type=int,
-        default=None
-    )
     parser_test.set_defaults(func=do_test)
 
     return parser
 
 
+def add_config_arguments(parser):
+    """Adds optional args for configuration subparser"""
+    parser.add_argument(
+        '-n', "--name",
+        help="the name to use for the aquarium instance",
+        default="local"
+    )
+    parser.add_argument(
+        "-l", "--login",
+        help="the login name for the aquarium instance",
+        default="neptune"
+    )
+    parser.add_argument(
+        "-p", "--password",
+        help="the password for the login",
+        default="aquarium"
+    )
+    parser.add_argument(
+        "-u", "--url",
+        help="the URL for the aquarium instance",
+        default="http://localhost/"
+    )
+
+
 def add_code_arguments(parser, *, action):
+    """Adds optional arguments for code subparsers"""
+    parser.add_argument(
+        "-a", "--all",
+        help="push or pull all files in a directory",
+        action="store_true"
+    )
+
     parser.add_argument(
         "-d", "--directory",
-        help="working directory for the command, default is current directory",
+        help="working directory for the command. optional for Pull (default is current directory). Required for push",
+        required=(action == 'push'),
         default=os.getcwd()
     )
+
     parser.add_argument(
         "-n", "--name",
         help="login configuration name",
         type=str
     )
+
     parser.add_argument(
         "-c", "--category",
         help="category of the operation type or library",
         required=(action == 'create')
     )
+
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "-l", "--library",
@@ -147,6 +159,22 @@ def add_code_arguments(parser, *, action):
         help="the operation type to {}".format(action)
     )
 
+    if action == 'push':
+        parser.add_argument(
+            '-f', '--force',
+            help='overwrite existing instance field types with data from definition file',
+            #default=False,
+            action="store_true"
+            )
+
+    if action == 'test':
+        parser.add_argument(
+            "-t", "--timeout",
+            help="timeout (seconds) for running test",
+            type=int,
+            default=None
+        )
+
 
 def config_path():
     return os.path.normpath(
@@ -155,6 +183,7 @@ def config_path():
 
 
 def do_config_add(args):
+    """Adds new configuration"""
     add_config(
         path=config_path(),
         key=args.name,
@@ -173,6 +202,9 @@ def do_config_show(args):
 
 
 def do_create(args):
+    """
+    Calls appropriate create function based on arguments
+    """
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
@@ -206,8 +238,7 @@ def do_create(args):
 
 def do_pull(args):
     """
-    Call appropriate pull function based on arguments
-    Default is to pull everything from the instance
+    Calls appropriate pull function based on arguments
     """
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
@@ -233,17 +264,25 @@ def do_pull(args):
             'To pull an operation type or library, you must enter a category')
         return
 
-    instance.pull(session=session, path=path)
-    return
+    if args.all:
+        instance.pull(session=session, path=path)
+        return
 
+    logging.error(
+        'You must choose either a category, library, or operation type to pull. Or use -a or --all to pull all files in an instance'
+        )
 
 def do_push(args):
+    """
+    Calls appropriate push function based on arguments
+    """
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
     if args.force and not args.operation_type:
         logging.warning('Force Flag only operates with a single Operation Type')
         return
+    
     # TODO: get category from the definition file
     if args.category:
         category_path = create_named_path(path, args.category)
@@ -273,14 +312,23 @@ def do_push(args):
             'To push a single operation type or library, you must enter a category')
         return
 
-    instance.push(session=session, path=path)
+    if args.all:
+        instance.push(session=session, path=path)
+        return
+
+    logging.error(
+        'You must choose either a category, library, or operation type to push. Or use -a or --all to push an entire directory'
+        )
+    return
 
 
 def do_test(args):
+    """
+    Calls appropriate test function based on arguments
+    """
     session = create_session(path=config_path(), name=args.name)
     path = os.path.normpath(args.directory)
 
-    # have category, check for a library or operation type
     if args.category:
         category_path = create_named_path(path, args.category)
         if args.library:
@@ -308,8 +356,8 @@ def do_test(args):
             return
 
         category.run_tests(
-            session=session, 
-            path=category_path, 
+            session=session,
+            path=category_path,
             name=args.category,
             timeout=args.timeout
             )
@@ -320,7 +368,13 @@ def do_test(args):
             "To test a single operation type or library, you must enter a category")
         return
 
-    instance.run_tests(session=session, path=path, timeout=args.timeout)
+    if args.all:
+        instance.run_tests(session=session, path=path, timeout=args.timeout)
+        return
+
+    logging.error(
+        'You must choose either a category, library, or operation type to test. Or use -a or --all to test an entire directory'
+        )
 
 
 if __name__ == "__main__":

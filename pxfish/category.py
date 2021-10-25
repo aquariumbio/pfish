@@ -18,6 +18,10 @@ def is_category(path):
     except NotADirectoryError:
         logging.warning('%s is not a directory', path)
         return False
+    except FileNotFoundError:
+        logging.warning('Could not find file at path %s', path)
+        return False
+
 
     return not set(entries).isdisjoint({'libraries', 'operation_types'})
 

@@ -74,7 +74,7 @@ To use a different configuration without changing the default, add the configura
 For example, if you have your default set to local but you would like to pull all files from your production configuration:
 
 ```bash
-pfish pull -n <production>
+pfish pull -n <production> --all
 ```
 
 To list all your saved configurations, use the command:
@@ -85,10 +85,6 @@ pfish configure show
 
 ## Commands
 
-All commands other than `configure` use the current working directory by default.
-This can be overridden with the following options
-
-- `-d <directory-name>` - use the named subdirectory of the current working directory.
 
 ### Pull
 
@@ -99,7 +95,7 @@ The available pull commands are:
 1. Pull all libraries and operation types in an Aquarium instance.
 
    ```bash
-   pfish pull -d <directory_name>
+   pfish pull -d <directory_name> --all
    ```
 
 2. Pull all operation types and libraries from a category
@@ -122,30 +118,32 @@ The available pull commands are:
 
 ### Push
 
+_Note_: Push requires that you provide a directory name.
+
 The available push commands are:
 
 1. Push all operation types and libraries in a directory:
 
    ```bash
-   pfish push -d <directory_name>
+   pfish push -d <directory_name> --a
    ```
 
 2. Push all operation types and libraries in a category:
 
    ```bash
-   pfish push -c <category_name>
+   pfish push -d <directory_name> -c <category_name>
    ```
 
 3. Push a single library:
 
    ```bash
-   pfish push -c <category_name> -l <library_name>
+   pfish push -d <directory_name> -c <category_name> -l <library_name>
    ```
 
 4. Push a single operation type
 
    ```bash
-   pfish push -c <category_name> -o <operation_type_name>
+   pfish push -d <directory_name> -c <category_name> -o <operation_type_name>
    ```
 
 _Note_: If an operation type or library does not already exist in your instance of Aquarium, pushing will create it, provided your files are in the correct format.
@@ -187,7 +185,7 @@ If you would like to override this setting and push the operation type anyway, r
 
 
    ```bash
-   pfish push -f -c <category-name> -o <operation-type-name>
+   pfish push -f -d <directory_name> -c <category-name> -o <operation-type-name>
    ```
 
 ```bash
@@ -326,7 +324,7 @@ When you change files you can push the changes to Aquarium with the `push` comma
 For instance, if you changed the `Run Gel` operation type, you would run the command
 
 ```bash
-pfish push -c Cloning -o "Run Gel"
+pfish push -d <directory_name> -c Cloning -o "Run Gel"
 ```
 
 to push only that operation type.
@@ -334,7 +332,7 @@ to push only that operation type.
 If you change files in different operation types, you can push the whole category at once by running
 
 ```
-pfish push -c Cloning
+pfish push -d <directory_name> -c Cloning
 ```
 
 ## Developing Pfish

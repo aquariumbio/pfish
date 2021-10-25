@@ -55,7 +55,7 @@ def pull(*, session, path, category, name):
     write_files(path=path, library=retrieved_library[0])
 
 
-def get_code_file_names():
+def get_component_names():
     """Gets code file names associated with library"""
     return ['source']
 
@@ -118,7 +118,7 @@ def create(*, session, path, category, name):
         name (String): name of the library to be created
     """
     code_objects = code_component.create_code_objects(
-        session=session, component_names=get_code_file_names()
+        session=session, component_names=get_component_names()
     )
     new_library = session.Library.new(
         name=name,
@@ -158,25 +158,16 @@ def push(*, session, path):
         create(session=session, path=path, category=definitions['category'],
                name=definitions['name'])
         parent_object = session.Library.where(query)
-        # TODO: handle case where create failed
-
-    for name in component_names:
-        read_file = code_component.read(path=path, name=name)
-        if read_file is None:
-            logging.warning('Code Component File %s was not found', name)
-            return
-        new_code = session.Code.new(
-            name=name,
-            parent_id=parent_object[0].id,
-            parent_class=definitions['parent_class'],
-            user_id=user_id,
-            content=read_file
+    # TODO: handle case where create failed
+    code_component.update_code_objects(
+        component_names=component_names,
+        parent_object=parent_object[0],
+        parent_class="Library",
+        user_id=user_id,
+        session=session,
+        path=path
         )
 
-        logging.info('writing file %s to instance', parent_object[0].name)
-
-        session.utils.update_code(new_code)
-        # At this point, the new code is in the instance, but doesn't show up when pulling
 
 def run_test(*, session, path, category, name, timeout: int = None):
     logging.error("Library tests are not currently available")

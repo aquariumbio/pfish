@@ -10,10 +10,6 @@ import field_type
 import object_type
 import sample_type
 
-from code_component import (
-    create_code_object,
-    create_code_objects
-)
 from definition import (
     write_definition_json,
 )
@@ -28,7 +24,7 @@ from protocol_test import (
 
 
 def is_operation_type(path):
-    """Checks whether definition file exists and is for an Operation Type """
+    """Checks whether definition file exists and is for an Operation Type"""
     try:
         def_dict = definition.read(path)
     except NotADirectoryError:
@@ -41,34 +37,9 @@ def is_operation_type(path):
     return definition.is_operation_type(def_dict)
 
 
-def get_operation_type(*, session, category, name):
-    """
-    Retrieves a single Operation Type Object.
-
-    Arguments:
-        session (Session Object): Aquarium session object
-        category (String): The category the OperationType is in
-        name (String): The name of the OperationType to be retrieved
-    """
-    retrieved_operation_type = session.OperationType.where(
-        {
-            'category': category,
-            'name': name
-        }
-    )
-    if not retrieved_operation_type:
-        logging.warning(
-            'No Operation Type named %s in Category %s',
-            name, category)
-        return
-
-    return retrieved_operation_type[0]
-
-
 def get_associated_types(*, path, operation_type):
     """
-    Get any object or sample types
-    associated with the given operation type
+    Retrieves object or sample types associated with the given operation type
     """
 
     object_types = operation_type.object_type()
@@ -85,17 +56,23 @@ def get_associated_types(*, path, operation_type):
 
 def pull(*, session, path, category, name):
     """
-    Retrieves operation type.
-    Calls function to write associated files
+    Pulls operation type from Aquarium
     """
-    retrieved_operation_type = get_operation_type(
-        session=session,
-        category=category, name=name)
+    retrieved_operation_type = session.OperationType.where(
+        {
+            'category': category,
+            'name': name
+        }
+    )
 
-    get_associated_types(path=path, operation_type=retrieved_operation_type)
+    if not retrieved_operation_type:
+        logging.warning(
+            'No Operation Type named %s in Category %s',
+            name, category)
+        return
 
     write_files(session=session, path=path,
-                operation_type=retrieved_operation_type)
+                operation_type=retrieved_operation_type[0])
 
 
 def write_files(*, session, path, operation_type):
@@ -108,9 +85,8 @@ def write_files(*, session, path, operation_type):
         operation_type (OperationType): the operation type being written
     """
     logging.info('Writing operation type %s', operation_type.name)
-
     get_associated_types(path=path, operation_type=operation_type)
- 
+
     category_path = create_named_path(path, operation_type.category)
     makedirectory(category_path)
 
@@ -126,7 +102,7 @@ def write_files(*, session, path, operation_type):
             logging.warning(
                 'Missing %s code for operation type %s -- creating file',
                 operation_type.name, name)
-            create_code_object(
+            code_component.create_code_object(
                 session=session,
                 name=name,
                 operation_type=operation_type
@@ -169,22 +145,24 @@ def test_component_names():
     return ['protocol', 'test']
 
 
-def create(*, session, path, category, name, default_text=True, field_types=[]):
+def create(*, session, path, category, name, field_types=[]):
     """
-    Creates new operation type on the Aquarium instance.
+    Creates a new operation type on the Aquarium instance.
     Note: does not create the files locally, they need to be pulled.
 
     Arguments:
         session (Session Object): Aquarium session object
-        path (String): the directory path where the new files will be written
-        category (String): the category for the operation type
-        name (String): name of the operation type
-        field_types (List): field types associated with new operation type.
+        path (String): The directory path where the new files will be written
+        category (String): The category for the operation type
+        name (String): The name of the operation type
+        field_types (List): Field types associated with the new operation type.
                             Defaults to empty list
     """
-    code_objects = create_code_objects(session=session,
-                                       component_names=all_component_names(),
-                                       default_text=default_text)
+    code_objects = code_component.create_code_objects(
+        session=session,
+        component_names=all_component_names()
+        )
+
     new_operation_type = session.OperationType.new(
         name=name,
         category=category,
@@ -192,7 +170,8 @@ def create(*, session, path, category, name, default_text=True, field_types=[]):
         precondition=code_objects['precondition'],
         documentation=code_objects['documentation'],
         cost_model=code_objects['cost_model'],
-        test=code_objects['test'])
+        test=code_objects['test']
+        )
 
     new_operation_type.field_types = field_types
     session.utils.create_operation_type(new_operation_type)
@@ -224,51 +203,71 @@ def push(*, session, path, force=False, component_names=all_component_names()):
 
     # TODO: Shouldn't finish create if there are FT conflicts
     if not parent_object:
+        logging.info('Operation Type %s not found in instance, creating it now.', definitions['name'])
         create(session=session, path=path, category=definitions['category'],
-               name=definitions['name'], default_text=False)
+               name=definitions['name'])
         parent_object = session.OperationType.where(query)
 
-    if definitions['inputs'] or definitions['outputs']:
-        if not field_type.types_valid(
+    if definition.has_field_types(definitions):
+        if not force and not field_type.types_valid(
                 definitions=definitions,
                 operation_type=parent_object[0],
-                force=force,
                 session=session):
             return
-        
-        field_type.build(
+        field_types = build_associated_types(
             definitions=definitions,
-            operation_type=parent_object[0], path=path, session=session)
+            operation_type=parent_object[0],
+            force=force,
+            session=session,
+            path=path
+            )
 
-    # TODO: Split out code creation to a seperate function
-    for name in component_names:
-        read_file = code_component.read(path=path, name=name)
-        if read_file is None:
-            return
+        parent_object[0].field_types = field_types
+        session.utils.update_operation_type(parent_object[0])
 
-        new_code = session.Code.new(
-            name=name,
-            parent_id=parent_object[0].id,
-            parent_class=definitions['parent_class'],
-            user_id=user_id,
-            content=read_file
+    code_component.update_code_objects(
+        component_names=component_names,
+        parent_object=parent_object[0],
+        parent_class="OperationType",
+        user_id=user_id,
+        session=session,
+        path=path
         )
 
-        logging.info('pushing file %s', parent_object[0].name)
 
-        session.utils.update_code(new_code)
+def build_associated_types(*, definitions, operation_type, force=False, session, path):
+    """
+    Creates list of Field Types, AFTs, and/or Sample or Object Types
+    """
+    field_types = definitions['inputs'] + definitions['outputs']
+    allowable_field_types = definition.allowable_field_types(field_types)
 
+    if allowable_field_types:
+        field_type.check_sample_and_object_types(
+            session=session,
+            path=path,
+            sample_object_pairs=allowable_field_types
+            )
 
+    field_type_list = field_type.build_field_type_list(
+        definitions=definitions,
+        operation_type=operation_type,
+        force=force,
+        session=session)
+
+    return field_type_list
+
+#TODO: Check that this wasn't effected by the latest change
 def run_test(*, session, path, category, name, timeout: int = None):
     """
-    Run tests for specified operation type.
+    Runs tests for specified operation type.
 
     Arguments:
         session (Session Object): Aquarium session object
         path (String): Path to file
         category (String): Category operation type is found in
-        name (String): name of the Operation Type to be tested
-        timeout (Int): time (seconds) to wait for test result
+        name (String): Name of the Operation Type to be tested
+        timeout (Int): Time (seconds) to wait for test result
     """
     logging.info('Sending request to test %s', name)
     push(
@@ -276,8 +275,17 @@ def run_test(*, session, path, category, name, timeout: int = None):
         component_names=test_component_names()
     )
 
-    retrieved_operation_type = get_operation_type(
-        session=session, category=category, name=name)
+    retrieved_operation_type = session.OperationType.where(
+        {
+            'category': category,
+            'name': name
+        }
+    )
+
+    if not retrieved_operation_type:
+        logging.warning(
+            'No Operation Type named %s in Category %s',
+            name, category)
 
     response = session._aqhttp.get(
         "test/run/{}".format(retrieved_operation_type.id),

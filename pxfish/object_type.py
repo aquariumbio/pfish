@@ -22,9 +22,18 @@ def exists(*, session, object_type):
     return bool(object_type)
 
 
+def get_sample_type_id(session, sample_type_name):
+    """Gets Sample Type ID to be associated with Object Type"""
+    # TODO: If ST doesn't exist, create it?
+    sample_type = session.SampleType.where({'name': sample_type_name})
+    if sample_type:
+        return sample_type[0].id
+    return None
+
+
 def create(*, session, object_type, path):
     """
-    Creates a new Object Type Type in Aquarium
+    Creates a new Object Type in Aquarium
     """
     path = pathlib.PurePath(path).parts[0]
     path = create_named_path(path, 'object_types')
@@ -39,7 +48,7 @@ def create(*, session, object_type, path):
         description=data_dict['description'],
         min=data_dict['min'],
         max=data_dict['max'],
-        handler=data_dict['handler'],
+        handler=data_dict.get('handler', ""),
         safety=data_dict['safety'],
         clean_up=data_dict['clean up'],
         data=data_dict['data'],
@@ -53,9 +62,15 @@ def create(*, session, object_type, path):
         rows=data_dict['rows'],
         columns=data_dict['columns']
         )
-    obj_type.save()
 
-    return obj_type
+    sample_type_name = data_dict.get('sample_type', None)
+    if sample_type_name:
+        sample_type_id = get_sample_type_id(
+            session=session,
+            sample_type_name=sample_type_name
+            )
+        obj_type.sample_type_id = sample_type_id
+    obj_type.save()
 
 
 def read(*, path, object_type):
@@ -75,6 +90,7 @@ def read(*, path, object_type):
     return data_dict
 
 
+# TODO: update so this doesn't rewrite the same file repeatedly
 def write_files(*, path, object_type):
     """
     Writes the files associated with the object_type to the path.
@@ -83,8 +99,6 @@ def write_files(*, path, object_type):
         path (String): the path to where the files will be written
         object_type (ObjectType): the object type being written
     """
-    logging.info('writing object type %s', object_type.name)
-
     path = create_named_path(path, 'object_types')
 
     makedirectory(path)
@@ -106,8 +120,12 @@ def write_files(*, path, object_type):
         "image": object_type.image,
         "prefix": object_type.prefix,
         "rows": object_type.rows,
-        "columns": object_type.columns
+        "columns": object_type.columns,
+        "sample_type": None
     }
+
+    if object_type.sample_type:
+        object_type_ser["sample_type"] = object_type.sample_type.name
 
     name = simplename(object_type_ser['name'])
 
@@ -115,3 +133,5 @@ def write_files(*, path, object_type):
 
     with open(file_path, 'w') as file:
         file.write(json.dumps(object_type_ser, indent=2))
+
+    logging.info('Writing object type %s', object_type.name)

@@ -6,7 +6,7 @@ from pydent import AqSession
 
 def create_session(*, path, name: str = None):
     """
-    Create an aquarium session connected to the named Aquarium instance.
+    Creates an aquarium session connected to the named Aquarium instance.
 
     Arguements:
         path (String): the config directory path
@@ -36,7 +36,7 @@ def create_session(*, path, name: str = None):
 
 class BadInstanceError(Exception):
     """
-    Exception raised when an instance name is given that does not occur in
+    Raises an Exception when an instance name is given that does not occur in
     the configuration file.
     """
 
