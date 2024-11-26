@@ -138,3 +138,6 @@ dmypy.json
 
 # Test Files
 TEST*/
+
+# snyk config
+.dccache
